@@ -1,0 +1,155 @@
+package com.michael.words;
+
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
+
+import android.R.integer;
+import android.app.Activity;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
+
+public class EditActivity extends Activity {
+	private EditTextView mEditView;
+	private Shell mLogcat;
+	private Shell mInputShell;
+	OutputStreamWriter mWriter;
+	
+	private static final ArrayList<String> input = new ArrayList<String>();
+	static {
+		input.add("yigerenkang");//1
+		input.add("yigerenzou");//2
+		input.add("yiqiesuiyuan");//3
+		input.add("yihaizuche");//4
+		input.add("yishenbeipan");//5
+		input.add("yiweiliuying");//6
+		input.add("yifanfengshun");//7
+		input.add("yinianzuoyou");//8
+		input.add("yiyiguxing");//9
+		input.add("yizhihongfeng");//10
+		input.add("yishishijian");//11
+		input.add("yibeikafei");//12
+		input.add("yipaihuyan");//13
+		input.add("yishengyishi");//14
+		input.add("yishengwuhui");//15
+		input.add("yizhiyilai");//16
+		input.add("yizhizaizhang");//17
+		input.add("yizhandaodi");//18
+		input.add("yimiyangguang");//19
+		input.add("yizhiduiwai");//20
+	}
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_edit);
+		init();
+		try {
+			mLogcat = new Shell();
+			sleep(2);
+			mLogcat.read();
+			mLogcat.write("logcat CanvasDrawText:E InputKeyEvent:E *:S");
+			
+			mInputShell = new Shell();
+			
+			mWriter = Utils.getOutputStreamWriterFromFtp("10.129.41.70", 21, "imetest", 
+					"Sogou7882Imeqa", "/WordCrawler", "result.txt");
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
+
+	private void init() {
+		mEditView = (EditTextView) findViewById(R.id.editText1);
+		mEditView.requestFocus();
+
+		Button startButton = (Button) findViewById(R.id.button_start);
+		startButton.setOnClickListener(onButtonStartListener);
+	}
+
+	private View.OnClickListener onButtonStartListener = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			mEditView.showInputMethod();
+
+			try {
+				for (String inputStr : input) {
+					
+					SendString(mInputShell, inputStr);
+					mInputShell.exit();
+					runOnUiThread(readResult);
+				}
+
+			} catch (IOException e) {
+				e.printStackTrace();
+			} 
+
+		}
+	};
+
+	private Runnable readResult = new Runnable() {
+		
+		@Override
+		public void run() {
+			try {
+				String result = mLogcat.read();
+				String[] resultlist = result.split("\n");
+				int startIndex = -1;
+				for (int i = resultlist.length; i >=0; i--) {
+					if (resultlist[i].contains("text:1#")) {
+						startIndex = i - 1;
+						break;
+					}
+				}
+				if (startIndex != -1) {
+
+					for (int i = startIndex; i < resultlist.length; i++) {
+						mWriter.append(resultlist[i]);
+					}
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			
+		}
+	};
+	
+	private void SendKey(Shell shell, int Keycode) throws IOException{
+		Log.e("InputKeyEvent", "Keycode:" + Keycode);
+		shell.write("input keyevent " + Keycode);
+	}
+
+	private void SendString(Shell shell, String text) throws IOException{
+		Log.e("InputKeyEvent", "text:" + text);
+		String cmdString = "input text " + "\"" + text + "\"";
+		shell.write(cmdString);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.edit, menu);
+		return true;
+	}
+
+	private static void sleep(int second) {
+		try {
+			Thread.sleep(second * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+}
