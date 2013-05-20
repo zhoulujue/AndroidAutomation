@@ -10,7 +10,12 @@ import java.util.Map;
  */
 public class AndroidKeys {
 
-  private static final Map<Keys, Integer> keyMapping = new HashMap<Keys, Integer>() {{
+  private static final Map<Keys, Integer> keyMapping = new HashMap<Keys, Integer>() {/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+{
     put(Keys.SPACE, KeyEvent.KEYCODE_SPACE);
     put(Keys.ARROW_DOWN, KeyEvent.KEYCODE_DPAD_DOWN);
     put(Keys.DOWN, KeyEvent.KEYCODE_DPAD_DOWN);
