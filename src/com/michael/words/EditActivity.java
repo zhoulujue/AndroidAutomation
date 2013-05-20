@@ -15,30 +15,29 @@ public class EditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
 	private Shell mInputShell;
-	private String mCurInput;
 	
 	private static final ArrayList<String> input = new ArrayList<String>();
 	static {
 		input.add("yigerenkang");//1
 		input.add("yigerenzou");//2
 		input.add("yiqiesuiyuan");//3
-		//		input.add("yihaizuche");//4
-		//		input.add("yishenbeipan");//5
-		//		input.add("yiweiliuying");//6
-		//		input.add("yifanfengshun");//7
-		//		input.add("yinianzuoyou");//8
-		//		input.add("yiyiguxing");//9
-		//		input.add("yizhihongfeng");//10
-		//		input.add("yishishijian");//11
-		//		input.add("yibeikafei");//12
-		//		input.add("yipaihuyan");//13
-		//		input.add("yishengyishi");//14
-		//		input.add("yishengwuhui");//15
-		//		input.add("yizhiyilai");//16
-		//		input.add("yizhizaizhang");//17
-		//		input.add("yizhandaodi");//18
-		//		input.add("yimiyangguang");//19
-		//		input.add("yizhiduiwai");//20
+		input.add("yihaizuche");//4
+		input.add("yishenbeipan");//5
+		input.add("yiweiliuying");//6
+		input.add("yifanfengshun");//7
+		input.add("yinianzuoyou");//8
+		input.add("yiyiguxing");//9
+		input.add("yizhihongfeng");//10
+		input.add("yishishijian");//11
+		input.add("yibeikafei");//12
+		input.add("yipaihuyan");//13
+		input.add("yishengyishi");//14
+		input.add("yishengwuhui");//15
+		input.add("yizhiyilai");//16
+		input.add("yizhizaizhang");//17
+		input.add("yizhandaodi");//18
+		input.add("yimiyangguang");//19
+		input.add("yizhiduiwai");//20
 	}
 
 	@Override
@@ -82,7 +81,6 @@ public class EditActivity extends Activity {
 
 				for (String inputStr : input) {
 					synchronized (inputStr) {
-						mCurInput = inputStr;
 						SendString(mInputShell, inputStr);
 
 						SendKey(mInputShell, KeyEvent.KEYCODE_CTRL_RIGHT);
@@ -166,7 +164,7 @@ public class EditActivity extends Activity {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
-			Log.e("reading", "#############"  + "input: " + mCurInput + "#############");
+			Log.e("reading", "#############"  + "reading" + "#############");
 			readLogcat();
 		}
 		return super.onKeyDown(keyCode, event);
