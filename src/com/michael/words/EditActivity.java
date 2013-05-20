@@ -94,9 +94,9 @@ public class EditActivity extends Activity {
 				mInputShell.exit();
 				mLogcat.close();
 
-				//				OutputStreamWriter writer = Utils.getOutputStreamWriterFromFtp("10.129.41.70", 21, "imetest", 
-				//						"Sogou7882Imeqa", "/WordCrawler", "result.txt");
-				//				writer.write(mWriter.toString());
+				//OutputStreamWriter writer = Utils.getOutputStreamWriterFromFtp("10.129.41.70", 21, "imetest", 
+				//		"Sogou7882Imeqa", "/WordCrawler", "result.txt");
+				//writer.write(mWriter.toString());
 
 			} catch (IOException e) {
 				e.printStackTrace();
