@@ -1,14 +1,12 @@
 package com.michael.words;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.util.ArrayList;
-import java.util.List;
 
-import android.R.integer;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -17,8 +15,7 @@ public class EditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
 	private Shell mInputShell;
-	OutputStreamWriter mWriter;
-	
+
 	private static final ArrayList<String> input = new ArrayList<String>();
 	static {
 		input.add("yigerenkang");//1
@@ -42,7 +39,7 @@ public class EditActivity extends Activity {
 		input.add("yimiyangguang");//19
 		input.add("yizhiduiwai");//20
 	}
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -51,20 +48,16 @@ public class EditActivity extends Activity {
 		try {
 			mLogcat = new Shell();
 			sleep(2);
-			mLogcat.read();
 			mLogcat.write("logcat CanvasDrawText:E InputKeyEvent:E *:S");
-			
+
 			mInputShell = new Shell();
-			
-			mWriter = Utils.getOutputStreamWriterFromFtp("10.129.41.70", 21, "imetest", 
-					"Sogou7882Imeqa", "/WordCrawler", "result.txt");
-			
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 
@@ -83,14 +76,31 @@ public class EditActivity extends Activity {
 			mEditView.showInputMethod();
 
 			try {
+				mLogcat.read();
+
 				for (String inputStr : input) {
-					
-					SendString(mInputShell, inputStr);
-					mInputShell.exit();
-					runOnUiThread(readResult);
+					synchronized (inputStr) {
+						
+						SendString(mInputShell, inputStr);
+						
+						SendKey(mInputShell, KeyEvent.KEYCODE_CTRL_RIGHT);
+						SendKey(mInputShell, KeyEvent.KEYCODE_CTRL_LEFT);
+						SendKey(mInputShell, KeyEvent.KEYCODE_SPACE);
+						//mInputShell.exit();
+						//sleep(3);
+						//Thread readThread = new Thread(readResult);
+					}
 				}
+				mInputShell.exit();
+				mLogcat.close();
+
+				//				OutputStreamWriter writer = Utils.getOutputStreamWriterFromFtp("10.129.41.70", 21, "imetest", 
+				//						"Sogou7882Imeqa", "/WordCrawler", "result.txt");
+				//				writer.write(mWriter.toString());
 
 			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} 
 
@@ -98,15 +108,16 @@ public class EditActivity extends Activity {
 	};
 
 	private Runnable readResult = new Runnable() {
-		
+
 		@Override
 		public void run() {
 			try {
+				StringBuilder writer = new StringBuilder();
 				String result = mLogcat.read();
 				String[] resultlist = result.split("\n");
 				int startIndex = -1;
 				for (int i = resultlist.length; i >=0; i--) {
-					if (resultlist[i].contains("text:1#")) {
+					if (resultlist[i-1].contains("text:1#")) {
 						startIndex = i - 1;
 						break;
 					}
@@ -114,7 +125,7 @@ public class EditActivity extends Activity {
 				if (startIndex != -1) {
 
 					for (int i = startIndex; i < resultlist.length; i++) {
-						mWriter.append(resultlist[i]);
+						writer.append(resultlist[i]);
 					}
 				}
 			} catch (IOException e) {
@@ -122,16 +133,56 @@ public class EditActivity extends Activity {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			
+
 		}
 	};
-	
+
+
+	private void readLogcat() {
+		String result;
+		StringBuilder writer = new StringBuilder();
+		try {
+			result = mLogcat.read();
+
+			String[] resultlist = result.split("\n");
+			int startIndex = -1;
+			for (int i = resultlist.length - 1; i >=0; i--) {
+				if (resultlist[i].contains("text:1#")) {
+					startIndex = i - 1;
+					break;
+				}
+			}
+			if (startIndex != -1) {
+
+				for (int i = startIndex; i < resultlist.length; i++) {
+					writer.append(resultlist[i]);
+					Log.e("oneLine", "@#@#@#@#@#@# One Line : " + resultlist[i]);
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private void SendKey(Shell shell, int Keycode) throws IOException{
 		Log.e("InputKeyEvent", "Keycode:" + Keycode);
 		shell.write("input keyevent " + Keycode);
 	}
 
+	private void SendKey(NativeShell shell, int Keycode) throws IOException{
+		Log.e("InputKeyEvent", "Keycode:" + Keycode);
+		shell.write("input keyevent " + Keycode);
+	}
+
 	private void SendString(Shell shell, String text) throws IOException{
+		Log.e("InputKeyEvent", "text:" + text);
+		String cmdString = "input text " + "\"" + text + "\"";
+		shell.write(cmdString);
+	}
+
+	private void SendString(NativeShell shell, String text) throws IOException{
 		Log.e("InputKeyEvent", "text:" + text);
 		String cmdString = "input text " + "\"" + text + "\"";
 		shell.write(cmdString);
@@ -152,4 +203,13 @@ public class EditActivity extends Activity {
 		}
 	}
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
+			Log.e("reading", "#############reading############");
+			readLogcat();
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
 }
