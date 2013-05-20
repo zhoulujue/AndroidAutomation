@@ -15,10 +15,7 @@ public class Shell {
 
 	public Shell() throws IOException, InterruptedException {
 
-		mProcess = new ProcessBuilder()
-			.command("su")
-			.redirectErrorStream(true)
-			.start();
+		mProcess = Runtime.getRuntime().exec("su");
 
 		this.stdin = new BufferedInputStream(mProcess.getInputStream());
 		this.stdout = new BufferedOutputStream(mProcess.getOutputStream());
@@ -32,7 +29,9 @@ public class Shell {
 	public static native void close(FileDescriptor fd);
 	public static native void hangupProcessGroup(int processId);
 
-	public void close() {
+	public void close() throws IOException {
+		this.stdin.close();
+		this.stdout.close();
 		mProcess.destroy();
 	}
 
@@ -41,20 +40,10 @@ public class Shell {
 	}
 
 	public String read() throws IOException, InterruptedException {
-		/*		StringBuffer value = new StringBuffer();
-		while(this.stdin.available() > 0) {
-			for(int i=0; i<this.stdin.available(); i++) {
-				int c = this.stdin.read();
-
-				value.append((char)c);
-			}
-
-			Thread.sleep(50);
-		}
-		return value.toString();*/
 		StringBuffer value = new StringBuffer();
-		while (this.stdin.available() > 0) {
-			byte[] buffer = new byte[this.stdin.available()];
+		int length = 0;
+		while ((length = this.stdin.available()) > 0) {
+			byte[] buffer = new byte[length];
 			this.stdin.read(buffer);
 
 			String temp = new String(buffer, "UTF-8");
@@ -73,8 +62,6 @@ public class Shell {
 	public void write(String value) throws IOException {
 		this.stdout.write((value + "\n").getBytes());
 		this.stdout.flush();
-		for(int i=0; i<value.length(); i++)
-			this.stdin.read();
 	}
 
 }
