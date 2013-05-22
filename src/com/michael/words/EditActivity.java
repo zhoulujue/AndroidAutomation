@@ -1,9 +1,20 @@
 package com.michael.words;
 
+import it.sauronsoftware.ftp4j.FTPAbortedException;
+import it.sauronsoftware.ftp4j.FTPClient;
+import it.sauronsoftware.ftp4j.FTPDataTransferException;
+import it.sauronsoftware.ftp4j.FTPException;
+import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -15,29 +26,30 @@ public class EditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
 	private Shell mInputShell;
+	private StringBuilder mResult;
 	
 	private static final ArrayList<String> input = new ArrayList<String>();
 	static {
 		input.add("yigerenkang");//1
 		input.add("yigerenzou");//2
 		input.add("yiqiesuiyuan");//3
-		input.add("yihaizuche");//4
-		input.add("yishenbeipan");//5
-		input.add("yiweiliuying");//6
-		input.add("yifanfengshun");//7
-		input.add("yinianzuoyou");//8
-		input.add("yiyiguxing");//9
-		input.add("yizhihongfeng");//10
-		input.add("yishishijian");//11
-		input.add("yibeikafei");//12
-		input.add("yipaihuyan");//13
-		input.add("yishengyishi");//14
-		input.add("yishengwuhui");//15
-		input.add("yizhiyilai");//16
-		input.add("yizhizaizhang");//17
-		input.add("yizhandaodi");//18
-		input.add("yimiyangguang");//19
-		input.add("yizhiduiwai");//20
+//		input.add("yihaizuche");//4
+//		input.add("yishenbeipan");//5
+//		input.add("yiweiliuying");//6
+//		input.add("yifanfengshun");//7
+//		input.add("yinianzuoyou");//8
+//		input.add("yiyiguxing");//9
+//		input.add("yizhihongfeng");//10
+//		input.add("yishishijian");//11
+//		input.add("yibeikafei");//12
+//		input.add("yipaihuyan");//13
+//		input.add("yishengyishi");//14
+//		input.add("yishengwuhui");//15
+//		input.add("yizhiyilai");//16
+//		input.add("yizhizaizhang");//17
+//		input.add("yizhandaodi");//18
+//		input.add("yimiyangguang");//19
+//		input.add("yizhiduiwai");//20
 	}
 
 	@Override
@@ -52,7 +64,8 @@ public class EditActivity extends Activity {
 
 			mInputShell = new Shell();
 			sleep(2);
-			
+					
+			mResult = new StringBuilder();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -61,6 +74,27 @@ public class EditActivity extends Activity {
 
 	}
 
+	@Override
+	public void onBackPressed() {
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				try {
+					FileOutputStream os = openFileOutput("result.txt", Context.MODE_PRIVATE);
+					os.write(mResult.toString().getBytes("UTF-8"));
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (UnsupportedEncodingException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				uploadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "result.txt");
+			}
+		}).start();
+		super.onBackPressed();
+	}
 
 	private void init() {
 		mEditView = (EditTextView) findViewById(R.id.editText1);
@@ -110,7 +144,6 @@ public class EditActivity extends Activity {
 	
 	private void readLogcat() {
 		String result;
-		StringBuilder writer = new StringBuilder();
 		try {
 			result = mLogcat.read();
 
@@ -125,7 +158,8 @@ public class EditActivity extends Activity {
 			if (startIndex != -1) {
 
 				for (int i = startIndex; i < resultlist.length; i++) {
-					writer.append(resultlist[i]);
+					mResult.append(resultlist[i].substring(resultlist[i].indexOf("text:") + "text:".length(), 
+							resultlist[i].indexOf("#")) + "\n\r");
 					Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
 				}
 			}
@@ -170,4 +204,39 @@ public class EditActivity extends Activity {
 		return super.onKeyDown(keyCode, event);
 	}
 
+	private boolean uploadFile(String host, String username, String passwd, String remoteDir, String filename) {
+		File file = new File(getFilesDir().getPath() + "/" + filename);
+		if (!file.exists())
+			return false;
+		
+		FTPClient client = new FTPClient();
+		try {
+			client.connect(host);
+			client.login(username, passwd);
+			client.changeDirectory(remoteDir);
+			client.upload(file);
+			client.disconnect(false);
+			
+			return true;
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPIllegalReplyException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPDataTransferException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPAbortedException e) {
+			e.printStackTrace();
+			return false;
+		} 
+	}
+	
 }
