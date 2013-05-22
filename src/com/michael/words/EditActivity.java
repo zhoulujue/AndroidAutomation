@@ -33,23 +33,23 @@ public class EditActivity extends Activity {
 		input.add("yigerenkang");//1
 		input.add("yigerenzou");//2
 		input.add("yiqiesuiyuan");//3
-//		input.add("yihaizuche");//4
-//		input.add("yishenbeipan");//5
-//		input.add("yiweiliuying");//6
-//		input.add("yifanfengshun");//7
-//		input.add("yinianzuoyou");//8
-//		input.add("yiyiguxing");//9
-//		input.add("yizhihongfeng");//10
-//		input.add("yishishijian");//11
-//		input.add("yibeikafei");//12
-//		input.add("yipaihuyan");//13
-//		input.add("yishengyishi");//14
-//		input.add("yishengwuhui");//15
-//		input.add("yizhiyilai");//16
-//		input.add("yizhizaizhang");//17
-//		input.add("yizhandaodi");//18
-//		input.add("yimiyangguang");//19
-//		input.add("yizhiduiwai");//20
+		input.add("yihaizuche");//4
+		input.add("yishenbeipan");//5
+		input.add("yiweiliuying");//6
+		input.add("yifanfengshun");//7
+		input.add("yinianzuoyou");//8
+		input.add("yiyiguxing");//9
+		input.add("yizhihongfeng");//10
+		input.add("yishishijian");//11
+		input.add("yibeikafei");//12
+		input.add("yipaihuyan");//13
+		input.add("yishengyishi");//14
+		input.add("yishengwuhui");//15
+		input.add("yizhiyilai");//16
+		input.add("yizhizaizhang");//17
+		input.add("yizhandaodi");//18
+		input.add("yimiyangguang");//19
+		input.add("yizhiduiwai");//20
 	}
 
 	@Override
@@ -156,12 +156,13 @@ public class EditActivity extends Activity {
 				}
 			}
 			if (startIndex != -1) {
-
+				mResult.append("\nwordstart\n");
 				for (int i = startIndex; i < resultlist.length; i++) {
 					mResult.append(resultlist[i].substring(resultlist[i].indexOf("text:") + "text:".length(), 
-							resultlist[i].indexOf("#")) + "\n\r");
+							resultlist[i].indexOf("#")));
 					Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
 				}
+				mResult.append("\nwordend\n");
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
