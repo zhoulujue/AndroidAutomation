@@ -292,7 +292,7 @@ public class Utils {
 	public static String getDateTime()
 	{
 		//设置日期格式
-		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA);
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.CHINA);
 		return df.format(new Date());
 	}
 
