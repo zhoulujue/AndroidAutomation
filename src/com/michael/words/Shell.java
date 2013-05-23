@@ -2,16 +2,13 @@ package com.michael.words;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.FileDescriptor;
 import java.io.IOException;
 
 public class Shell {
 
-	private FileDescriptor fd = null;
-	private int[] id = new int[1];
 	private BufferedInputStream stdin = null;
 	private BufferedOutputStream stdout = null;
-	private Process mProcess;
+	private static Process mProcess = null;
 
 	public Shell() throws IOException, InterruptedException {
 
@@ -22,12 +19,6 @@ public class Shell {
 
 		this.read();
 	}
-
-	public static native FileDescriptor createSubprocess(String cmd, String[] args, String[] envVars, int[] processId);
-	public static native void setPtyWindowSize(FileDescriptor fd, int row, int col, int xpixel, int ypixel);
-	public static native int waitFor(int processId);
-	public static native void close(FileDescriptor fd);
-	public static native void hangupProcessGroup(int processId);
 
 	public void close() throws IOException {
 		this.stdin.close();
