@@ -80,6 +80,10 @@ public class EditActivity extends Activity {
 
 			@Override
 			public void run() {
+				if (mResult.toString().isEmpty() || mResult.toString().equals("")) {
+					return;
+				}
+				
 				try {
 					FileOutputStream os = openFileOutput("result.txt", Context.MODE_PRIVATE);
 					os.write(mResult.toString().getBytes("UTF-8"));
