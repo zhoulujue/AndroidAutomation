@@ -214,6 +214,7 @@ public class EditActivity extends Activity {
 			client.login(username, passwd);
 			client.changeDirectory(remoteDir);
 			client.upload(file);
+			client.rename(filename, "result-" + Utils.getDateTime() + ".txt");
 			client.disconnect(false);
 			
 			return true;
