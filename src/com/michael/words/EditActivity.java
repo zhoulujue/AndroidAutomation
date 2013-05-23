@@ -98,13 +98,27 @@ public class EditActivity extends Activity {
 
 	private void init() {
 		mEditView = (EditTextView) findViewById(R.id.editText1);
+		mEditView.setOnKeyListener(mOnLeftCTRListener);
 		mEditView.requestFocus();
 
 		Button startButton = (Button) findViewById(R.id.button_start);
-		startButton.setOnClickListener(onButtonStartListener);
+		startButton.setOnClickListener(mOnButtonStartListener);
 	}
 
-	private View.OnClickListener onButtonStartListener = new View.OnClickListener() {
+	private View.OnKeyListener mOnLeftCTRListener = new View.OnKeyListener() {
+		
+		@Override
+		public boolean onKey(View v, int keyCode, KeyEvent event) {
+			if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
+				Log.e("reading", "#############"  + "reading" + "#############");
+				readLogcat();
+				return true;
+			}
+			return false;
+		}
+	};
+	
+	private View.OnClickListener mOnButtonStartListener = new View.OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
@@ -159,8 +173,10 @@ public class EditActivity extends Activity {
 				mResult.append("\nwordstart\n");
 				for (int i = startIndex; i < resultlist.length; i++) {
 					if (resultlist[i].contains("type=String")) {
-						mResult.append(resultlist[i].substring(resultlist[i].indexOf("text:") + "text:".length(), 
-								resultlist[i].indexOf("#")));
+						String raw = resultlist[i].substring(
+								resultlist[i].indexOf("text:") + "text:".length(), 
+								resultlist[i].indexOf("#"));
+						mResult.append(raw);
 						Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
 					}
 				}
@@ -196,15 +212,6 @@ public class EditActivity extends Activity {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
-			Log.e("reading", "#############"  + "reading" + "#############");
-			readLogcat();
-		}
-		return super.onKeyDown(keyCode, event);
 	}
 
 	private boolean uploadFile(String host, String username, String passwd, String remoteDir, String filename) {
