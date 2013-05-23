@@ -24,7 +24,6 @@ public class NativeShell {
 		this.stdin = new BufferedInputStream(new FileInputStream(this.fd));
 		this.stdout = new BufferedOutputStream(new FileOutputStream(this.fd));
 
-		this.write("cd /data/data/com.michael.words");
 		this.read();
 	}
 
@@ -40,13 +39,13 @@ public class NativeShell {
 
 	public String read() throws IOException, InterruptedException {
 		StringBuffer value = new StringBuffer();
+		int length = 0;
+		while ((length = this.stdin.available()) > 0) {
+			byte[] buffer = new byte[length];
+			this.stdin.read(buffer);
 
-		while(this.stdin.available() > 0) {
-			for(int i=0; i<this.stdin.available(); i++) {
-				int c = this.stdin.read();
-
-				value.append((char)c);
-			}
+			String temp = new String(buffer, "UTF-8");
+			value.append(temp);
 
 			Thread.sleep(50);
 		}
@@ -57,9 +56,6 @@ public class NativeShell {
     public void write(String value) throws IOException {
 		this.stdout.write((value + "\n").getBytes());
 		this.stdout.flush();
-		//this.stdin.read();
-		//for(int i=0; i<value.length(); i++)
-		//	this.stdin.read();
 	}
     
 }

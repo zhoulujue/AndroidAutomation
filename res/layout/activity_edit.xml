@@ -8,13 +8,12 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".EditActivity" >
 
-    <com.michael.words.EditTextView
+    <EditText
+        android:inputType="text"
         android:id="@+id/editText1"
         android:layout_width="wrap_content"
-        android:layout_height="100dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp" />
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true" />
 
     <Button
         android:id="@+id/button_start"

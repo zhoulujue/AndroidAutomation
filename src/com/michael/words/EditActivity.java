@@ -21,11 +21,12 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 public class EditActivity extends Activity {
-	private EditTextView mEditView;
-	private Shell mLogcat;
-	private Shell mInputShell;
+	private EditText mEditView;
+	private NativeShell mLogcat;
+	private NativeShell mInputShell;
 	private StringBuilder mResult;
 	
 	private static final ArrayList<String> input = new ArrayList<String>();
@@ -58,11 +59,13 @@ public class EditActivity extends Activity {
 		setContentView(R.layout.activity_edit);
 		init();
 		try {
-			mLogcat = new Shell();
+			mLogcat = new NativeShell();
+			mLogcat.write("su");
 			sleep(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
 
-			mInputShell = new Shell();
+			mInputShell = new NativeShell();
+			mInputShell.write("su");
 			sleep(2);
 					
 			mResult = new StringBuilder();
@@ -97,9 +100,9 @@ public class EditActivity extends Activity {
 	}
 
 	private void init() {
-		mEditView = (EditTextView) findViewById(R.id.editText1);
+		mEditView = (EditText) findViewById(R.id.editText1);
 		mEditView.requestFocus();
-
+		
 		Button startButton = (Button) findViewById(R.id.button_start);
 		startButton.setOnClickListener(onButtonStartListener);
 	}
@@ -108,7 +111,6 @@ public class EditActivity extends Activity {
 
 		@Override
 		public void onClick(View v) {
-			mEditView.showInputMethod();
 
 			try {
 				mLogcat.read();
@@ -133,12 +135,8 @@ public class EditActivity extends Activity {
 
 	@Override
 	protected void onStop() {
-		try {
-			mInputShell.close();
-			mLogcat.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		mInputShell.close();
+		mLogcat.close();
 		super.onStop();
 	}
 	
@@ -171,12 +169,12 @@ public class EditActivity extends Activity {
 		}
 	}
 
-	private void SendKey(Shell shell, int Keycode) throws IOException{
+	private void SendKey(NativeShell shell, int Keycode) throws IOException{
 		Log.e("InputKeyEvent", "Keycode:" + Keycode);
 		shell.write("input keyevent " + Keycode);
 	}
 
-	private void SendString(Shell shell, String text) throws IOException{
+	private void SendString(NativeShell shell, String text) throws IOException{
 		Log.e("InputKeyEvent", "text:" + text);
 		String cmdString = "input text " + "\"" + text + "\"";
 		shell.write(cmdString);
