@@ -23,6 +23,7 @@
         <activity
             android:name="com.michael.words.EditActivity"
            	android:windowSoftInputMode="adjustResize"
+           	android:screenOrientation="landscape"
             android:label="@string/app_name" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
