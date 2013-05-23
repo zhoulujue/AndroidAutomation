@@ -27,7 +27,7 @@ public class EditActivity extends Activity {
 	private Shell mLogcat;
 	private Shell mInputShell;
 	private StringBuilder mResult;
-	
+
 	private static final ArrayList<String> input = new ArrayList<String>();
 	static {
 		input.add("yigerenkang");//1
@@ -64,7 +64,7 @@ public class EditActivity extends Activity {
 
 			mInputShell = new Shell();
 			sleep(2);
-					
+
 			mResult = new StringBuilder();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -77,7 +77,7 @@ public class EditActivity extends Activity {
 	@Override
 	public void onBackPressed() {
 		new Thread(new Runnable() {
-			
+
 			@Override
 			public void run() {
 				try {
@@ -141,7 +141,7 @@ public class EditActivity extends Activity {
 		}
 		super.onStop();
 	}
-	
+
 	private void readLogcat() {
 		String result;
 		try {
@@ -158,9 +158,11 @@ public class EditActivity extends Activity {
 			if (startIndex != -1) {
 				mResult.append("\nwordstart\n");
 				for (int i = startIndex; i < resultlist.length; i++) {
-					mResult.append(resultlist[i].substring(resultlist[i].indexOf("text:") + "text:".length(), 
-							resultlist[i].indexOf("#")));
-					Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
+					if (resultlist[i].contains("type=String")) {
+						mResult.append(resultlist[i].substring(resultlist[i].indexOf("text:") + "text:".length(), 
+								resultlist[i].indexOf("#")));
+						Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
+					}
 				}
 				mResult.append("\nwordend\n");
 			}
@@ -209,7 +211,7 @@ public class EditActivity extends Activity {
 		File file = new File(getFilesDir().getPath() + "/" + filename);
 		if (!file.exists())
 			return false;
-		
+
 		FTPClient client = new FTPClient();
 		try {
 			client.connect(host);
@@ -217,7 +219,7 @@ public class EditActivity extends Activity {
 			client.changeDirectory(remoteDir);
 			client.upload(file);
 			client.disconnect(false);
-			
+
 			return true;
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
@@ -239,5 +241,5 @@ public class EditActivity extends Activity {
 			return false;
 		} 
 	}
-	
+
 }
