@@ -101,6 +101,18 @@ public class EditActivity extends Activity {
 
 	private void init() {
 		mEditView = (EditText) findViewById(R.id.editText1);
+		mEditView.setOnKeyListener(new View.OnKeyListener() {
+			
+			@Override
+			public boolean onKey(View v, int keyCode, KeyEvent event) {
+				if (keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
+					Log.e("reading", "#############reading#############");
+					readLogcat();
+					return true;
+				}
+				return false;
+			}
+		});
 		mEditView.requestFocus();
 		
 		Button startButton = (Button) findViewById(R.id.button_start);
@@ -192,15 +204,6 @@ public class EditActivity extends Activity {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-	}
-
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
-			Log.e("reading", "#############"  + "reading" + "#############");
-			readLogcat();
-		}
-		return super.onKeyDown(keyCode, event);
 	}
 
 	private boolean uploadFile(String host, String username, String passwd, String remoteDir, String filename) {
