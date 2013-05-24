@@ -22,6 +22,9 @@ import java.util.Locale;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
+import android.content.Context;
+import android.widget.Toast;
+
 public class Utils {
 
 	public static String UPLOAD_PATH = "/Temp/PinZhuan/raw";
@@ -451,9 +454,8 @@ public class Utils {
 		return success;
 	}
 
-//	public static void main(String[] args){
-//		getOutputStreamWriterFromFtp("10.129.41.70", 21, "imetest", 
-//				"Sogou7882Imeqa", "/WordCrawler/result.txt", "result.txt");
-//	}
-
+	public static void showToast(Context context, String string) {
+		Toast.makeText(context, string, Toast.LENGTH_SHORT).show();
+	}
+	
 }

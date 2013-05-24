@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import android.R.bool;
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Path;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -28,29 +30,7 @@ public class EditActivity extends Activity {
 	private Shell mInputShell;
 	private StringBuilder mResult;
 
-	private static final ArrayList<String> input = new ArrayList<String>();
-	static {
-		input.add("yigerenkang");//1
-		input.add("yigerenzou");//2
-		input.add("yiqiesuiyuan");//3
-		input.add("yihaizuche");//4
-		input.add("yishenbeipan");//5
-		input.add("yiweiliuying");//6
-		input.add("yifanfengshun");//7
-		input.add("yinianzuoyou");//8
-		input.add("yiyiguxing");//9
-		input.add("yizhihongfeng");//10
-		input.add("yishishijian");//11
-		input.add("yibeikafei");//12
-		input.add("yipaihuyan");//13
-		input.add("yishengyishi");//14
-		input.add("yishengwuhui");//15
-		input.add("yizhiyilai");//16
-		input.add("yizhizaizhang");//17
-		input.add("yizhandaodi");//18
-		input.add("yimiyangguang");//19
-		input.add("yizhiduiwai");//20
-	}
+	private ArrayList<String> input;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +38,24 @@ public class EditActivity extends Activity {
 		setContentView(R.layout.activity_edit);
 		init();
 		try {
+			Thread download = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					downloadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "raw.config");
+				}
+			});
+			download.start();
+			download.join();
+			File rawFile = new File(getFilesDir() + "/" + "raw.config");
+			
+			if(!rawFile.exists()) {
+				Utils.showToast(getApplicationContext(), "没有获取到配置文件，退出！");
+				finish();
+			}
+			
+			input = Utils.ReadFromFile.readFileByLines(getFilesDir() + "/" + "raw.config");
+			
 			mLogcat = new Shell();
 			sleep(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
@@ -218,6 +216,49 @@ public class EditActivity extends Activity {
 		}
 	}
 
+	/**
+	 * 把FTP上的文件下载到本地，本地的文件名字和服务器上文件的名字是一样的。
+	 * @param host FTP服务器的IP地址，或者FTP服务器的域名
+	 * @param username 登陆FTP服务器需要的用户名
+	 * @param passwd 登陆FTP服务器需要的密码
+	 * @param remoteDir 文件在FTP服务器上的路径，不含文件名
+	 * @param filename	文件的名字
+	 * @return true:下载成功；false:下载失败
+	 */
+	private boolean downloadFile(String host, String username, String passwd, String remoteDir, String filename) {
+		File localFile = new File(getFilesDir().getPath() + "/" + filename);
+		
+		FTPClient client = new FTPClient();
+		try {
+			client.connect(host);
+			client.login(username, passwd);
+			client.download(remoteDir + "/" + filename, localFile);
+			client.disconnect(false);
+			
+			return true;
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPIllegalReplyException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPDataTransferException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPAbortedException e) {
+			e.printStackTrace();
+			return false;
+		} 
+		
+		
+	}
+	
 	private boolean uploadFile(String host, String username, String passwd, String remoteDir, String filename) {
 		File file = new File(getFilesDir().getPath() + "/" + filename);
 		if (!file.exists())
