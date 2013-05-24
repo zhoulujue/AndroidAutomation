@@ -30,9 +30,11 @@ public class EditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
 	private Shell mInputShell;
+	private Shell mSendChoice;
 	private StringBuilder mResult;
-
+	
 	private ArrayList<String> input;
+	private int mCurIndex;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,9 @@ public class EditActivity extends Activity {
 			mInputShell = new Shell();
 			sleep(2);
 
+			mSendChoice = new Shell();
+			sleep(2);
+			
 			mResult = new StringBuilder();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -116,10 +121,12 @@ public class EditActivity extends Activity {
 			if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
 				Log.e("reading", "#############"  + "reading" + "#############");
 				readLogcat();
+				mCurIndex ++;
 				return true;
 			}
 			return false;
 		}
+		
 	};
 	
 	private View.OnClickListener mOnButtonStartListener = new View.OnClickListener() {
@@ -127,15 +134,15 @@ public class EditActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			mEditView.showInputMethod();
-
+			mCurIndex = 0;
 			try {
 				mLogcat.read();
 
 				for (String inputStr : input) {
 					synchronized (inputStr) {
-						SendString(mInputShell, inputStr);
+						String pinyin = inputStr.substring(0, inputStr.indexOf(" "));
+						SendString(mInputShell, pinyin);
 
-						SendKey(mInputShell, KeyEvent.KEYCODE_CTRL_RIGHT);
 						SendKey(mInputShell, KeyEvent.KEYCODE_CTRL_LEFT);
 						SendKey(mInputShell, KeyEvent.KEYCODE_SPACE);
 					}
@@ -174,7 +181,13 @@ public class EditActivity extends Activity {
 				}
 			}
 			if (startIndex != -1) {
+				String lastWords = "";
+				String choice = input.get(mCurIndex);
+				String choiceWords = choice.substring(choice.indexOf(" ") + 1);
+				//写进文件的字符，表示一个拼音串的开始
 				mResult.append("\nwordstart\n");
+				mResult.append(input.get(mCurIndex) + "\n");
+				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length; i++) {
 					if (resultlist[i].contains("type=String")) {
 						String raw = resultlist[i].substring(
@@ -182,8 +195,14 @@ public class EditActivity extends Activity {
 								resultlist[i].indexOf("#"));
 						mResult.append(raw);
 						Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
+						//如果上一个候选词和当前要选的词是一样的话，说明本次读到的是候选词的序号，那么通过键盘按下这个数字
+						if (lastWords == choiceWords) {
+							SendKey(mSendChoice, raw);
+						}
+						lastWords = raw;
 					}
 				}
+				//写进文件的字符，表示一个拼音串的结束
 				mResult.append("\nwordend\n");
 			}
 		} catch (IOException e) {
@@ -198,6 +217,11 @@ public class EditActivity extends Activity {
 		shell.write("input keyevent " + Keycode);
 	}
 
+	private void SendKey(Shell shell, String Keycode) throws IOException{
+		Log.e("InputKeyEvent", "Keycode:" + Keycode);
+		shell.write("input keyevent " + Keycode);
+	}
+	
 	private void SendString(Shell shell, String text) throws IOException{
 		Log.e("InputKeyEvent", "text:" + text);
 		String cmdString = "input text " + "\"" + text + "\"";

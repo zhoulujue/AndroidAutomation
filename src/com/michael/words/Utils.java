@@ -163,6 +163,40 @@ public class Utils {
 		}
 
 		/**
+		 * @param fileName 文件的绝对路径
+		 * @return lines 存储着每一行的ArrayList
+		 * 以行为单位读取文件，常用于读面向行的格式化文件
+		 */
+		public static ArrayList<String> readFileByLines(String fileName, String charset) {
+			File file = new File(fileName);
+			ArrayList<String> lines = new ArrayList<String>();
+			BufferedReader reader = null;
+			try {
+				reader = new BufferedReader(new FileReader(file));
+				String tempString = null;
+				int line = 0;
+				// 一次读入一行，直到读入null为文件结束
+				while ((tempString = reader.readLine()) != null) {
+					// 显示行号
+					//System.out.println("line " + line + ": " + tempString);
+					lines.add(line, tempString);
+					line++;
+				}
+				reader.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			} finally {
+				if (reader != null) {
+					try {
+						reader.close();
+					} catch (IOException e1) {
+					}
+				}
+			}
+			return lines;
+		}
+		
+		/**
 		 * 随机读取文件内容
 		 */
 		public static void readFileByRandomAccess(String fileName) {
