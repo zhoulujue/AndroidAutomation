@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
+import com.michael.shell.Shell;
+
 import android.R.bool;
 import android.app.Activity;
 import android.content.Context;
