@@ -7,14 +7,10 @@ import it.sauronsoftware.ftp4j.FTPException;
 import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import android.app.Activity;
-import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -29,7 +25,6 @@ public class EditActivity extends Activity {
 	private Shell mLogcat;
 	private Shell mInputShell;
 	private Shell mSendChoice;
-	private StringBuilder mResult;
 	
 	private ArrayList<String> input;
 	private int mCurIndex;
@@ -41,7 +36,7 @@ public class EditActivity extends Activity {
 		init();
 		try {
 			Thread download = new Thread(new Runnable() {
-				
+
 				@Override
 				public void run() {
 					downloadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "raw.config");
@@ -50,14 +45,14 @@ public class EditActivity extends Activity {
 			download.start();
 			download.join();
 			File rawFile = new File(getFilesDir() + "/" + "raw.config");
-			
+
 			if(!rawFile.exists()) {
 				Utils.showToast(getApplicationContext(), "没有获取到配置文件，退出！");
 				finish();
 			}
-			
+
 			input = Utils.ReadFromFile.readFileByLines(getFilesDir() + "/" + "raw.config");
-			
+
 			mLogcat = new Shell();
 			sleep(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
@@ -67,8 +62,7 @@ public class EditActivity extends Activity {
 
 			mSendChoice = new Shell();
 			sleep(2);
-			
-			mResult = new StringBuilder();
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -79,27 +73,7 @@ public class EditActivity extends Activity {
 
 	@Override
 	public void onBackPressed() {
-		new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				if (mResult.toString().isEmpty() || mResult.toString().equals("")) {
-					return;
-				}
-				
-				try {
-					FileOutputStream os = openFileOutput("result.txt", Context.MODE_PRIVATE);
-					os.write(mResult.toString().getBytes("UTF-8"));
-				} catch (FileNotFoundException e) {
-					e.printStackTrace();
-				} catch (UnsupportedEncodingException e) {
-					e.printStackTrace();
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				uploadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "result.txt");
-			}
-		}).start();
+		new Thread(uploadToFtp).start();
 		super.onBackPressed();
 	}
 
@@ -112,8 +86,16 @@ public class EditActivity extends Activity {
 		startButton.setOnClickListener(mOnButtonStartListener);
 	}
 
+	private Runnable uploadToFtp = new Runnable() {
+
+		@Override
+		public void run() {
+			uploadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "result.txt");
+		}
+	};
+
 	private View.OnKeyListener mOnLeftCTRListener = new View.OnKeyListener() {
-		
+
 		@Override
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
 			if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
@@ -123,9 +105,9 @@ public class EditActivity extends Activity {
 			}
 			return false;
 		}
-		
+
 	};
-	
+
 	private View.OnClickListener mOnButtonStartListener = new View.OnClickListener() {
 
 		@Override
@@ -165,11 +147,11 @@ public class EditActivity extends Activity {
 	}
 
 	private void readLogcat() {
-		String result;
+		String RawResult;
 		try {
-			result = mLogcat.read();
+			RawResult = mLogcat.read();
 
-			String[] resultlist = result.split("\n");
+			String[] resultlist = RawResult.split("\n");
 			int startIndex = -1;
 			for (int i = resultlist.length - 1; i >=0; i--) {
 				if (resultlist[i].contains("text:1#")) {
@@ -178,12 +160,13 @@ public class EditActivity extends Activity {
 				}
 			}
 			if (startIndex != -1) {
+				StringBuilder resultToWrite = new StringBuilder();
 				String targetIndex = "0";
 				String choice = input.get(mCurIndex);
 				String choiceWords = choice.substring(choice.indexOf(" ") + 1);
 				//写进文件的字符，表示一个拼音串的开始
-				mResult.append("wordstart\n");
-				mResult.append("pinyin:" + input.get(mCurIndex) + "\n");
+				resultToWrite.append("wordstart\n");
+				resultToWrite.append("pinyin:" + input.get(mCurIndex) + "\n");
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
@@ -196,25 +179,24 @@ public class EditActivity extends Activity {
 						String index = resultlist[i + 1].substring(
 								resultlist[i + 1].indexOf("text:") + "text:".length(), 
 								resultlist[i + 1].indexOf("#"));
-						
-						mResult.append(index + ":");
-						mResult.append(word + "\n");
+
+						resultToWrite.append(index + ":");
+						resultToWrite.append(word + "\n");
 						Log.e("reading", "The Word is : " + index + ": " + word);
 						//如果候选词和当前要选的词是一样的话，说明本次读到的是要上屏的候选词，那么通过键盘按下index这个数字
 						if (word.equals(choiceWords)) {
 							targetIndex = index;
-						} else {
-							targetIndex = "1";
 						}
 					}
 				}
 				//选择数字键，进行上屏。
-				SendChoice(mSendChoice, targetIndex);
+				SendChoice(mSendChoice, targetIndex.equals("0") ? "1" : targetIndex);
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
-				mResult.append("tartget:" + targetIndex + "\n");
+				resultToWrite.append("tartget:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
-				mResult.append("wordend\n");
+				resultToWrite.append("wordend\n");
 				mCurIndex ++;
+				new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -233,7 +215,7 @@ public class EditActivity extends Activity {
 		Log.e("Send Choice", "Keycode:" + key);
 		shell.write("input keyevent " + key);
 	}
-	
+
 	private void SendString(Shell shell, String text) throws IOException{
 		Log.e("InputKeyEvent", "text:" + text);
 		String cmdString = "input text " + "\"" + text + "\"";
@@ -265,14 +247,14 @@ public class EditActivity extends Activity {
 	 */
 	private boolean downloadFile(String host, String username, String passwd, String remoteDir, String filename) {
 		File localFile = new File(getFilesDir().getPath() + "/" + filename);
-		
+
 		FTPClient client = new FTPClient();
 		try {
 			client.connect(host);
 			client.login(username, passwd);
 			client.download(remoteDir + "/" + filename, localFile);
 			client.disconnect(false);
-			
+
 			return true;
 		} catch (IllegalStateException e) {
 			e.printStackTrace();
@@ -293,10 +275,10 @@ public class EditActivity extends Activity {
 			e.printStackTrace();
 			return false;
 		} 
-		
-		
+
+
 	}
-	
+
 	private boolean uploadFile(String host, String username, String passwd, String remoteDir, String filename) {
 		File file = new File(getFilesDir().getPath() + "/" + filename);
 		if (!file.exists())
