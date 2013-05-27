@@ -13,19 +13,16 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
-import com.michael.shell.Shell;
-
-import android.R.bool;
-import android.R.integer;
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Path;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+
+import com.michael.shell.Shell;
 
 public class EditActivity extends Activity {
 	private EditTextView mEditView;
@@ -181,29 +178,42 @@ public class EditActivity extends Activity {
 				}
 			}
 			if (startIndex != -1) {
-				String lastWords = "";
+				String targetIndex = "0";
 				String choice = input.get(mCurIndex);
 				String choiceWords = choice.substring(choice.indexOf(" ") + 1);
 				//写进文件的字符，表示一个拼音串的开始
-				mResult.append("\nwordstart\n");
-				mResult.append(input.get(mCurIndex) + "\n");
+				mResult.append("wordstart\n");
+				mResult.append("pinyin:" + input.get(mCurIndex) + "\n");
 				//得到了候选，在候选词里面挑出要选择上屏的候选
-				for (int i = startIndex; i < resultlist.length; i++) {
-					if (resultlist[i].contains("type=String")) {
-						String raw = resultlist[i].substring(
+				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
+					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
+					if (resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String")) {
+						//计算候选词，用于记录和对比
+						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
-						mResult.append(raw);
-						Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
-						//如果上一个候选词和当前要选的词是一样的话，说明本次读到的是候选词的序号，那么通过键盘按下这个数字
-						if (lastWords.equals(choiceWords)) {
-							SendChoice(mSendChoice, raw);
+						//计算标号数字，用于按下数字键来选择上屏
+						String index = resultlist[i + 1].substring(
+								resultlist[i + 1].indexOf("text:") + "text:".length(), 
+								resultlist[i + 1].indexOf("#"));
+						
+						mResult.append(index + ":");
+						mResult.append(word + "\n");
+						Log.e("reading", "The Word is : " + index + ": " + word);
+						//如果候选词和当前要选的词是一样的话，说明本次读到的是要上屏的候选词，那么通过键盘按下index这个数字
+						if (word.equals(choiceWords)) {
+							targetIndex = index;
+						} else {
+							targetIndex = "1";
 						}
-						lastWords = raw;
 					}
 				}
-				//写进文件的字符，表示一个拼音串的结束
-				mResult.append("\nwordend\n");
+				//选择数字键，进行上屏。
+				SendChoice(mSendChoice, targetIndex);
+				//记录是否命中。如果是0，那么没有命中；否则即为命中。
+				mResult.append("tartget:" + targetIndex + "\n");
+				//写进文件的字符，表示一个拼音串的结束。
+				mResult.append("wordend\n");
 				mCurIndex ++;
 			}
 		} catch (IOException e) {
