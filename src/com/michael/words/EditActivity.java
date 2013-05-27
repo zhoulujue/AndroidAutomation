@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import com.michael.shell.Shell;
 
 import android.R.bool;
+import android.R.integer;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Path;
@@ -121,7 +122,6 @@ public class EditActivity extends Activity {
 			if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
 				Log.e("reading", "#############"  + "reading" + "#############");
 				readLogcat();
-				mCurIndex ++;
 				return true;
 			}
 			return false;
@@ -144,7 +144,7 @@ public class EditActivity extends Activity {
 						SendString(mInputShell, pinyin);
 
 						SendKey(mInputShell, KeyEvent.KEYCODE_CTRL_LEFT);
-						SendKey(mInputShell, KeyEvent.KEYCODE_SPACE);
+						//SendKey(mInputShell, KeyEvent.KEYCODE_SPACE);
 					}
 				}
 			} catch (IOException e) {
@@ -196,14 +196,15 @@ public class EditActivity extends Activity {
 						mResult.append(raw);
 						Log.e("reading", "@#@#@#@#@#@# One Line : " + resultlist[i]);
 						//如果上一个候选词和当前要选的词是一样的话，说明本次读到的是候选词的序号，那么通过键盘按下这个数字
-						if (lastWords == choiceWords) {
-							SendKey(mSendChoice, raw);
+						if (lastWords.equals(choiceWords)) {
+							SendChoice(mSendChoice, raw);
 						}
 						lastWords = raw;
 					}
 				}
 				//写进文件的字符，表示一个拼音串的结束
 				mResult.append("\nwordend\n");
+				mCurIndex ++;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -217,9 +218,10 @@ public class EditActivity extends Activity {
 		shell.write("input keyevent " + Keycode);
 	}
 
-	private void SendKey(Shell shell, String Keycode) throws IOException{
-		Log.e("InputKeyEvent", "Keycode:" + Keycode);
-		shell.write("input keyevent " + Keycode);
+	private void SendChoice(Shell shell, String Keycode) throws IOException{
+		int key = Integer.valueOf(Keycode) + 7;
+		Log.e("Send Choice", "Keycode:" + key);
+		shell.write("input keyevent " + key);
 	}
 	
 	private void SendString(Shell shell, String text) throws IOException{
