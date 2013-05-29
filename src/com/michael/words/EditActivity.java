@@ -78,9 +78,19 @@ public class EditActivity extends Activity {
 		super.onBackPressed();
 	}
 
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
+			Log.e("reading", "#############"  + "reading" + "#############");
+			readLogcat();
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
 	private void init() {
 		mEditView = (EditTextView) findViewById(R.id.editText1);
-		mEditView.setOnKeyListener(mOnLeftCTRListener);
+		//mEditView.setOnKeyListener(mOnLeftCTRListener);
 		mEditView.requestFocus();
 
 		Button startButton = (Button) findViewById(R.id.button_start);
@@ -92,6 +102,8 @@ public class EditActivity extends Activity {
 		@Override
 		public void run() {
 			uploadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "result.txt");
+			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+			localFile.deleteOnExit();
 		}
 	};
 
