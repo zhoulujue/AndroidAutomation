@@ -32,7 +32,7 @@
  * NOTE: MWR InfoSecurity changed the following line of code in this file:
  * static const char *classPathName = "jackpal/androidterm/Exec";
  * to
- * static const char *classPathName = "com/michael/words/NativeShell";
+ * static const char *classPathName = "com/michael/shell/NativeShell";
  */
 
 #define LOG_TAG "Exec"
@@ -339,7 +339,7 @@ static int register_FileDescriptor(JNIEnv *env)
 }
 
 
-static const char *classPathName = "com/michael/words/NativeShell";
+static const char *classPathName = "com/michael/shell/NativeShell";
 
 static JNINativeMethod method_table[] = {
     { "createSubprocess", "(Ljava/lang/String;[Ljava/lang/String;[Ljava/lang/String;[I)Ljava/io/FileDescriptor;",

@@ -18,13 +18,14 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
+import com.michael.shell.NativeShell;
 import com.michael.shell.Shell;
 
 public class EditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
-	private Shell mInputShell;
-	private Shell mSendChoice;
+	private NativeShell mInputShell;
+	private NativeShell mSendChoice;
 	
 	private ArrayList<String> input;
 	private int mCurIndex;
@@ -53,14 +54,14 @@ public class EditActivity extends Activity {
 
 			input = Utils.ReadFromFile.readFileByLines(getFilesDir() + "/" + "raw.config");
 
-			mLogcat = new Shell();
+			mLogcat = new Shell("su");
 			sleep(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
 
-			mInputShell = new Shell();
+			mInputShell = new NativeShell();
 			sleep(2);
 
-			mSendChoice = new Shell();
+			mSendChoice = new NativeShell();
 			sleep(2);
 
 		} catch (IOException e) {
@@ -205,18 +206,18 @@ public class EditActivity extends Activity {
 		}
 	}
 
-	private void SendKey(Shell shell, int Keycode) throws IOException{
+	private void SendKey(NativeShell shell, int Keycode) throws IOException{
 		Log.e("InputKeyEvent", "Keycode:" + Keycode);
 		shell.write("input keyevent " + Keycode);
 	}
 
-	private void SendChoice(Shell shell, String Keycode) throws IOException{
+	private void SendChoice(NativeShell shell, String Keycode) throws IOException{
 		int key = Integer.valueOf(Keycode) + 7;
 		Log.e("Send Choice", "Keycode:" + key);
 		shell.write("input keyevent " + key);
 	}
 
-	private void SendString(Shell shell, String text) throws IOException{
+	private void SendString(NativeShell shell, String text) throws IOException{
 		Log.e("InputKeyEvent", "text:" + text);
 		String cmdString = "input text " + "\"" + text + "\"";
 		shell.write(cmdString);

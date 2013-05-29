@@ -10,9 +10,9 @@ public class Shell {
 	private BufferedOutputStream stdout = null;
 	private static Process mProcess = null;
 
-	public Shell() throws IOException, InterruptedException {
+	public Shell(String su) throws IOException, InterruptedException {
 
-		mProcess = Runtime.getRuntime().exec("su");
+		mProcess = Runtime.getRuntime().exec(su);
 
 		this.stdin = new BufferedInputStream(mProcess.getInputStream());
 		this.stdout = new BufferedOutputStream(mProcess.getOutputStream());

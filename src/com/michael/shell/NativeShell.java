@@ -57,9 +57,6 @@ public class NativeShell {
     public void write(String value) throws IOException {
 		this.stdout.write((value + "\n").getBytes());
 		this.stdout.flush();
-		//this.stdin.read();
-		//for(int i=0; i<value.length(); i++)
-		//	this.stdin.read();
 	}
     
 }
