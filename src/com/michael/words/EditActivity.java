@@ -132,6 +132,10 @@ public class EditActivity extends Activity {
 
 				for (String inputStr : input) {
 					synchronized (inputStr) {
+						//如果输入文件里面插入一个空格清屏，插入空格的keyevent
+						if (inputStr.equals(" ")){
+							SendKey(mInputShell, KeyEvent.KEYCODE_SPACE);
+						}
 						String pinyin = inputStr.substring(0, inputStr.indexOf(" "));
 						SendString(mInputShell, pinyin);
 
