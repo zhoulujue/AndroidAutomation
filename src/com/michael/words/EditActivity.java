@@ -6,11 +6,13 @@ import it.sauronsoftware.ftp4j.FTPDataTransferException;
 import it.sauronsoftware.ftp4j.FTPException;
 import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.Instrumentation;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,17 +20,13 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
 
-import com.michael.shell.NativeShell;
 import com.michael.shell.Shell;
 
 public class EditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
-	private NativeShell mInputShell;
-	private NativeShell mSendChoice;
-	
-	private ArrayList<String> input;
-	private int mCurIndex;
+	private Instrumentation mInstrumentation;
+	private BufferedReader mReader;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -52,17 +50,13 @@ public class EditActivity extends Activity {
 				finish();
 			}
 
-			input = Utils.ReadFromFile.readFileByLines(getFilesDir() + "/" + "raw.config");
-
 			mLogcat = new Shell("su");
 			sleep(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
 
-			mInputShell = new NativeShell();
-			sleep(2);
+			mReader = new BufferedReader(new FileReader(getFilesDir() + "/" + "raw.config"));
 
-			mSendChoice = new NativeShell();
-			sleep(2);
+			mInstrumentation = new Instrumentation();
 
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -78,16 +72,6 @@ public class EditActivity extends Activity {
 		super.onBackPressed();
 	}
 
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
-			Log.e("reading", "#############"  + "reading" + "#############");
-			readLogcat();
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-	
 	private void init() {
 		mEditView = (EditTextView) findViewById(R.id.editText1);
 		//mEditView.setOnKeyListener(mOnLeftCTRListener);
@@ -107,40 +91,32 @@ public class EditActivity extends Activity {
 		}
 	};
 
-	private View.OnKeyListener mOnLeftCTRListener = new View.OnKeyListener() {
-
-		@Override
-		public boolean onKey(View v, int keyCode, KeyEvent event) {
-			if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
-				Log.e("reading", "#############"  + "reading" + "#############");
-				readLogcat();
-				return true;
-			}
-			return false;
-		}
-
-	};
-
 	private View.OnClickListener mOnButtonStartListener = new View.OnClickListener() {
 
 		@Override
 		public void onClick(View v) {
+			new Thread(mSendRunnable).start();
+		}
+	};
+
+	private Runnable mSendRunnable = new Runnable() {
+
+		@Override
+		public void run() {
 			mEditView.showInputMethod();
-			mCurIndex = 0;
 			try {
 				mLogcat.read();
 
-				for (String inputStr : input) {
+				String inputStr = null;
+				while ((inputStr = mReader.readLine()) != null) {
 					synchronized (inputStr) {
 						//如果输入文件里面插入一个空格清屏，插入空格的keyevent
 						if (inputStr.equals(" ")){
-							SendKey(mInputShell, KeyEvent.KEYCODE_SPACE);
+							SendKey(KeyEvent.KEYCODE_SPACE);
 						}
-						String pinyin = inputStr.substring(0, inputStr.indexOf(" "));
-						SendString(mInputShell, pinyin);
-
-						SendKey(mInputShell, KeyEvent.KEYCODE_CTRL_LEFT);
-						//SendKey(mInputShell, KeyEvent.KEYCODE_SPACE);
+						String pinyin = inputStr.substring(0, inputStr.indexOf("	"));
+						SendString(pinyin);
+						readLogcat(inputStr);
 					}
 				}
 			} catch (IOException e) {
@@ -155,7 +131,6 @@ public class EditActivity extends Activity {
 	@Override
 	protected void onStop() {
 		try {
-			mInputShell.close();
 			mLogcat.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -163,7 +138,7 @@ public class EditActivity extends Activity {
 		super.onStop();
 	}
 
-	private void readLogcat() {
+	private void readLogcat(String currentStr) {
 		String RawResult;
 		try {
 			RawResult = mLogcat.read();
@@ -179,11 +154,11 @@ public class EditActivity extends Activity {
 			if (startIndex != -1) {
 				StringBuilder resultToWrite = new StringBuilder();
 				String targetIndex = "0";
-				String choice = input.get(mCurIndex);
-				String choiceWords = choice.substring(choice.indexOf(" ") + 1);
+				String choice = currentStr;
+				String choiceWords = choice.substring(choice.indexOf("	") + 1);
 				//写进文件的字符，表示一个拼音串的开始
 				resultToWrite.append("wordstart\n");
-				resultToWrite.append("pinyin:" + input.get(mCurIndex) + "\n");
+				resultToWrite.append("pinyin:" + choice + "\n");
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
@@ -207,12 +182,11 @@ public class EditActivity extends Activity {
 					}
 				}
 				//选择数字键，进行上屏。
-				SendChoice(mSendChoice, targetIndex.equals("0") ? "1" : targetIndex);
+				SendChoice(targetIndex.equals("0") ? "1" : targetIndex);
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
 				resultToWrite.append("tartget:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
-				mCurIndex ++;
 				new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 			}
 		} catch (IOException e) {
@@ -222,21 +196,20 @@ public class EditActivity extends Activity {
 		}
 	}
 
-	private void SendKey(NativeShell shell, int Keycode) throws IOException{
+	private void SendKey(int Keycode) throws IOException{
 		Log.e("InputKeyEvent", "Keycode:" + Keycode);
-		shell.write("input keyevent " + Keycode);
+		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
 
-	private void SendChoice(NativeShell shell, String Keycode) throws IOException{
+	private void SendChoice(String Keycode) throws IOException{
 		int key = Integer.valueOf(Keycode) + 7;
 		Log.e("Send Choice", "Keycode:" + key);
-		shell.write("input keyevent " + key);
+		mInstrumentation.sendKeyDownUpSync(key);
 	}
 
-	private void SendString(NativeShell shell, String text) throws IOException{
+	private void SendString(String text) throws IOException{
 		Log.e("InputKeyEvent", "text:" + text);
-		String cmdString = "input text " + "\"" + text + "\"";
-		shell.write(cmdString);
+		mInstrumentation.sendStringSync(text);
 	}
 
 	@Override
