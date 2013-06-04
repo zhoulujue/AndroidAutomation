@@ -10,14 +10,22 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 
 import com.michael.shell.Shell;
@@ -58,6 +66,7 @@ public class EditActivity extends Activity {
 
 			mInstrumentation = new Instrumentation();
 
+			writeInfoHead();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -79,6 +88,37 @@ public class EditActivity extends Activity {
 
 		Button startButton = (Button) findViewById(R.id.button_start);
 		startButton.setOnClickListener(mOnButtonStartListener);
+	}
+
+	private void writeInfoHead() {
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		List<InputMethodInfo> mInputMethodProperties = imm.getEnabledInputMethodList();
+
+		final int N = mInputMethodProperties.size();
+
+		for (int i = 0; i < N; i++) {
+			InputMethodInfo imi = mInputMethodProperties.get(i);
+			if (imi.getId().equals(Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD))) {
+				String packageName = imi.getPackageName();
+				PackageInfo pInfo;
+				String versionName = "Not kown";
+				int versionCode = 0;
+				try {
+					pInfo = getPackageManager().getPackageInfo(packageName, 0);
+					versionName = pInfo.versionName;
+					versionCode = pInfo.versionCode;
+				} catch (NameNotFoundException e) {
+					e.printStackTrace();
+				}
+				
+				new WriteFileThread(getApplicationContext(), 
+						"IMEName:" + packageName + "\n" +
+						"IMEVersionName:" + versionName + "\n" +
+						"IMEVersionCode:" + versionCode + "\n"
+						).start();
+				break;
+			}
+		}
 	}
 
 	private Runnable uploadToFtp = new Runnable() {
@@ -184,7 +224,7 @@ public class EditActivity extends Activity {
 				//选择数字键，进行上屏。
 				SendChoice(targetIndex.equals("0") ? "1" : targetIndex);
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
-				resultToWrite.append("tartget:" + targetIndex + "\n");
+				resultToWrite.append("target:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
 				new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
