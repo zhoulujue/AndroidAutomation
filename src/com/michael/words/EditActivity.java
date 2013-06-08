@@ -16,7 +16,6 @@ import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -156,6 +155,9 @@ public class EditActivity extends Activity {
 						}
 						String pinyin = inputStr.substring(0, inputStr.indexOf("	"));
 						SendString(pinyin);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
 						readLogcat(inputStr);
 					}
 				}
