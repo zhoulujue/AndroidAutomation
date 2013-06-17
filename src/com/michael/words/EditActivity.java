@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.michael.shell.Shell;
 
@@ -34,6 +35,7 @@ public class EditActivity extends Activity {
 	private Shell mLogcat;
 	private Instrumentation mInstrumentation;
 	private BufferedReader mReader;
+	private boolean mPause;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +67,8 @@ public class EditActivity extends Activity {
 
 			mInstrumentation = new Instrumentation();
 
+			mPause = false;
+
 			writeInfoHead();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -87,6 +91,12 @@ public class EditActivity extends Activity {
 
 		Button startButton = (Button) findViewById(R.id.button_start);
 		startButton.setOnClickListener(mOnButtonStartListener);
+
+		Button pauseButton = (Button) findViewById(R.id.button_pause);
+		pauseButton.setOnClickListener(mOnButtonPauseListener);
+
+		Button deleteButton = (Button) findViewById(R.id.button_delete);
+		deleteButton.setOnClickListener(mOnButtonDeleteListener);
 	}
 
 	private void writeInfoHead() {
@@ -109,11 +119,11 @@ public class EditActivity extends Activity {
 				} catch (NameNotFoundException e) {
 					e.printStackTrace();
 				}
-				
+
 				new WriteFileThread(getApplicationContext(), 
 						"IMEName:" + packageName + "\n" +
-						"IMEVersionName:" + versionName + "\n" +
-						"IMEVersionCode:" + versionCode + "\n"
+								"IMEVersionName:" + versionName + "\n" +
+								"IMEVersionCode:" + versionCode + "\n"
 						).start();
 				break;
 			}
@@ -138,27 +148,69 @@ public class EditActivity extends Activity {
 		}
 	};
 
+	private View.OnClickListener mOnButtonPauseListener = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			if(mPause){
+				mPause = false;
+				((Button) findViewById(R.id.button_pause)).setText(R.string.pause);
+			} else {
+				mPause = true;
+				((Button) findViewById(R.id.button_pause)).setText(R.string.conti);
+			}
+			
+		}
+	};
+
+	private View.OnClickListener mOnButtonDeleteListener = new View.OnClickListener() {
+
+		@Override
+		public void onClick(View v) {
+			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+			localFile.delete();
+		}
+	};
+
 	private Runnable mSendRunnable = new Runnable() {
 
 		@Override
 		public void run() {
+			int curCount = 0;
 			mEditView.showInputMethod();
 			try {
 				mLogcat.read();
 
 				String inputStr = null;
 				while ((inputStr = mReader.readLine()) != null) {
+					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
+					while(mPause){};
 					synchronized (inputStr) {
-						//如果输入文件里面插入一个空格清屏，插入空格的keyevent
-						if (inputStr.equals(" ")){
-							SendKey(KeyEvent.KEYCODE_SPACE);
+						if (inputStr.contains("\t")) {
+							String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
+							SendString(pinyin);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							readLogcat(inputStr);
+							curCount++;							
+						} 
+						if (curCount % 20 == 0) {
+							final int count = curCount;
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									mEditView.setText("");
+									((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
+								}
+							});
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 						}
-						String pinyin = inputStr.substring(0, inputStr.indexOf("	"));
-						SendString(pinyin);
-						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
-						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
-						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
-						readLogcat(inputStr);
 					}
 				}
 			} catch (IOException e) {

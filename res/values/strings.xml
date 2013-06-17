@@ -5,5 +5,11 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="start">Start</string>
+    <string name="cur_count_start">当前运行第</string>
+    <string name="cur_count_end">个case</string>
+    <string name="cur_count">0</string>
+    <string name="delete">Delete</string>
+    <string name="pause">Pause</string>
+    <string name="conti">Continue</string>
 
 </resources>
