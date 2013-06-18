@@ -177,6 +177,7 @@ public class EditActivity extends Activity {
 		@Override
 		public void run() {
 			int curCount = 0;
+			String resultToWrite = "";
 			mEditView.showInputMethod();
 			try {
 				mLogcat.read();
@@ -192,7 +193,7 @@ public class EditActivity extends Activity {
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							readLogcat(inputStr);
+							resultToWrite += readLogcat(inputStr);
 							curCount++;							
 						} 
 						if (curCount % 20 == 0) {
@@ -207,6 +208,8 @@ public class EditActivity extends Activity {
 									((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
 								}
 							});
+							new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+							resultToWrite = "";
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
@@ -232,11 +235,10 @@ public class EditActivity extends Activity {
 		super.onStop();
 	}
 
-	private void readLogcat(String currentStr) {
+	private String readLogcat(String currentStr) {
 		String RawResult;
 		try {
 			RawResult = mLogcat.read();
-
 			String[] resultlist = RawResult.split("\n");
 			int startIndex = -1;
 			for (int i = resultlist.length - 1; i >=0; i--) {
@@ -249,7 +251,7 @@ public class EditActivity extends Activity {
 				StringBuilder resultToWrite = new StringBuilder();
 				String targetIndex = "0";
 				String choice = currentStr;
-				String choiceWords = choice.substring(choice.indexOf("	") + 1);
+				String choiceWords = choice.substring(choice.indexOf("\t") + 1);
 				//写进文件的字符，表示一个拼音串的开始
 				resultToWrite.append("wordstart\n");
 				resultToWrite.append("pinyin:" + choice + "\n");
@@ -281,12 +283,17 @@ public class EditActivity extends Activity {
 				resultToWrite.append("target:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
-				new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+				return resultToWrite.toString();
+				//new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+			} else {
+				return null;
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
+			return null;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
+			return null;
 		}
 	}
 
