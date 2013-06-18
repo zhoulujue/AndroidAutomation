@@ -159,7 +159,7 @@ public class EditActivity extends Activity {
 				mPause = true;
 				((Button) findViewById(R.id.button_pause)).setText(R.string.conti);
 			}
-			
+
 		}
 	};
 
@@ -187,6 +187,7 @@ public class EditActivity extends Activity {
 					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 					while(mPause){};
 					synchronized (inputStr) {
+						//如果是以tab键隔开的case
 						if (inputStr.contains("\t")) {
 							String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
 							SendString(pinyin);
@@ -195,7 +196,19 @@ public class EditActivity extends Activity {
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							resultToWrite += readLogcat(inputStr);
 							curCount++;							
-						} 
+						} else if (inputStr.contains(",") && inputStr.contains("\"")) {
+							inputStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
+									inputStr.indexOf(",", inputStr.indexOf(",") + 1));
+							String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
+							inputStr = inputStr.substring(inputStr.indexOf(",") + 1) + 
+									"\t" + inputStr.substring(0, inputStr.indexOf(","));
+							SendString(pinyin);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							resultToWrite += readLogcat(inputStr);
+							curCount++;	
+						}
 						if (curCount % 20 == 0) {
 							final int count = curCount;
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
