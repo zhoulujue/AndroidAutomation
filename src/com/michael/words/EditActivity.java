@@ -12,6 +12,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -186,47 +187,43 @@ public class EditActivity extends Activity {
 				while ((inputStr = mReader.readLine()) != null) {
 					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 					while(mPause){};
-					synchronized (inputStr) {
-						//如果是以tab键隔开的case
-						if (inputStr.contains("\t")) {
-							String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
-							SendString(pinyin);
+					//如果是以tab键隔开的case
+					if (inputStr.contains("\t")) {
+						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
+						SendString(pinyin);
+						for (int i = 0; i < (pinyin.length()==1?20:3); i++)
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						resultToWrite += readLogcat(inputStr);
+						curCount++;							
+					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
+						inputStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
+								inputStr.indexOf(",", inputStr.indexOf(",") + 1));
+						String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
+						inputStr = inputStr.substring(inputStr.indexOf(",") + 1) + 
+								"\t" + inputStr.substring(0, inputStr.indexOf(","));
+						SendString(pinyin);
+						for (int i = 0; i < (pinyin.length()==1?20:3); i++)
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							resultToWrite += readLogcat(inputStr);
-							curCount++;							
-						} else if (inputStr.contains(",") && inputStr.contains("\"")) {
-							inputStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
-									inputStr.indexOf(",", inputStr.indexOf(",") + 1));
-							String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
-							inputStr = inputStr.substring(inputStr.indexOf(",") + 1) + 
-									"\t" + inputStr.substring(0, inputStr.indexOf(","));
-							SendString(pinyin);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							resultToWrite += readLogcat(inputStr);
-							curCount++;	
-						}
-						if (curCount % 20 == 0) {
-							final int count = curCount;
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									mEditView.setText("");
-									((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
-								}
-							});
-							new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
-							resultToWrite = "";
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						}
+						resultToWrite += readLogcat(inputStr);
+						curCount++;	
+					}
+					if (curCount % 20 == 0) {
+						final int count = curCount;
+						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								mEditView.setText("");
+								((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
+							}
+						});
+						new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+						resultToWrite = "";
+						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 					}
 				}
 			} catch (IOException e) {
