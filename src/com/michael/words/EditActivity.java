@@ -12,7 +12,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-import android.R.integer;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -226,6 +225,16 @@ public class EditActivity extends Activity {
 						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 					}
 				}
+				//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
+				final int count = curCount;
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						mEditView.setText("");
+						((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
+					}
+				});
+				new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
