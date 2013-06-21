@@ -269,7 +269,7 @@ public class EditActivity extends Activity {
 			}
 			if (startIndex != -1) {
 				StringBuilder resultToWrite = new StringBuilder();
-				String targetIndex = "0";
+				String targetIndex = "-1";
 				String choice = currentStr;
 				String choiceWords = choice.substring(choice.indexOf("\t") + 1);
 				//写进文件的字符，表示一个拼音串的开始
@@ -298,7 +298,7 @@ public class EditActivity extends Activity {
 					}
 				}
 				//选择数字键，进行上屏。
-				SendChoice(targetIndex.equals("0") ? "1" : targetIndex);
+				SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
 				resultToWrite.append("target:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
