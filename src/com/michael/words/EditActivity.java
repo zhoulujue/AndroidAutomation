@@ -190,7 +190,7 @@ public class EditActivity extends Activity {
 					if (inputStr.contains("\t")) {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
 						SendString(pinyin);
-						for (int i = 0; i < (pinyin.length()==1?20:3); i++)
+						for (int i = 0; i < (pinyin.length()==1?20:5); i++)
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 						resultToWrite += readLogcat(inputStr);
 						curCount++;							
@@ -201,7 +201,7 @@ public class EditActivity extends Activity {
 						inputStr = inputStr.substring(inputStr.indexOf(",") + 1) + 
 								"\t" + inputStr.substring(0, inputStr.indexOf(","));
 						SendString(pinyin);
-						for (int i = 0; i < (pinyin.length()==1?20:3); i++)
+						for (int i = 0; i < (pinyin.length()==1?20:5); i++)
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 						resultToWrite += readLogcat(inputStr);
 						curCount++;	
