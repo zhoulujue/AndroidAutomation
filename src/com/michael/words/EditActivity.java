@@ -169,6 +169,7 @@ public class EditActivity extends Activity {
 		public void onClick(View v) {
 			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 			localFile.delete();
+			writeInfoHead();
 		}
 	};
 
