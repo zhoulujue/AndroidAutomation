@@ -35,6 +35,7 @@ public class HandleLastRunActivity extends BaseActivity {
 			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 			localFile.delete();
 			startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
+			finish();
 		}
 	};
 
@@ -54,6 +55,7 @@ public class HandleLastRunActivity extends BaseActivity {
 			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 			localFile.delete();
 			startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
+			finish();
 		}
 	};
 
@@ -78,6 +80,7 @@ public class HandleLastRunActivity extends BaseActivity {
 					File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 					localFile.delete();
 					startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
+					finish();
 				}
 			}
 		});
@@ -89,6 +92,7 @@ public class HandleLastRunActivity extends BaseActivity {
 				localFile.delete();
 				
 				startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
+				finish();
 			}
 		});
 		builder.create().show();

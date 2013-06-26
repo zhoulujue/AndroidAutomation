@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.RadioGroup;
 
 public class ConfigActivity extends BaseActivity {
 	
@@ -55,10 +55,10 @@ public class ConfigActivity extends BaseActivity {
 		
 		@Override
 		public void onClick(View v) {
-			CheckBox checkBox = (CheckBox) findViewById(R.id.config_checkBox);
-			boolean checked = !checkBox.isChecked();
+			RadioGroup radio = (RadioGroup) findViewById(R.id.config_radioGroup);
+			int choice = radio.getCheckedRadioButtonId();
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-			editor.putBoolean("choice", checked);
+			editor.putInt("choice", choice);
 			editor.commit();
 			startActivity(new Intent(ConfigActivity.this, EditActivity.class));
 			finish();

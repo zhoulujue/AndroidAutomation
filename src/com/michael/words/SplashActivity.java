@@ -65,7 +65,7 @@ public class SplashActivity extends Activity {
 
 		}, 2000);
 	}
-	
+
 	private Thread download = new Thread(new Runnable() {
 
 		@Override

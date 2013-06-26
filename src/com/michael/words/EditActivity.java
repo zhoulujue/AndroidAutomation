@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
+import android.R.integer;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -34,7 +35,7 @@ public class EditActivity extends Activity {
 	private Instrumentation mInstrumentation;
 	private BufferedReader mReader;
 	private boolean mPause;
-	private boolean mChoice;
+	private int mChoice;
 	private SharedPreferences mSharedPreferences;
 
 	@Override
@@ -61,8 +62,8 @@ public class EditActivity extends Activity {
 
 			mPause = false;
 
-			mChoice = mSharedPreferences.getBoolean("choice", false);
-			
+			mChoice = mSharedPreferences.getInt("choice", 0);
+
 			writeInfoHead();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -91,7 +92,7 @@ public class EditActivity extends Activity {
 
 		Button deleteButton = (Button) findViewById(R.id.button_delete);
 		deleteButton.setOnClickListener(mOnButtonDeleteListener);
-		
+
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
@@ -194,25 +195,35 @@ public class EditActivity extends Activity {
 				while ((inputStr = mReader.readLine()) != null) {
 					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 					while(mPause){};
-					//如果是以tab键隔开的case
+					//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则
 					if (inputStr.contains("\t")) {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
+						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
 						for (int i = 0; i < (pinyin.length()<3?20:5); i++)
 							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						resultToWrite += readLogcat(inputStr);
+						resultToWrite += readLogcat(pinyin, hanzi);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
+						//提取引号到第二个逗号之前的字符：a[0]="我,w,9999,21097634"; -> 我,w
 						inputStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
 								inputStr.indexOf(",", inputStr.indexOf(",") + 1));
 						String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
-						inputStr = inputStr.substring(inputStr.indexOf(",") + 1) + 
-								"\t" + inputStr.substring(0, inputStr.indexOf(","));
-						SendString(pinyin);
-						for (int i = 0; i < (pinyin.length()<3?20:5); i++)
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						resultToWrite += readLogcat(inputStr);
-						curCount++;	
+						String hanzi = inputStr.substring(0, inputStr.indexOf(","));
+						
+						//如果遇到#号且是第三种模式，则说明需要清空了
+						if (pinyin.equals("#") && mChoice == R.id.config_radio_choice_first_screen) {
+							for (int i = 0; i < 2; i++)
+								SendKey(KeyEvent.KEYCODE_SPACE);
+							for (int i = 0; i < 2; i++)
+								SendKey(KeyEvent.KEYCODE_DEL);
+						} else {
+							SendString(pinyin);
+							for (int i = 0; i < (pinyin.length()<3?20:5); i++)
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							resultToWrite += readLogcat(pinyin, hanzi);
+							curCount++;
+						}
 					}
 					if (curCount % 20 == 0) {
 						final int count = curCount;
@@ -262,7 +273,14 @@ public class EditActivity extends Activity {
 		super.onStop();
 	}
 
-	private String readLogcat(String currentStr) {
+	/**
+	 * pinyin + hanzi组成了一次case，函数读取logcat的hook返回，并将一次case的分析结果log返回;
+	 * 根据ConfigActivity的不同配置，进行不同的上屏或者清除上下文关系操作。
+	 * @param pinyin 本次case的拼音输入串
+	 * @param hanzi 本次case要找的目标汉字
+	 * @return 本次case分析结果log
+	 */
+	private String readLogcat(String pinyin, String hanzi) {
 		String RawResult;
 		try {
 			RawResult = mLogcat.read();
@@ -277,11 +295,9 @@ public class EditActivity extends Activity {
 			if (startIndex != -1) {
 				StringBuilder resultToWrite = new StringBuilder();
 				String targetIndex = "-1";
-				String choice = currentStr;
-				String choiceWords = choice.substring(choice.indexOf("\t") + 1);
 				//写进文件的字符，表示一个拼音串的开始
 				resultToWrite.append("wordstart\n");
-				resultToWrite.append("pinyin:" + choice + "\n");
+				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
@@ -299,23 +315,36 @@ public class EditActivity extends Activity {
 						resultToWrite.append(word + "\n");
 						Log.e("reading", "The Word is : " + index + ": " + word);
 						//如果候选词和当前要选的词是一样的话，说明本次读到的是要上屏的候选词，那么通过键盘按下index这个数字
-						if (word.equals(choiceWords)) {
+						if (word.equals(hanzi)) {
 							targetIndex = index;
 						}
 					}
 				}
-				//选择数字键，进行上屏。
-				if(mChoice) {
+				//根据configActivity里面的配置，分不同情况上屏，或者清屏
+				switch (mChoice) {
+				case R.id.config_radio_complete_no_choice:
+					for (int i = 0; i < pinyin.length(); i++) {
+						SendKey(KeyEvent.KEYCODE_DEL);
+					}
+					break;
+				case R.id.config_radio_choice_first_candidate:
 					SendChoice("1");
-				} else {
+					SendKey(KeyEvent.KEYCODE_DEL);
+					SendKey(KeyEvent.KEYCODE_SPACE);
+					SendKey(KeyEvent.KEYCODE_SPACE);
+					SendKey(KeyEvent.KEYCODE_DEL);
+					break;
+				case R.id.config_radio_choice_first_screen:
 					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
+					break;
+				default:
+					break;
 				}
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
 				resultToWrite.append("target:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
 				return resultToWrite.toString();
-				//new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 			} else {
 				return null;
 			}

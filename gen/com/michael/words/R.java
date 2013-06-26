@@ -86,10 +86,10 @@ public final class R {
     }
     public static final class drawable {
         public static final int bg=0x7f020000;
-        public static final int black=0x7f02001c;
-        public static final int blue=0x7f020016;
-        public static final int blue_mx=0x7f020017;
-        public static final int bounds=0x7f020020;
+        public static final int black=0x7f02001e;
+        public static final int blue=0x7f020018;
+        public static final int blue_mx=0x7f020019;
+        public static final int bounds=0x7f020022;
         public static final int btn_blue=0x7f020001;
         public static final int btn_blue_pressed=0x7f020002;
         public static final int btn_green=0x7f020003;
@@ -104,51 +104,56 @@ public final class R {
         public static final int button_red_bg=0x7f02000c;
         /** 不换肤主视图背景  main client bm_background
          */
-        public static final int default_bg=0x7f020025;
-        public static final int gray=0x7f02001e;
-        public static final int green=0x7f020018;
-        public static final int haha_bg=0x7f020014;
-        public static final int haha_black=0x7f02001d;
-        public static final int haha_blue=0x7f020013;
-        public static final int haha_content=0x7f020015;
-        public static final int haha_gray=0x7f020012;
-        public static final int haha_green=0x7f020011;
-        public static final int haha_red=0x7f020010;
-        public static final int haha_white=0x7f02001b;
-        public static final int hahafooter_bg_focused=0x7f020022;
-        public static final int hahafooter_bg_normal=0x7f020024;
+        public static final int default_bg=0x7f020027;
+        public static final int gray=0x7f020020;
+        public static final int green=0x7f02001a;
+        public static final int haha_bg=0x7f020016;
+        public static final int haha_black=0x7f02001f;
+        public static final int haha_blue=0x7f020015;
+        public static final int haha_content=0x7f020017;
+        public static final int haha_gray=0x7f020014;
+        public static final int haha_green=0x7f020013;
+        public static final int haha_red=0x7f020012;
+        public static final int haha_white=0x7f02001d;
+        public static final int hahafooter_bg_focused=0x7f020024;
+        public static final int hahafooter_bg_normal=0x7f020026;
         /**  haha 
          */
-        public static final int hahafooter_bg_pressed=0x7f020021;
-        public static final int hahafooter_bg_selected=0x7f020023;
+        public static final int hahafooter_bg_pressed=0x7f020023;
+        public static final int hahafooter_bg_selected=0x7f020025;
         public static final int ic_launcher=0x7f02000d;
-        public static final int red=0x7f02000f;
-        public static final int splash=0x7f02000e;
-        public static final int translucent=0x7f02001f;
-        public static final int white=0x7f02001a;
-        public static final int yellow=0x7f020019;
+        public static final int item_bg=0x7f02000e;
+        public static final int red=0x7f020011;
+        public static final int splash=0x7f02000f;
+        public static final int textbox=0x7f020010;
+        public static final int translucent=0x7f020021;
+        public static final int white=0x7f02001c;
+        public static final int yellow=0x7f02001b;
     }
     public static final class id {
-        public static final int action_settings=0x7f090013;
-        public static final int button_delete=0x7f09000b;
-        public static final int button_delete_result=0x7f090010;
-        public static final int button_pause=0x7f090009;
-        public static final int button_start=0x7f09000a;
-        public static final int button_upload_result=0x7f090011;
-        public static final int config_button_connect=0x7f090003;
-        public static final int config_button_next_step=0x7f090007;
-        public static final int config_button_switch_ime=0x7f090006;
-        public static final int config_checkBox=0x7f090000;
-        public static final int config_textView_bluetooth=0x7f090002;
-        public static final int editText1=0x7f090008;
-        public static final int linearLayout1=0x7f090001;
-        public static final int linearLayout2=0x7f090004;
-        public static final int splash=0x7f090012;
-        public static final int textView1=0x7f09000f;
-        public static final int textView2=0x7f090005;
-        public static final int textView_cur_count=0x7f09000d;
-        public static final int textView_cur_count_start=0x7f09000c;
-        public static final int textView_cur_end=0x7f09000e;
+        public static final int action_settings=0x7f090016;
+        public static final int button_delete=0x7f09000e;
+        public static final int button_delete_result=0x7f090013;
+        public static final int button_pause=0x7f09000c;
+        public static final int button_start=0x7f09000d;
+        public static final int button_upload_result=0x7f090014;
+        public static final int config_button_connect=0x7f090006;
+        public static final int config_button_next_step=0x7f09000a;
+        public static final int config_button_switch_ime=0x7f090009;
+        public static final int config_radioGroup=0x7f090000;
+        public static final int config_radio_choice_first_candidate=0x7f090002;
+        public static final int config_radio_choice_first_screen=0x7f090003;
+        public static final int config_radio_complete_no_choice=0x7f090001;
+        public static final int config_textView_bluetooth=0x7f090005;
+        public static final int editText1=0x7f09000b;
+        public static final int linearLayout1=0x7f090004;
+        public static final int linearLayout2=0x7f090007;
+        public static final int splash=0x7f090015;
+        public static final int textView1=0x7f090012;
+        public static final int textView2=0x7f090008;
+        public static final int textView_cur_count=0x7f090010;
+        public static final int textView_cur_count_start=0x7f09000f;
+        public static final int textView_cur_end=0x7f090011;
     }
     public static final class layout {
         public static final int activity_config=0x7f030000;
@@ -162,35 +167,38 @@ public final class R {
     public static final class string {
         public static final int action_settings=0x7f060001;
         public static final int app_name=0x7f060000;
-        public static final int bluetooth_keyboard_warn=0x7f060014;
+        public static final int bluetooth_keyboard_warn=0x7f060017;
+        public static final int choose_target_ime_warn=0x7f060018;
+        public static final int config_radio_choice_first_candidate=0x7f060014;
+        public static final int config_radio_choice_first_screen=0x7f060015;
         /**  configActivity 
          */
-        public static final int checkbox_text=0x7f060012;
-        public static final int choose_target_ime_warn=0x7f060015;
-        public static final int config_step_one=0x7f060017;
-        public static final int config_step_thr=0x7f060019;
-        public static final int config_step_two=0x7f060018;
-        public static final int connect=0x7f060013;
+        public static final int config_radio_complete_no_choice=0x7f060013;
+        public static final int config_step_one=0x7f06001a;
+        public static final int config_step_thr=0x7f06001c;
+        public static final int config_step_two=0x7f06001b;
+        public static final int connect=0x7f060016;
         public static final int conti=0x7f060009;
         public static final int cur_count=0x7f060006;
         public static final int cur_count_end=0x7f060005;
         public static final int cur_count_start=0x7f060004;
         public static final int delete=0x7f060007;
+        public static final int edit_text_box_hint=0x7f06000c;
         public static final int hello_world=0x7f060002;
         public static final int last_run_failed=0x7f06000a;
-        public static final int next_step=0x7f06001a;
+        public static final int next_step=0x7f06001d;
         public static final int pause=0x7f060008;
         public static final int start=0x7f060003;
-        public static final int switch_ime=0x7f060016;
+        public static final int switch_ime=0x7f060019;
         public static final int upload=0x7f06000b;
-        public static final int upload_result_btn_delete=0x7f06000f;
-        public static final int upload_result_btn_retry=0x7f06000e;
-        public static final int upload_result_fail_warn=0x7f060010;
+        public static final int upload_result_btn_delete=0x7f060010;
+        public static final int upload_result_btn_retry=0x7f06000f;
+        public static final int upload_result_fail_warn=0x7f060011;
         /**  上传dialog 
          */
-        public static final int upload_result_failed=0x7f06000c;
-        public static final int upload_result_retry=0x7f06000d;
-        public static final int upload_success=0x7f060011;
+        public static final int upload_result_failed=0x7f06000d;
+        public static final int upload_result_retry=0x7f06000e;
+        public static final int upload_success=0x7f060012;
     }
     public static final class style {
         /** 

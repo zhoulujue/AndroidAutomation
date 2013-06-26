@@ -5,23 +5,45 @@
     android:background="@drawable/bg"
     android:orientation="vertical" >
 
-    <CheckBox
-        android:id="@+id/config_checkBox"
+    <RadioGroup
+        android:id="@+id/config_radioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="@string/checkbox_text"
-        android:textColor="@drawable/haha_black" />
+        android:layout_marginTop="10dp"
+        android:background="@drawable/item_bg"
+        android:orientation="vertical"
+        android:padding="10dp" >
+
+        <RadioButton
+            android:id="@+id/config_radio_complete_no_choice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/config_radio_complete_no_choice"
+            android:textColor="@drawable/haha_blue" />
+
+        <RadioButton
+            android:id="@+id/config_radio_choice_first_candidate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/config_radio_choice_first_candidate"
+            android:textColor="@drawable/haha_blue" />
+
+        <RadioButton
+            android:id="@+id/config_radio_choice_first_screen"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/config_radio_choice_first_screen"
+            android:textColor="@drawable/haha_blue" />
+    </RadioGroup>
 
     <LinearLayout
         android:id="@+id/linearLayout1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/config_checkBox"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp" >
+        android:layout_below="@+id/config_radioGroup"
+        android:layout_centerHorizontal="true" >
 
         <TextView
             android:id="@+id/config_textView_bluetooth"
@@ -47,8 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/linearLayout1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp" >
+        android:layout_centerHorizontal="true" >
 
         <TextView
             android:id="@+id/textView2"
