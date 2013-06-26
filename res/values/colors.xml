@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<drawable name="red">#7f00</drawable>
+	<drawable name="haha_red">#d02123</drawable>
+	<drawable name="haha_green">#598729</drawable>
+	<drawable name="haha_gray">#6a6a6a</drawable>
+	<drawable name="haha_blue">#00518f</drawable>
+	<drawable name="haha_bg">#157dcf</drawable>
+	<drawable name="haha_content">#181818</drawable>
+	<drawable name="blue">#770000ff</drawable>
+	<drawable name="blue_mx">#ff072f4c</drawable>
+	<drawable name="green">#7700ff00</drawable>
+	<drawable name="yellow">#77ffff00</drawable>
+	<drawable name="white">#ffffffff</drawable>
+	<drawable name="haha_white">#ffffff</drawable>
+	<drawable name="black">#ff000000</drawable>
+	<drawable name="haha_black">#2b2b2b</drawable>
+	<drawable name="gray">#88444444</drawable>
+	<drawable name="translucent">#00000000</drawable>
+	<drawable name="bounds">#00000000</drawable>
+	<!-- haha -->
+	<drawable name="hahafooter_bg_pressed">#c8e9ff</drawable>
+	<drawable name="hahafooter_bg_focused">#c8e9ff</drawable>
+	<drawable name="hahafooter_bg_selected">#c8e9ff</drawable>
+	<drawable name="hahafooter_bg_normal">#f1f7fb</drawable>
+	
+	
+	<color name="browser_container_color">#88000000</color>
+	<!--不换肤主视图背景  main client bm_background-->
+	<drawable name="default_bg">#e9f6ff</drawable>
+
+	<!-- Gesture Settings -->
+	<color name="gesture_color">#FFFFFF00</color>
+	<color name="white">#ffffffff</color>
+
+    
+	 <color name="bright_foreground_dark">#ffffffff</color>
+	<dimen name="gesture_thumbnail_inset">8dip</dimen>
+	<dimen name="gesture_thumbnail_size">48dip</dimen>
+	<!-- Gesture Settings END -->
+	
+	<!-- SSL -->
+	<color name="ssl_text_label">#ffffffff</color>
+    <color name="ssl_text_value">#ffffffff</color>
+    <!-- SSL END -->
+    
+    <!-- MultiWindow -->
+    <color name="mw_url_color">#ff9CB5C4</color>
+    <!-- MultiWindow End -->
+    
+    <color name="username_text">#ffffffff</color>
+    <color name="username_edit">#ff000000</color>
+
+    <color name="password_text">#ffffffff</color>
+    <color name="password_edit">#ff000000</color>
+
+    <color name="black">#ff000000</color>
+    <color name="gray">#ffbbbbbb</color>
+    <color name="dark_gray">#ff777777</color>
+    
+    <!-- AppWidget Rss -->
+    <color name="wg_text_color">#ff8a8a8a</color>
+    <color name="wg_date_color">#ffA27B00</color>
+    <color name="wg_mgr_list_count_color">#ffc17200</color>
+    <color name="wg_mgr_channel_item_title_color">#ff072f4c</color>
+    
+    <color name="blank_page_text_color">#ff001627</color>
+    <color name="bm_folder_list_color">#ff072f4c</color>
+    <color name="bm_folder_list_title_color">#ff48667c</color>
+    <color name="blankpage_navigation_rows_color">#ff6eadd8</color>
+    <color name="blankpage_navigation_cols_color">#ffd8dbdf</color>
+    <color name="blankpage_navigation_title_color">#ff0d4568</color>
+    <color name="blankpage_navigation_item_color">#ff001627</color>
+    <color name="wg_rss_weather_color">#c8c8c8</color>
+    <!-- history -->
+    <color name="history_group_text_color">#ff0d4568</color>
+    
+    
+   <!-- haha -->
+   <color name="haha_bg_color">#71b2e9</color>
+   
+   <!-- quickdial -->
+   <color name="qd_bottom_font_color">#ff595959</color>
+   
+   <color name="splash_version_name_color">#ff814a10</color>
+   
+   <!-- 以下添加到皮肤 -->
+   <color name="tp_tab_text">#ffffffff</color>
+   <color name="m_menu_text">#ffffffff</color>
+   <color name="tp_title">#ffffffff</color>
+   <color name="tb_btn_text">#ffffffff</color>
+   <!-- webview error -->
+   <color name="webview_error_title_color">#1768a1</color>
+   <color name="webview_error_tips_color">#333333</color>
+   <color name="webview_error_suggest_color">#777777</color>
+   <color name="qd_add_title_color">#485D6A</color>
+</resources> 

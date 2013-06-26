@@ -1,11 +1,5 @@
 package com.michael.words;
 
-import it.sauronsoftware.ftp4j.FTPAbortedException;
-import it.sauronsoftware.ftp4j.FTPClient;
-import it.sauronsoftware.ftp4j.FTPDataTransferException;
-import it.sauronsoftware.ftp4j.FTPException;
-import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,14 +9,18 @@ import java.util.List;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -36,24 +34,18 @@ public class EditActivity extends Activity {
 	private Instrumentation mInstrumentation;
 	private BufferedReader mReader;
 	private boolean mPause;
+	private boolean mChoice;
+	private SharedPreferences mSharedPreferences;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);      
+		getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN, WindowManager.LayoutParams. FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_edit);
 		init();
 		try {
-			Thread download = new Thread(new Runnable() {
-
-				@Override
-				public void run() {
-					downloadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "raw.config");
-				}
-			});
-			download.start();
-			download.join();
 			File rawFile = new File(getFilesDir() + "/" + "raw.config");
-
 			if(!rawFile.exists()) {
 				Utils.showToast(getApplicationContext(), "没有获取到配置文件，退出！");
 				finish();
@@ -69,6 +61,8 @@ public class EditActivity extends Activity {
 
 			mPause = false;
 
+			mChoice = mSharedPreferences.getBoolean("choice", false);
+			
 			writeInfoHead();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -97,6 +91,8 @@ public class EditActivity extends Activity {
 
 		Button deleteButton = (Button) findViewById(R.id.button_delete);
 		deleteButton.setOnClickListener(mOnButtonDeleteListener);
+		
+		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 	}
 
 	private void writeInfoHead() {
@@ -134,9 +130,20 @@ public class EditActivity extends Activity {
 
 		@Override
 		public void run() {
-			uploadFile("10.129.41.70", "imetest", "Sogou7882Imeqa", "/WordCrawler", "result.txt");
-			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
-			localFile.deleteOnExit();
+			//如果结果文件上传不成功，标记为上传失败，供下次启动时使用
+			if(!Utils.uploadFile(getApplicationContext(), "10.129.41.70", "imetest", "Sogou7882Imeqa", 
+					"/WordCrawler", "result.txt")) {
+				SharedPreferences.Editor editor = mSharedPreferences.edit();
+				editor.putBoolean("LastRunSuccess", false);
+				editor.commit();
+			} else {
+				//上传成功就把本地的结果文件删掉
+				SharedPreferences.Editor editor = mSharedPreferences.edit();
+				editor.putBoolean("LastRunSuccess", true);
+				editor.commit();
+				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+				localFile.deleteOnExit();
+			}
 		}
 	};
 
@@ -298,7 +305,11 @@ public class EditActivity extends Activity {
 					}
 				}
 				//选择数字键，进行上屏。
-				SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
+				if(mChoice) {
+					SendChoice("1");
+				} else {
+					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
+				}
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
 				resultToWrite.append("target:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
@@ -346,84 +357,4 @@ public class EditActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-
-	/**
-	 * 把FTP上的文件下载到本地，本地的文件名字和服务器上文件的名字是一样的。
-	 * @param host FTP服务器的IP地址，或者FTP服务器的域名
-	 * @param username 登陆FTP服务器需要的用户名
-	 * @param passwd 登陆FTP服务器需要的密码
-	 * @param remoteDir 文件在FTP服务器上的路径，不含文件名
-	 * @param filename	文件的名字
-	 * @return true:下载成功；false:下载失败
-	 */
-	private boolean downloadFile(String host, String username, String passwd, String remoteDir, String filename) {
-		File localFile = new File(getFilesDir().getPath() + "/" + filename);
-
-		FTPClient client = new FTPClient();
-		try {
-			client.connect(host);
-			client.login(username, passwd);
-			client.download(remoteDir + "/" + filename, localFile);
-			client.disconnect(false);
-
-			return true;
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPIllegalReplyException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPDataTransferException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPAbortedException e) {
-			e.printStackTrace();
-			return false;
-		} 
-
-
-	}
-
-	private boolean uploadFile(String host, String username, String passwd, String remoteDir, String filename) {
-		File file = new File(getFilesDir().getPath() + "/" + filename);
-		if (!file.exists())
-			return false;
-
-		FTPClient client = new FTPClient();
-		try {
-			client.connect(host);
-			client.login(username, passwd);
-			client.changeDirectory(remoteDir);
-			client.upload(file);
-			client.rename(filename, "result-" + Utils.getDateTime() + ".txt");
-			client.disconnect(false);
-
-			return true;
-		} catch (IllegalStateException e) {
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPIllegalReplyException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPDataTransferException e) {
-			e.printStackTrace();
-			return false;
-		} catch (FTPAbortedException e) {
-			e.printStackTrace();
-			return false;
-		} 
-	}
-
 }

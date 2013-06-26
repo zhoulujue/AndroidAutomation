@@ -11,5 +11,26 @@
     <string name="delete">Delete</string>
     <string name="pause">Pause</string>
     <string name="conti">Continue</string>
-
+    <string name="last_run_failed">本地有未上传的结果文件</string>
+    <string name="upload">Upload</string>
+    
+    <!-- 上传dialog -->
+    <string name="upload_result_failed">上传结果文件失败！</string>
+    <string name="upload_result_retry">是否重新上传？</string>
+	<string name="upload_result_btn_retry">Retry</string>
+	<string name="upload_result_btn_delete">Delete</string>
+	<string name="upload_result_fail_warn">可能是网络问题导致上传不成功，请直接将结果拷贝出来！</string>
+	<string name="upload_success">上传成功！</string>
+	
+	<!-- configActivity -->
+	<string name="checkbox_text">上下文无关</string>
+	<string name="connect">连接</string>
+	<string name="bluetooth_keyboard_warn">测试过程中需要蓝牙键盘，请连接</string>
+	<string name="choose_target_ime_warn">请切换要测试的输入法</string>
+	<string name="switch_ime">去切换</string>
+	<string name="config_step_one">第一步</string>
+	<string name="config_step_two">第二步</string>
+	<string name="config_step_thr">第三步</string>
+	<string name="next_step">下一步</string>
+    
 </resources>

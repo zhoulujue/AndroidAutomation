@@ -1,5 +1,10 @@
 package com.michael.words;
 
+import it.sauronsoftware.ftp4j.FTPAbortedException;
+import it.sauronsoftware.ftp4j.FTPDataTransferException;
+import it.sauronsoftware.ftp4j.FTPException;
+import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -489,7 +494,92 @@ public class Utils {
 	}
 
 	public static void showToast(Context context, String string) {
-		Toast.makeText(context, string, Toast.LENGTH_SHORT).show();
+		Toast.makeText(context, string, Toast.LENGTH_LONG).show();
+	}
+	
+	public static void showToast(Context context, int stringId) {
+		Toast.makeText(context, stringId, Toast.LENGTH_LONG).show();
+	}
+	
+	/**
+	 * 把FTP上的文件下载到本地，本地的文件名字和服务器上文件的名字是一样的。
+	 * @param host FTP服务器的IP地址，或者FTP服务器的域名
+	 * @param username 登陆FTP服务器需要的用户名
+	 * @param passwd 登陆FTP服务器需要的密码
+	 * @param remoteDir 文件在FTP服务器上的路径，不含文件名
+	 * @param filename	文件的名字
+	 * @return true:下载成功；false:下载失败
+	 */
+	public static boolean downloadFile(Context context, String host, String username, String passwd, String remoteDir, String filename) {
+		File localFile = new File(context.getFilesDir().getPath() + "/" + filename);
+
+		it.sauronsoftware.ftp4j.FTPClient client = new it.sauronsoftware.ftp4j.FTPClient();
+		try {
+			client.connect(host);
+			client.login(username, passwd);
+			client.download(remoteDir + "/" + filename, localFile);
+			client.disconnect(false);
+
+			return true;
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPIllegalReplyException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPDataTransferException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPAbortedException e) {
+			e.printStackTrace();
+			return false;
+		} 
+
+
+	}
+	
+	public static boolean uploadFile(Context context, String host, String username, String passwd, String remoteDir, String filename) {
+		File file = new File(context.getFilesDir().getPath() + "/" + filename);
+		if (!file.exists())
+			return false;
+
+		it.sauronsoftware.ftp4j.FTPClient client = new it.sauronsoftware.ftp4j.FTPClient();
+		try {
+			client.connect(host);
+			client.login(username, passwd);
+			client.changeDirectory(remoteDir);
+			client.upload(file);
+			client.rename(filename, "result-" + Utils.getDateTime() + ".txt");
+			client.disconnect(false);
+
+			return true;
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+			return false;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPIllegalReplyException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPDataTransferException e) {
+			e.printStackTrace();
+			return false;
+		} catch (FTPAbortedException e) {
+			e.printStackTrace();
+			return false;
+		} catch (Exception e) {
+			return false;
+		}
 	}
 	
 }

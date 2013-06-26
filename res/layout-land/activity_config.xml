@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg"
+    android:orientation="vertical" >
+
+    <CheckBox
+        android:id="@+id/config_checkBox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="@string/checkbox_text"
+        android:textColor="@drawable/haha_black" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/config_checkBox"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" >
+
+        <TextView
+            android:id="@+id/config_textView_bluetooth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/bluetooth_keyboard_warn"
+            android:textColor="@drawable/haha_black" />
+
+        <Button
+            android:id="@+id/config_button_connect"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:background="@drawable/button_green_bg"
+            android:text="@string/connect"
+            android:textColor="@drawable/btn_words_color" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/linearLayout1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" >
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="@string/choose_target_ime_warn"
+            android:textColor="@drawable/haha_black" />
+
+        <Button
+            android:id="@+id/config_button_switch_ime"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:background="@drawable/button_green_bg"
+            android:text="@string/switch_ime"
+            android:textColor="@drawable/btn_words_color" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/config_button_next_step"
+        android:layout_width="90dp"
+        android:layout_height="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_margin="10dp"
+        android:background="@drawable/button_red_bg"
+        android:text="@string/next_step"
+        android:textColor="@drawable/btn_words_color" />
+
+</RelativeLayout>
