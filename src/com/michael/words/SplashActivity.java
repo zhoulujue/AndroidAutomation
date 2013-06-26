@@ -48,6 +48,10 @@ public class SplashActivity extends Activity {
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 					editor.putBoolean("LastRunSuccess", true);
 					editor.commit();
+				} else {
+					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+					editor.putBoolean("LastRunSuccess", false);
+					editor.commit();
 				}
 				boolean lastRunSuccess = mSharedPreferences.getBoolean("LastRunSuccess", true);
 				if(!lastRunSuccess)

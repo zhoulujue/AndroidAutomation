@@ -43,19 +43,26 @@ public class HandleLastRunActivity extends BaseActivity {
 
 		@Override
 		public void onClick(View v) {
-			if(!Utils.uploadFile(getApplicationContext(), "10.129.41.70", "imetest", "Sogou7882Imeqa", 
-					"/WordCrawler", "result.txt")){
-				dialog();
-			}
-			Utils.showToast(getApplicationContext(), R.string.upload_success);
-			//上传成功，把标记修改过来，并删除文件，跳转界面
-			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-			editor.putBoolean("LastRunSuccess", true);
-			editor.commit();
 			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
-			localFile.delete();
-			startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
-			finish();
+			Thread upload = new Thread(uploadToFtp);
+			upload.start();
+			try {
+				upload.join();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			//文件存在，失败，调用对话框进行第二次尝试
+			if(localFile.exists()){
+				dialog();
+			} else {
+				//上传成功，把标记修改过来，并删除文件，跳转界面
+				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+				editor.putBoolean("LastRunSuccess", true);
+				editor.commit();
+				localFile.delete();
+				startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
+				finish();
+			}
 		}
 	};
 
@@ -67,21 +74,25 @@ public class HandleLastRunActivity extends BaseActivity {
 		builder.setPositiveButton(R.string.upload_result_btn_retry, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				if (!Utils.uploadFile(getApplicationContext(), "10.129.41.70", "imetest", "Sogou7882Imeqa", 
-						"/WordCrawler", "result.txt")){
-					Utils.showToast(getApplicationContext(), R.string.upload_result_fail_warn);
-				} else {
-					Utils.showToast(getApplicationContext(), R.string.upload_success);
+				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+				Thread upload = new Thread(uploadToFtp);
+				upload.start();
+				try {
+					upload.join();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				//文件不存在，成功，提示、修改标记、删除本地结果文件、并跳转
+				if(!localFile.exists()){
 					//上传成功，把标记修改过来，并删除文件，跳转界面
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 					editor.putBoolean("LastRunSuccess", true);
 					editor.commit();
-					File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 					localFile.delete();
 					startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
 					finish();
 				}
+				dialog.dismiss();
 			}
 		});
 		builder.setNegativeButton(R.string.upload_result_btn_delete, new OnClickListener() {
@@ -90,11 +101,40 @@ public class HandleLastRunActivity extends BaseActivity {
 				dialog.dismiss();
 				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 				localFile.delete();
-				
 				startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
 				finish();
 			}
 		});
 		builder.create().show();
 	}
+
+	private Runnable uploadToFtp = new Runnable() {
+
+		@Override
+		public void run() {
+			if (!Utils.uploadFile(getApplicationContext(), "10.129.41.70", "imetest", "Sogou7882Imeqa", 
+					"/WordCrawler", "result.txt")){
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Utils.showToast(getApplicationContext(), R.string.upload_result_fail_warn);
+					}
+				});
+			} else {
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Utils.showToast(getApplicationContext(), R.string.upload_success);
+					}
+				});
+				//上传成功，把标记修改过来，并删除文件
+				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+				editor.putBoolean("LastRunSuccess", true);
+				editor.commit();
+				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+				localFile.delete();
+			}
+		}
+	};
+
 }

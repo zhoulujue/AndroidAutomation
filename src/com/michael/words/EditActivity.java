@@ -196,7 +196,7 @@ public class EditActivity extends Activity {
 				while ((inputStr = mReader.readLine()) != null) {
 					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 					//TODO: 不断访问成员变量，这样也会把CPU带上去
-					while(mPause){};
+					//while(mPause){};
 					//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则说明是要清空上下文
 					if (inputStr.contains("\t")) {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
