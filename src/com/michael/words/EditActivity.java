@@ -184,6 +184,8 @@ public class EditActivity extends Activity {
 
 		@Override
 		public void run() {
+			//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
+			final int configChoice = mChoice;
 			int curCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
@@ -193,8 +195,9 @@ public class EditActivity extends Activity {
 				String inputStr = null;
 				while ((inputStr = mReader.readLine()) != null) {
 					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
+					//TODO: 不断访问成员变量，这样也会把CPU带上去
 					while(mPause){};
-					//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则
+					//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则说明是要清空上下文
 					if (inputStr.contains("\t")) {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
@@ -211,7 +214,7 @@ public class EditActivity extends Activity {
 						String hanzi = inputStr.substring(0, inputStr.indexOf(","));
 
 						//如果遇到#号且是第三种模式，则说明需要清空了
-						if (pinyin.equals("#") && mChoice == R.id.config_radio_choice_first_screen) {
+						if (pinyin.equals("#") && configChoice == R.id.config_radio_choice_first_screen) {
 							for (int i = 0; i < 2; i++)
 								SendKey(KeyEvent.KEYCODE_SPACE);
 							for (int i = 0; i < 2; i++)
@@ -314,7 +317,7 @@ public class EditActivity extends Activity {
 
 						resultToWrite.append(index + ":");
 						resultToWrite.append(word + "\n");
-						Log.e("reading", "The Word is : " + index + ": " + word);
+						//Log.e("reading", "The Word is : " + index + ": " + word);
 						//如果候选词和当前要选的词是一样的话，说明本次读到的是要上屏的候选词，那么通过键盘按下index这个数字
 						if (word.equals(hanzi)) {
 							targetIndex = index;
