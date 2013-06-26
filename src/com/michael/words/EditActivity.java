@@ -338,50 +338,50 @@ public class EditActivity extends Activity {
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
 				}
-			//记录是否命中。如果是0，那么没有命中；否则即为命中。
-			resultToWrite.append("target:" + targetIndex + "\n");
-			//写进文件的字符，表示一个拼音串的结束。
-			resultToWrite.append("wordend\n");
-			return resultToWrite.toString();
-		} else {
+				//记录是否命中。如果是0，那么没有命中；否则即为命中。
+				resultToWrite.append("target:" + targetIndex + "\n");
+				//写进文件的字符，表示一个拼音串的结束。
+				resultToWrite.append("wordend\n");
+				return resultToWrite.toString();
+			} else {
+				return null;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 			return null;
 		}
-	} catch (IOException e) {
-		e.printStackTrace();
-		return null;
-	} catch (InterruptedException e) {
-		e.printStackTrace();
-		return null;
 	}
-}
 
-private void SendKey(int Keycode) throws IOException{
-	Log.e("InputKeyEvent", "Keycode:" + Keycode);
-	mInstrumentation.sendKeyDownUpSync(Keycode);
-}
-
-private void SendChoice(String Keycode) throws IOException{
-	int key = Integer.valueOf(Keycode) + 7;
-	Log.e("Send Choice", "Keycode:" + key);
-	mInstrumentation.sendKeyDownUpSync(key);
-}
-
-private void SendString(String text) throws IOException{
-	Log.e("InputKeyEvent", "text:" + text);
-	mInstrumentation.sendStringSync(text);
-}
-
-@Override
-public boolean onCreateOptionsMenu(Menu menu) {
-	getMenuInflater().inflate(R.menu.edit, menu);
-	return true;
-}
-
-private static void sleep(int second) {
-	try {
-		Thread.sleep(second * 1000);
-	} catch (InterruptedException e) {
-		e.printStackTrace();
+	private void SendKey(int Keycode) throws IOException{
+		Log.e("InputKeyEvent", "Keycode:" + Keycode);
+		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
-}
+
+	private void SendChoice(String Keycode) throws IOException{
+		int key = Integer.valueOf(Keycode) + 7;
+		Log.e("Send Choice", "Keycode:" + key);
+		mInstrumentation.sendKeyDownUpSync(key);
+	}
+
+	private void SendString(String text) throws IOException{
+		Log.e("InputKeyEvent", "text:" + text);
+		mInstrumentation.sendStringSync(text);
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.edit, menu);
+		return true;
+	}
+
+	private static void sleep(int second) {
+		try {
+			Thread.sleep(second * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 }
