@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 
-import android.R.integer;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -210,7 +209,7 @@ public class EditActivity extends Activity {
 								inputStr.indexOf(",", inputStr.indexOf(",") + 1));
 						String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
 						String hanzi = inputStr.substring(0, inputStr.indexOf(","));
-						
+
 						//如果遇到#号且是第三种模式，则说明需要清空了
 						if (pinyin.equals("#") && mChoice == R.id.config_radio_choice_first_screen) {
 							for (int i = 0; i < 2; i++)
@@ -281,6 +280,8 @@ public class EditActivity extends Activity {
 	 * @return 本次case分析结果log
 	 */
 	private String readLogcat(String pinyin, String hanzi) {
+		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
+		final int configChoice = mChoice;
 		String RawResult;
 		try {
 			RawResult = mLogcat.read();
@@ -321,69 +322,63 @@ public class EditActivity extends Activity {
 					}
 				}
 				//根据configActivity里面的配置，分不同情况上屏，或者清屏
-				switch (mChoice) {
-				case R.id.config_radio_complete_no_choice:
+				if (configChoice == R.id.config_radio_complete_no_choice) {
 					for (int i = 0; i < pinyin.length(); i++) {
 						SendKey(KeyEvent.KEYCODE_DEL);
 					}
-					break;
-				case R.id.config_radio_choice_first_candidate:
+				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
 					SendChoice("1");
 					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_DEL);
-					break;
-				case R.id.config_radio_choice_first_screen:
+				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
-					break;
-				default:
-					break;
 				}
-				//记录是否命中。如果是0，那么没有命中；否则即为命中。
-				resultToWrite.append("target:" + targetIndex + "\n");
-				//写进文件的字符，表示一个拼音串的结束。
-				resultToWrite.append("wordend\n");
-				return resultToWrite.toString();
-			} else {
-				return null;
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			//记录是否命中。如果是0，那么没有命中；否则即为命中。
+			resultToWrite.append("target:" + targetIndex + "\n");
+			//写进文件的字符，表示一个拼音串的结束。
+			resultToWrite.append("wordend\n");
+			return resultToWrite.toString();
+		} else {
 			return null;
 		}
+	} catch (IOException e) {
+		e.printStackTrace();
+		return null;
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+		return null;
 	}
+}
 
-	private void SendKey(int Keycode) throws IOException{
-		Log.e("InputKeyEvent", "Keycode:" + Keycode);
-		mInstrumentation.sendKeyDownUpSync(Keycode);
-	}
+private void SendKey(int Keycode) throws IOException{
+	Log.e("InputKeyEvent", "Keycode:" + Keycode);
+	mInstrumentation.sendKeyDownUpSync(Keycode);
+}
 
-	private void SendChoice(String Keycode) throws IOException{
-		int key = Integer.valueOf(Keycode) + 7;
-		Log.e("Send Choice", "Keycode:" + key);
-		mInstrumentation.sendKeyDownUpSync(key);
-	}
+private void SendChoice(String Keycode) throws IOException{
+	int key = Integer.valueOf(Keycode) + 7;
+	Log.e("Send Choice", "Keycode:" + key);
+	mInstrumentation.sendKeyDownUpSync(key);
+}
 
-	private void SendString(String text) throws IOException{
-		Log.e("InputKeyEvent", "text:" + text);
-		mInstrumentation.sendStringSync(text);
-	}
+private void SendString(String text) throws IOException{
+	Log.e("InputKeyEvent", "text:" + text);
+	mInstrumentation.sendStringSync(text);
+}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.edit, menu);
-		return true;
-	}
+@Override
+public boolean onCreateOptionsMenu(Menu menu) {
+	getMenuInflater().inflate(R.menu.edit, menu);
+	return true;
+}
 
-	private static void sleep(int second) {
-		try {
-			Thread.sleep(second * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+private static void sleep(int second) {
+	try {
+		Thread.sleep(second * 1000);
+	} catch (InterruptedException e) {
+		e.printStackTrace();
 	}
+}
 }
