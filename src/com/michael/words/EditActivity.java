@@ -329,10 +329,10 @@ public class EditActivity extends Activity {
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
 					SendChoice("1");
-					SendKey(KeyEvent.KEYCODE_DEL);
-					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_SPACE);
+					SendKey(KeyEvent.KEYCODE_SPACE);
+					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
