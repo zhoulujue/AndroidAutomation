@@ -52,7 +52,7 @@ public class EditActivity extends Activity {
 			}
 
 			mLogcat = new Shell("su");
-			sleep(2);
+			sleepSec(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
 
 			mReader = new BufferedReader(new FileReader(getFilesDir() + "/" + "raw.config"));
@@ -202,8 +202,7 @@ public class EditActivity extends Activity {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
-						for (int i = 0; i < (pinyin.length()<3?20:5); i++)
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						sleepMil(100);
 						resultToWrite += readLogcat(pinyin, hanzi);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
@@ -221,8 +220,7 @@ public class EditActivity extends Activity {
 								SendKey(KeyEvent.KEYCODE_DEL);
 						} else {
 							SendString(pinyin);
-							for (int i = 0; i < (pinyin.length()<3?20:5); i++)
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							sleepMil(100);
 							resultToWrite += readLogcat(pinyin, hanzi);
 							curCount++;
 						}
@@ -332,6 +330,7 @@ public class EditActivity extends Activity {
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
 					SendChoice("1");
 					SendKey(KeyEvent.KEYCODE_DEL);
+					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_DEL);
@@ -377,9 +376,17 @@ public class EditActivity extends Activity {
 		return true;
 	}
 
-	private static void sleep(int second) {
+	private static void sleepSec(int second) {
 		try {
 			Thread.sleep(second * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static void sleepMil(int millisecond) {
+		try {
+			Thread.sleep(millisecond);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
