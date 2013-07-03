@@ -202,8 +202,8 @@ public class EditActivity extends Activity {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
-						sleepMil(100);
 						resultToWrite += readLogcat(pinyin, hanzi);
+						sleepMil(100);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
 						//提取引号到第二个逗号之前的字符：a[0]="我,w,9999,21097634"; -> 我,w
@@ -220,8 +220,8 @@ public class EditActivity extends Activity {
 								SendKey(KeyEvent.KEYCODE_DEL);
 						} else {
 							SendString(pinyin);
-							sleepMil(100);
 							resultToWrite += readLogcat(pinyin, hanzi);
+							sleepMil(100);
 							curCount++;
 						}
 					}
