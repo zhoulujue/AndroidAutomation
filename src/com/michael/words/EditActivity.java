@@ -15,7 +15,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.View;
@@ -336,10 +335,9 @@ public class EditActivity extends Activity {
 							mEditView.setText("");
 						}
 					});
+					//TODO: ºÜ·´¶Ôsleep
+					sleepMil(50);
 					SendKey(KeyEvent.KEYCODE_SPACE);
-					SendKey(KeyEvent.KEYCODE_SPACE);
-					SendKey(KeyEvent.KEYCODE_SPACE);
-					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
@@ -362,18 +360,18 @@ public class EditActivity extends Activity {
 	}
 
 	private void SendKey(int Keycode) throws IOException{
-		Log.e("InputKeyEvent", "Keycode:" + Keycode);
+		//Log.e("InputKeyEvent", "Keycode:" + Keycode);
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
 
 	private void SendChoice(String Keycode) throws IOException{
 		int key = Integer.valueOf(Keycode) + 7;
-		Log.e("Send Choice", "Keycode:" + key);
+		//Log.e("Send Choice", "Keycode:" + key);
 		mInstrumentation.sendKeyDownUpSync(key);
 	}
 
 	private void SendString(String text) throws IOException{
-		Log.e("InputKeyEvent", "text:" + text);
+		//Log.e("InputKeyEvent", "text:" + text);
 		mInstrumentation.sendStringSync(text);
 	}
 
