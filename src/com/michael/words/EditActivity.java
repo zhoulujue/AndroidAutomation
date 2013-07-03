@@ -315,6 +315,7 @@ public class EditActivity extends Activity {
 
 						resultToWrite.append(index + ":");
 						resultToWrite.append(word + "\n");
+						//TODO: 测试的时候打开，运行的时候关闭
 						//Log.e("reading", "The Word is : " + index + ": " + word);
 						//如果候选词和当前要选的词是一样的话，说明本次读到的是要上屏的候选词，那么通过键盘按下index这个数字
 						if (word.equals(hanzi)) {
@@ -329,6 +330,12 @@ public class EditActivity extends Activity {
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
 					SendChoice("1");
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							mEditView.setText("");
+						}
+					});
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_SPACE);

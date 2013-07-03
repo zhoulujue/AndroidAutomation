@@ -13,7 +13,7 @@
     <string name="conti">Continue</string>
     <string name="last_run_failed">本地有未上传的结果文件</string>
     <string name="upload">Upload</string>
-    <string name="edit_text_box_hint">输入串\.\.\.</string>
+    <string name="edit_text_box_hint"></string>
     
     <!-- 上传dialog -->
     <string name="upload_result_failed">上传结果文件失败！</string>
