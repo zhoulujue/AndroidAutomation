@@ -201,8 +201,8 @@ public class EditActivity extends Activity {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
-						resultToWrite += readLogcat(pinyin, hanzi);
 						sleepMil(100);
+						resultToWrite += readLogcat(pinyin, hanzi);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
 						//提取引号到第二个逗号之前的字符：a[0]="我,w,9999,21097634"; -> 我,w
@@ -219,7 +219,14 @@ public class EditActivity extends Activity {
 								SendKey(KeyEvent.KEYCODE_DEL);
 						} else {
 							SendString(pinyin);
-							sleepMil(100);
+							if(pinyin.length() < 3) {
+								for (int j = 0; j < 20; j++)
+									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								sleepMil(100);
+							}
+							else {
+								sleepMil(100);
+							}
 							resultToWrite += readLogcat(pinyin, hanzi);
 							curCount++;
 						}
@@ -302,10 +309,24 @@ public class EditActivity extends Activity {
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
-					if (resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String")) {
+					if ((resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String")) ||
+							(resultlist[i].contains("type=buf") && resultlist[i + 1].contains("type=buf"))) {
+						//计算Y坐标，用于去噪音
+						String yCordStr = resultlist[i].substring(
+								resultlist[i].indexOf("#y:") + "#y:".length(), 
+								resultlist[i].indexOf(", type"));
+						double yCord = Double.valueOf(yCordStr);
+						String xCordStr = resultlist[i].substring(
+								resultlist[i].indexOf("#x:") + "#x:".length(), 
+								resultlist[i].indexOf("#y"));
+						double xCord = Double.valueOf(xCordStr);
+						if(yCord > 32.0 && xCord < 14.0 ){
+							i -= 1;
+							continue;
+						}
 						//计算候选词，用于记录和对比
 						String word = resultlist[i].substring(
-								resultlist[i].indexOf("text:") + "text:".length(), 
+								resultlist[i].indexOf("text") + "text".length(), 
 								resultlist[i].indexOf("#"));
 						//计算标号数字，用于按下数字键来选择上屏
 						String index = resultlist[i + 1].substring(
@@ -389,7 +410,7 @@ public class EditActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private static void sleepMil(int millisecond) {
 		try {
 			Thread.sleep(millisecond);
