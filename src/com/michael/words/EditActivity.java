@@ -221,6 +221,7 @@ public class EditActivity extends Activity {
 							SendString(pinyin);
 							sleepMil(100);
 							resultToWrite += readLogcat(pinyin, hanzi);
+							sleepMil(100);
 							curCount++;
 						}
 					}
