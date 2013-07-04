@@ -336,7 +336,8 @@ public class EditActivity extends Activity {
 						}
 					});
 					//TODO: ºÜ·´¶Ôsleep
-					sleepMil(100);
+					SendKey(KeyEvent.KEYCODE_SEMICOLON);
+					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
