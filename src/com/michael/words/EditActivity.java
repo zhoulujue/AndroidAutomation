@@ -219,8 +219,8 @@ public class EditActivity extends Activity {
 								SendKey(KeyEvent.KEYCODE_DEL);
 						} else {
 							SendString(pinyin);
-							resultToWrite += readLogcat(pinyin, hanzi);
 							sleepMil(100);
+							resultToWrite += readLogcat(pinyin, hanzi);
 							curCount++;
 						}
 					}
@@ -336,7 +336,7 @@ public class EditActivity extends Activity {
 						}
 					});
 					//TODO: ºÜ·´¶Ôsleep
-					sleepMil(50);
+					sleepMil(100);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
