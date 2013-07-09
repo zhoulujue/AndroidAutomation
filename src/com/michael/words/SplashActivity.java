@@ -37,11 +37,11 @@ public class SplashActivity extends Activity {
 		mHandler.postDelayed(new Runnable() {
 			public void run() {
 				download.start();
-				try {
+/*				try {
 					download.join();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-				}
+				}*/
 				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 				//如果本地没有结果文件，说明已经上传成功
 				if (!localFile.exists()) {
