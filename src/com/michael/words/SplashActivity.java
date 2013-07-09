@@ -36,8 +36,8 @@ public class SplashActivity extends Activity {
 	private void startMain() {
 		mHandler.postDelayed(new Runnable() {
 			public void run() {
-				download.start();
-/*				try {
+/*				download.start();
+				try {
 					download.join();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
