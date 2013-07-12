@@ -310,8 +310,8 @@ public class EditActivity extends Activity {
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
-					if ((resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=buf"))) {
-						//计算Y坐标，用于去噪音
+					if ((resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String"))) {
+						//计算X和Y坐标，用于去噪音
 						String yCordStr = resultlist[i].substring(
 								resultlist[i].indexOf("#y:") + "#y:".length(), 
 								resultlist[i].indexOf(", type"));
@@ -325,12 +325,12 @@ public class EditActivity extends Activity {
 							continue;
 						}
 						//计算候选词，用于记录和对比
-						String index = resultlist[i].substring(
+						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
 						//计算标号数字，用于按下数字键来选择上屏
-						String word = resultlist[i + 1].substring(
-								resultlist[i + 1].indexOf("text") + "text".length(), 
+						String index = resultlist[i + 1].substring(
+								resultlist[i + 1].indexOf("text:") + "text:".length(), 
 								resultlist[i + 1].indexOf("#"));
 
 						resultToWrite.append(index + ":");
