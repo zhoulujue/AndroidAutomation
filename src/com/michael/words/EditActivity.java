@@ -297,7 +297,7 @@ public class EditActivity extends Activity {
 			int startIndex = -1;
 			for (int i = resultlist.length - 1; i >=0; i--) {
 				if (resultlist[i].contains("text:1#")) {
-					startIndex = i;
+					startIndex = i - 1;
 					break;
 				}
 			}
@@ -311,19 +311,6 @@ public class EditActivity extends Activity {
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
 					if ((resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String"))) {
-						//计算X和Y坐标，用于去噪音
-						String yCordStr = resultlist[i].substring(
-								resultlist[i].indexOf("#y:") + "#y:".length(), 
-								resultlist[i].indexOf(", type"));
-						double yCord = Double.valueOf(yCordStr);
-						String xCordStr = resultlist[i].substring(
-								resultlist[i].indexOf("#x:") + "#x:".length(), 
-								resultlist[i].indexOf("#y"));
-						double xCord = Double.valueOf(xCordStr);
-						if(yCord > 32.0 && xCord < 14.0 ){
-							i -= 1;
-							continue;
-						}
 						//计算候选词，用于记录和对比
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
