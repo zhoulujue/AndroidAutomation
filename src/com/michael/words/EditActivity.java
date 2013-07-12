@@ -211,8 +211,9 @@ public class EditActivity extends Activity {
 						String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
 						String hanzi = inputStr.substring(0, inputStr.indexOf(","));
 
-						//如果遇到#号且是第三种模式，则说明需要清空了
+						//如果遇到#号且是第三种模式，则说明需要清空了，但是注意不能先敲空格那样会把联想上屏
 						if (pinyin.equals("#") && configChoice == R.id.config_radio_choice_first_screen) {
+							SendKey(KeyEvent.KEYCODE_DEL);
 							for (int i = 0; i < 2; i++)
 								SendKey(KeyEvent.KEYCODE_SPACE);
 							for (int i = 0; i < 2; i++)
