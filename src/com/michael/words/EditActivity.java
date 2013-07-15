@@ -219,24 +219,26 @@ public class EditActivity extends Activity {
 							for (int i = 0; i < 2; i++)
 								SendKey(KeyEvent.KEYCODE_DEL);
 						} else {
+							//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
+							for (int j = 0; j < 3; j++)
+								SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+
 							SendString(pinyin);
-							if(pinyin.length() < 3) {
-								for (int j = 0; j < 20; j++)
-									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								sleepMil(100);
-							}
-							else {
-								sleepMil(100);
-							}
-							resultToWrite += readLogcat(pinyin, hanzi);
-							curCount++;
+
+							//为了和下一次输入间隔开来
+							for (int j = 0; j < (pinyin.length() < 4 ? 20:10); j++)
+								SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+							
+							sleepMil(100);
 						}
+						resultToWrite += readLogcat(pinyin, hanzi);
+						curCount++;
 					}
 					if (curCount % 20 == 0) {
 						final int count = curCount;
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
@@ -246,9 +248,9 @@ public class EditActivity extends Activity {
 						});
 						new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 						resultToWrite = "";
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+						SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
 					}
 				}
 				//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
@@ -349,8 +351,6 @@ public class EditActivity extends Activity {
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
-					//TODO: 很反对sleep
-					sleepMil(100);
 				}
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
 				resultToWrite.append("target:" + targetIndex + "\n");
