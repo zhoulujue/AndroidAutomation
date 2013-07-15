@@ -343,13 +343,14 @@ public class EditActivity extends Activity {
 							mEditView.setText("");
 						}
 					});
-					//TODO: 很反对sleep
 					SendKey(KeyEvent.KEYCODE_SEMICOLON);
 					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
+					//TODO: 很反对sleep
+					sleepMil(100);
 				}
 				//记录是否命中。如果是0，那么没有命中；否则即为命中。
 				resultToWrite.append("target:" + targetIndex + "\n");
