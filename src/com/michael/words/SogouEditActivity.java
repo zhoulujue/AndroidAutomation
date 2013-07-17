@@ -27,7 +27,7 @@ import android.widget.TextView;
 
 import com.michael.shell.Shell;
 
-public class EditActivity extends Activity {
+public class SogouEditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
 	private Instrumentation mInstrumentation;
@@ -50,6 +50,8 @@ public class EditActivity extends Activity {
 				finish();
 			}
 
+			Utils.showToast(getApplicationContext(), "Sooooooooooooooooooooooogou!");
+			
 			mLogcat = new Shell("su");
 			sleepSec(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
@@ -95,13 +97,33 @@ public class EditActivity extends Activity {
 	}
 
 	private void writeInfoHead() {
-		PackageInfo pInfo = Utils.getCurrentImeInfo(getApplicationContext());
-		if (pInfo != null) {
+		InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+		List<InputMethodInfo> mInputMethodProperties = imm.getEnabledInputMethodList();
+
+		final int N = mInputMethodProperties.size();
+
+		for (int i = 0; i < N; i++) {
+			InputMethodInfo imi = mInputMethodProperties.get(i);
+			if (imi.getId().equals(Settings.Secure.getString(getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD))) {
+				String packageName = imi.getPackageName();
+				PackageInfo pInfo;
+				String versionName = "Not kown";
+				int versionCode = 0;
+				try {
+					pInfo = getPackageManager().getPackageInfo(packageName, 0);
+					versionName = pInfo.versionName;
+					versionCode = pInfo.versionCode;
+				} catch (NameNotFoundException e) {
+					e.printStackTrace();
+				}
+
 				new WriteFileThread(getApplicationContext(), 
-						"IMEName:" + pInfo.packageName + "\n" +
-								"IMEVersionName:" + pInfo.versionName + "\n" +
-								"IMEVersionCode:" + pInfo.versionCode + "\n"
+						"IMEName:" + packageName + "\n" +
+								"IMEVersionName:" + versionName + "\n" +
+								"IMEVersionCode:" + versionCode + "\n"
 						).start();
+				break;
+			}
 		}
 	}
 

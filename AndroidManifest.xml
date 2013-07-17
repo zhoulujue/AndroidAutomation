@@ -25,6 +25,13 @@
 		</activity>
 		
 		<activity 
+			android:name="com.michael.words.SogouEditActivity"
+			android:windowSoftInputMode="adjustResize" 
+			android:screenOrientation="landscape"
+			android:label="@string/app_name" >
+		</activity>
+		
+		<activity 
 			android:name="com.michael.words.SplashActivity"
 			android:label="@string/app_name"
 			android:screenOrientation="landscape" >

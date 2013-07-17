@@ -22,12 +22,18 @@ import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.provider.Settings;
+import android.view.inputmethod.InputMethodInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
 
 public class Utils {
@@ -580,6 +586,28 @@ public class Utils {
 		} catch (Exception e) {
 			return false;
 		}
+	}
+	
+	public static PackageInfo getCurrentImeInfo(Context context){
+		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		List<InputMethodInfo> mInputMethodProperties = imm.getEnabledInputMethodList();
+
+		final int N = mInputMethodProperties.size();
+
+		for (int i = 0; i < N; i++) {
+			InputMethodInfo imi = mInputMethodProperties.get(i);
+			if (imi.getId().equals(Settings.Secure.getString(context.getContentResolver(), Settings.Secure.DEFAULT_INPUT_METHOD))) {
+				String packageName = imi.getPackageName();
+				PackageInfo pInfo = null;
+				try {
+					pInfo = context.getPackageManager().getPackageInfo(packageName, 0);
+				} catch (NameNotFoundException e) {
+					e.printStackTrace();
+				}
+				return pInfo;
+			}
+		}
+		return null;
 	}
 	
 }

@@ -60,8 +60,15 @@ public class ConfigActivity extends BaseActivity {
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 			editor.putInt("choice", choice);
 			editor.commit();
-			startActivity(new Intent(ConfigActivity.this, EditActivity.class));
-			finish();
+			String ImeName = Utils.getCurrentImeInfo(getApplicationContext()).packageName;
+			if (ImeName.contains("sogou")){
+				startActivity(new Intent(ConfigActivity.this, SogouEditActivity.class));
+				finish();
+			} else {
+				startActivity(new Intent(ConfigActivity.this, EditActivity.class));
+				finish();
+			}
+
 		}
 	};
 }
