@@ -352,7 +352,7 @@ public class SogouEditActivity extends Activity {
 						SendKey(KeyEvent.KEYCODE_DEL);
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
-					SendChoice("1");
+					SendChoice(33.0);
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
@@ -399,7 +399,6 @@ public class SogouEditActivity extends Activity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
-			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
 		mEditView.showInputMethod();
@@ -496,13 +495,11 @@ public class SogouEditActivity extends Activity {
 	}
 
 	private void SendKey(int Keycode) throws IOException{
-		//Log.e("InputKeyEvent", "Keycode:" + Keycode);
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
 
 	private void SendChoice(String Keycode) throws IOException{
 		int key = Integer.valueOf(Keycode) + 7;
-		//Log.e("Send Choice", "Keycode:" + key);
 		mInstrumentation.sendKeyDownUpSync(key);
 	}
 
@@ -511,7 +508,7 @@ public class SogouEditActivity extends Activity {
 				new BigDecimal(x).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
 		int yCord = 
 				new BigDecimal(mMeasure.MostYCordInScreen).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
-		//tapScreen(xCord, yCord);
+		tapScreen(xCord, yCord);
 	}
 
 	private void SendString(String text) throws IOException{
@@ -519,9 +516,13 @@ public class SogouEditActivity extends Activity {
 		final double MostYCord = mMeasure.MostYCord;
 		final float Qx = (float) mMeasure.QxCord;
 		final float Qy = (float) (MostYCordInScreen + MostYCord);
-		final double DELy = mMeasure.ScreenHeight - (mMeasure.CtrlHeight) * 2 + mMeasure.CtrlHeight/2.0;
-		final double DELx = mMeasure.ScreenWidth - Qx*2;
+		//final double DELy = mMeasure.ScreenHeight - (mMeasure.CtrlHeight) * 2 + mMeasure.CtrlHeight/2.0;
+		//final double DELx = mMeasure.ScreenWidth - Qx*4;
 		mInstrumentation.sendStringSync(text);
+		
+		//用来更新输入法界面
+		tapScreen(Qx, Qy);
+		SendKey(KeyEvent.KEYCODE_DEL);
 	}
 
 	private void tapScreen(float x, float y){
