@@ -526,13 +526,15 @@ public class SogouEditActivity extends Activity {
 	}
 
 	private void tapScreen(float x, float y){
-		mInstrumentation.sendPointerSync(MotionEvent.obtain(
+		MotionEvent tapEvent = MotionEvent.obtain(
 				SystemClock.uptimeMillis(), 
 				SystemClock.uptimeMillis(), 
 				MotionEvent.ACTION_DOWN, 
 				x, 
 				y, 
-				0));
+				0);
+		mInstrumentation.sendPointerSync(tapEvent);
+		tapEvent.recycle();
 	}
 
 	@Override
