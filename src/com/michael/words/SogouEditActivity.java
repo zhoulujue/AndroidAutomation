@@ -332,7 +332,7 @@ public class SogouEditActivity extends Activity {
 				int indexToWrite = -1;
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = candidateList.size() - 1; i >=0; i--) {
-					indexToWrite = candidateList.size() - i + 1;
+					indexToWrite = candidateList.size() - i;
 					String word = candidateList.get(i).content;
 					if (indexToWrite <= FISRT_SCREEN_THRESHOLD){
 						resultToWrite.append(indexToWrite + ":");
@@ -373,7 +373,7 @@ public class SogouEditActivity extends Activity {
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
-				resultToWrite.append("target:" + indexToWrite + "\n");
+				resultToWrite.append("target:" + (candidateList.size() - targetIndex) + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
 				return resultToWrite.toString();
@@ -498,11 +498,6 @@ public class SogouEditActivity extends Activity {
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
 
-	private void SendChoice(String Keycode) throws IOException{
-		int key = Integer.valueOf(Keycode) + 7;
-		mInstrumentation.sendKeyDownUpSync(key);
-	}
-
 	private void SendChoice(double x) throws IOException{
 		int xCord = 
 				new BigDecimal(x).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
@@ -516,8 +511,6 @@ public class SogouEditActivity extends Activity {
 		final double MostYCord = mMeasure.MostYCord;
 		final float Qx = (float) mMeasure.QxCord;
 		final float Qy = (float) (MostYCordInScreen + MostYCord);
-		//final double DELy = mMeasure.ScreenHeight - (mMeasure.CtrlHeight) * 2 + mMeasure.CtrlHeight/2.0;
-		//final double DELx = mMeasure.ScreenWidth - Qx*4;
 		mInstrumentation.sendStringSync(text);
 		
 		//用来更新输入法界面
