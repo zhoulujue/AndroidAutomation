@@ -511,7 +511,7 @@ public class SogouEditActivity extends Activity {
 		tapScreen(xCord, yCord);
 	}
 
-	private void SendString(String text) throws IOException{
+	private void SendString(String text) throws IOException, InterruptedException {
 		final double MostYCordInScreen = mMeasure.MostYCordInScreen;
 		final double MostYCord = mMeasure.MostYCord;
 		final float Qx = (float) mMeasure.QxCord;
@@ -522,6 +522,7 @@ public class SogouEditActivity extends Activity {
 		
 		//用来更新输入法界面
 		tapScreen(Qx, Qy);
+		mLogcat.read();
 		SendKey(KeyEvent.KEYCODE_DEL);
 	}
 
