@@ -51,7 +51,7 @@ public class SogouEditActivity extends Activity {
 		try {
 			File rawFile = new File(getFilesDir() + "/" + "raw.config");
 			if(!rawFile.exists()) {
-				Utils.showToast(getApplicationContext(), "没有获取到配置文件，退出！");
+				Utils.showToast(getApplicationContext(), R.string.toast_config_missing);
 				finish();
 			}
 
@@ -373,7 +373,8 @@ public class SogouEditActivity extends Activity {
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
-				resultToWrite.append("target:" + (candidateList.size() - targetIndex) + "\n");
+				int ChoiceIndex = candidateList.size() - targetIndex;
+				resultToWrite.append("target:" + (ChoiceIndex > 12 ? -1 : ChoiceIndex) + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
 				return resultToWrite.toString();
@@ -435,7 +436,7 @@ public class SogouEditActivity extends Activity {
 			e.printStackTrace();
 		}
 		if (rawResult.equals("") || rawResult == null){
-			Utils.showToast(getApplicationContext(), "探测失败，请重试");
+			Utils.showToast(getApplicationContext(), R.string.toast_probe_failed);
 			finish();
 			return;
 		} else {

@@ -190,6 +190,10 @@ public final class R {
         public static final int pause=0x7f060008;
         public static final int start=0x7f060003;
         public static final int switch_ime=0x7f060019;
+        public static final int toast_config_missing=0x7f06001f;
+        /**  Toast 
+         */
+        public static final int toast_probe_failed=0x7f06001e;
         public static final int upload=0x7f06000b;
         public static final int upload_result_btn_delete=0x7f060010;
         public static final int upload_result_btn_retry=0x7f06000f;

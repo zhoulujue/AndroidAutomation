@@ -35,5 +35,9 @@
 	<string name="config_step_two">第二步</string>
 	<string name="config_step_thr">第三步</string>
 	<string name="next_step">下一步</string>
+	
+	<!-- Toast -->
+    <string name="toast_probe_failed">探测失败，请重试！</string>
+    <string name="toast_config_missing">没有获取到配置文件，退出！</string>
     
 </resources>
