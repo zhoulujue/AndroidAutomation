@@ -8,25 +8,18 @@ import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.Reader;
-import java.net.SocketException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-
-import org.apache.commons.net.ftp.FTPClient;
-import org.apache.commons.net.ftp.FTPReply;
 
 import android.content.Context;
 import android.content.pm.PackageInfo;
@@ -365,138 +358,6 @@ public class Utils {
 	{
 		Date now = new Date();
 		return String.valueOf(now.getTime()).substring(0, 10);
-	}
-
-	public static InputStreamReader getInputStreamReaderFromFtp(String url,int port,String username,
-			String password, String path, String filename) {
-		FTPClient ftp = new FTPClient();
-		int reply;
-		try {
-			ftp.connect(url, port);
-			ftp.login(username, password);
-			reply = ftp.getReplyCode();
-			if (!FTPReply.isPositiveCompletion(reply)) {
-				ftp.disconnect();
-				return null;
-			}
-			ftp.changeWorkingDirectory(path);
-			InputStream inputStream = ftp.retrieveFileStream(filename);
-			InputStreamReader reader = new InputStreamReader(inputStream);
-			return reader;
-
-		} catch (SocketException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} finally {
-			if (ftp.isConnected()) {
-				try {
-					ftp.disconnect();
-				} catch (IOException ioe) {
-				}
-			}
-		}
-	}
-	
-	public static OutputStreamWriter getOutputStreamWriterFromFtp(String url,int port,String username,
-			String password, String path, String filename) {
-		FTPClient ftp = new FTPClient();
-		int reply;
-		try {
-			ftp.connect(url, port);
-			ftp.login(username, password);
-			reply = ftp.getReplyCode();
-			if (!FTPReply.isPositiveCompletion(reply)) {
-				ftp.disconnect();
-				return null;
-			}
-			ftp.changeWorkingDirectory(path);
-			OutputStream outputStream = ftp.appendFileStream(filename);
-			OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-			return writer;
-
-		} catch (SocketException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		} finally {
-			if (ftp.isConnected()) {
-				try {
-					ftp.disconnect();
-				} catch (IOException ioe) {
-				}
-			}
-		}
-
-	}
-
-	public static boolean uploadFile(String filename)
-	{
-		File resultFile = new File(filename);
-		if(!resultFile.exists())
-			return false;
-		FileInputStream in = null;
-		try {
-			in = new FileInputStream(resultFile);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return false;
-		}
-		
-		//TODO: 不用合成文件
-		//String fileNameOnFTP = "result" + getTimeStamp() + ".txt";
-		String fileNameOnFTP = "result.txt";
-		return uploadFile(FTP_HOST_NAME, FTP_PORT, "setest", "setest", UPLOAD_PATH, fileNameOnFTP, in);
-		
-	}
-	
-	/**
-	 * Description: 向FTP服务器上传文件
-	 * @param url FTP服务器HostName
-	 * @param port FTP服务器端口
-	 * @param username FTP登录账号
-	 * @param password FTP登录密码
-	 * @param path FTP服务器保存目录
-	 * @param filename 上传到FTP服务器上的文件名
-	 * @param input 输入流
-	 * @return 成功返回true，否则返回false
-	 */
-	public static boolean uploadFile(String url,int port,String username, String password, String path, String filename, InputStream input) {
-		boolean success = false;
-		FTPClient ftp = new FTPClient();
-		try {
-			int reply;
-			ftp.connect(url, port);//连接FTP服务器
-			//如果采用默认端口，可以使用ftp.connect(url)的方式直接连接FTP服务器
-			ftp.login(username, password);//登录
-			reply = ftp.getReplyCode();
-			if (!FTPReply.isPositiveCompletion(reply)) {
-				ftp.disconnect();
-				return success;
-			}
-			ftp.changeWorkingDirectory(path);
-			//TODO: 不用合成文件
-			//ftp.storeFile(filename, input);			
-			ftp.appendFile(filename, input);
-			
-			input.close();
-			ftp.logout();
-			success = true;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			if (ftp.isConnected()) {
-				try {
-					ftp.disconnect();
-				} catch (IOException ioe) {
-				}
-			}
-		}
-		return success;
 	}
 
 	public static void showToast(Context context, String string) {
