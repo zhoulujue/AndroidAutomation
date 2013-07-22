@@ -204,9 +204,10 @@ public class EditActivity extends Activity {
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							
 							sleepMil(100);
+							resultToWrite += readLogcat(pinyin, hanzi);
+							curCount++;
 						}
-						resultToWrite += readLogcat(pinyin, hanzi);
-						curCount++;
+
 					}
 					if (curCount % 20 == 0) {
 						final int count = curCount;
