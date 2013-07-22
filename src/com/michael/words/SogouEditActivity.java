@@ -9,12 +9,15 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -185,7 +188,7 @@ public class SogouEditActivity extends Activity {
 				while ((inputStr = mReader.readLine()) != null) {
 					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 					//TODO: 不断访问成员变量，这样也会把CPU带上去
-					while(mPause){};
+					//while(mPause){};
 					//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则说明是要清空上下文
 					if (inputStr.contains("\t")) {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
@@ -216,7 +219,7 @@ public class SogouEditActivity extends Activity {
 							SendString(pinyin);
 
 							//为了和下一次输入间隔开来
-							for (int j = 0; j < (pinyin.length() < 4 ? 20:10); j++)
+							for (int j = 0; j < (pinyin.length() < 4 ? 10:5); j++)
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 							sleepMil(100);
@@ -477,14 +480,24 @@ public class SogouEditActivity extends Activity {
 			}
 
 			Point outSize = new Point();
-			this.getWindowManager().getDefaultDisplay().getRealSize(outSize);
-			int screenHeight = outSize.y;
-			mMeasure.MostYCordInScreen = screenHeight - (singleCtrlHeight * 4) - mostYCord/2.0;
+			try {
+				((WindowManager) createPackageContext(
+						Utils.getCurrentImeInfo(getApplicationContext()).packageName, 
+						Context.CONTEXT_IGNORE_SECURITY)
+						.getSystemService(Context.WINDOW_SERVICE))
+						.getDefaultDisplay().getRealSize(outSize);
+			} catch (NameNotFoundException e1) {
+				e1.printStackTrace();
+			}
+			mMeasure.ScreenHeight = outSize.y;
+			mMeasure.ScreenWidth = outSize.x;
+			mMeasure.MostYCordInScreen = mMeasure.ScreenHeight - (singleCtrlHeight * 4) - mostYCord/2.0;
 			mMeasure.CtrlHeight = singleCtrlHeight;
 			mMeasure.MostYCord = mostYCord;
 			mMeasure.QxCord = QXCord;
-			mMeasure.ScreenHeight = screenHeight;
-			mMeasure.ScreenWidth = outSize.x;
+			mMeasure.QyCord = mMeasure.MostYCordInScreen + mostYCord;
+			mMeasure.DELx = mMeasure.ScreenWidth - QXCord * 3;
+			mMeasure.DELy = mMeasure.ScreenHeight - singleCtrlHeight * 1.5;
 			try {
 				SendKey(KeyEvent.KEYCODE_DEL);
 			} catch (IOException e) {
@@ -494,7 +507,7 @@ public class SogouEditActivity extends Activity {
 		}
 
 	}
-
+	
 	private void SendKey(int Keycode) throws IOException{
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
@@ -508,16 +521,16 @@ public class SogouEditActivity extends Activity {
 	}
 
 	private void SendString(String text) throws IOException, InterruptedException {
-		final double MostYCordInScreen = mMeasure.MostYCordInScreen;
-		final double MostYCord = mMeasure.MostYCord;
-		final float Qx = (float) mMeasure.QxCord;
-		final float Qy = (float) (MostYCordInScreen + MostYCord);
-		mInstrumentation.sendStringSync(text);
+		final CandidateMeasure measure = mMeasure;
 		
+		mInstrumentation.sendStringSync(text);
+
 		//用来更新输入法界面
-		tapScreen(Qx, Qy);
+		tapScreen((float)measure.QxCord, (float)measure.QyCord);
+		if (text.length() < 4)
+			sleepMil(50);
 		mLogcat.read();
-		SendKey(KeyEvent.KEYCODE_DEL);
+		tapScreen((float)measure.DELx, (float)measure.DELy);
 	}
 
 	private void tapScreen(float x, float y){
