@@ -17,7 +17,6 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
