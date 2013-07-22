@@ -40,7 +40,7 @@ public class EditActivity extends Activity {
 		try {
 			File rawFile = new File(getFilesDir() + "/" + "raw.config");
 			if(!rawFile.exists()) {
-				Utils.showToast(getApplicationContext(), "没有获取到配置文件，退出！");
+				Utils.showToast(getApplicationContext(), R.string.toast_config_missing);
 				finish();
 			}
 
