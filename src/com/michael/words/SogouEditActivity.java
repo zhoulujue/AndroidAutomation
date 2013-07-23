@@ -213,9 +213,10 @@ public class SogouEditActivity extends Activity {
 						} else {
 
 							//这两个参数都是为了Rerun
-							String resultForThisCase = "null";
+							String resultForThisCase = "";
 							int TrialCount = 0;
-							while(resultForThisCase.endsWith("") && TrialCount < 10) {
+							while(resultForThisCase.equals("") && TrialCount < 10) {
+								//如果需要rerun，说明没有读取到候选
 								if (TrialCount > 0)
 									for(int time =0; time < pinyin.length(); time++)
 										SendKey(KeyEvent.KEYCODE_DEL);
@@ -532,16 +533,16 @@ public class SogouEditActivity extends Activity {
 	}
 
 	private void SendString(String text) throws IOException, InterruptedException {
-		final CandidateMeasure measure = mMeasure;
+		//final CandidateMeasure measure = mMeasure;
 
 		mInstrumentation.sendStringSync(text);
 
 		//用来更新输入法界面
-		tapScreen((float)measure.QxCord, (float)measure.QyCord);
-		if (text.length() < 4)
-			sleepMil(50);
-		mLogcat.read();
-		tapScreen((float)measure.DELx, (float)measure.DELy);
+//		tapScreen((float)measure.QxCord, (float)measure.QyCord);
+//		if (text.length() < 4)
+//			sleepMil(50);
+//		mLogcat.read();
+//		tapScreen((float)measure.DELx, (float)measure.DELy);
 	}
 
 	private void tapScreen(float x, float y){
