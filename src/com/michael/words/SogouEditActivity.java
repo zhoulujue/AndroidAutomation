@@ -211,18 +211,30 @@ public class SogouEditActivity extends Activity {
 							for (int i = 0; i < 2; i++)
 								SendKey(KeyEvent.KEYCODE_DEL);
 						} else {
-							//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
-							for (int j = 0; j < 3; j++)
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
-							SendString(pinyin);
+							//这两个参数都是为了Rerun
+							String resultForThisCase = "null";
+							int TrialCount = 0;
+							while(resultForThisCase.endsWith("") && TrialCount < 10) {
+								if (TrialCount > 0)
+									for(int time =0; time < pinyin.length(); time++)
+										SendKey(KeyEvent.KEYCODE_DEL);
+								
+								//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
+								for (int j = 0; j < 3; j++)
+									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
-							//为了和下一次输入间隔开来
-							for (int j = 0; j < (pinyin.length() < 4 ? 10:5); j++)
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendString(pinyin);
 
-							sleepMil(100);
-							resultToWrite += readLogcat(pinyin, hanzi);
+								//为了和下一次输入间隔开来
+								for (int j = 0; j < (pinyin.length() < 4 ? 10:5); j++)
+									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+
+								sleepMil(100);
+								resultForThisCase = readLogcat(pinyin, hanzi);
+								TrialCount++;
+							}
+							resultToWrite += resultForThisCase;
 							curCount++;
 						}
 					}
@@ -506,7 +518,7 @@ public class SogouEditActivity extends Activity {
 		}
 
 	}
-	
+
 	private void SendKey(int Keycode) throws IOException{
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
@@ -521,7 +533,7 @@ public class SogouEditActivity extends Activity {
 
 	private void SendString(String text) throws IOException, InterruptedException {
 		final CandidateMeasure measure = mMeasure;
-		
+
 		mInstrumentation.sendStringSync(text);
 
 		//用来更新输入法界面
