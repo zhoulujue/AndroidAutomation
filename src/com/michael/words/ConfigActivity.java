@@ -11,8 +11,8 @@ import android.widget.Button;
 import android.widget.RadioGroup;
 
 public class ConfigActivity extends BaseActivity {
-	
-	
+
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -25,34 +25,34 @@ public class ConfigActivity extends BaseActivity {
 	private void init() {
 		Button connectBluetoothButton = (Button) findViewById(R.id.config_button_connect);
 		connectBluetoothButton.setOnClickListener(mOnConnectBluetoothListener);
-		
+
 		Button switchImeButton = (Button) findViewById(R.id.config_button_switch_ime);
 		switchImeButton.setOnClickListener(mOnSwitchImeListener);
-		
+
 		Button nextStepButton = (Button) findViewById(R.id.config_button_next_step);
 		nextStepButton.setOnClickListener(mOnNextStepListener);
 	}
-	
+
 	private View.OnClickListener mOnConnectBluetoothListener = new View.OnClickListener() {
-		
+
 		@Override
 		public void onClick(View v) {
-			 Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-			 startActivity(intent);
+			Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
+			startActivity(intent);
 		}
 	};
-	
+
 	private View.OnClickListener mOnSwitchImeListener = new View.OnClickListener() {
-		
+
 		@Override
 		public void onClick(View v) {
 			Intent intent = new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS);
 			startActivity(intent);
 		}
 	};
-	
+
 	private View.OnClickListener mOnNextStepListener = new View.OnClickListener() {
-		
+
 		@Override
 		public void onClick(View v) {
 			RadioGroup radio = (RadioGroup) findViewById(R.id.config_radioGroup);
@@ -60,14 +60,14 @@ public class ConfigActivity extends BaseActivity {
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 			editor.putInt("choice", choice);
 			editor.commit();
-			String ImeName = Utils.getCurrentImeInfo(getApplicationContext()).packageName;
-			if (ImeName.contains("sogou")){
-				startActivity(new Intent(ConfigActivity.this, SogouEditActivity.class));
-				finish();
-			} else {
-				startActivity(new Intent(ConfigActivity.this, EditActivity.class));
-				finish();
-			}
+			//String ImeName = Utils.getCurrentImeInfo(getApplicationContext()).packageName;
+			//if (ImeName.contains("sogou")){
+			//startActivity(new Intent(ConfigActivity.this, SogouEditActivity.class));
+			//finish();
+			//} else {
+			startActivity(new Intent(ConfigActivity.this, EditActivity.class));
+			finish();
+			//}
 
 		}
 	};

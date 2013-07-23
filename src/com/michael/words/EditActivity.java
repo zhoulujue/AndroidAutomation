@@ -193,18 +193,30 @@ public class EditActivity extends Activity {
 							for (int i = 0; i < 2; i++)
 								SendKey(KeyEvent.KEYCODE_DEL);
 						} else {
-							//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
-							for (int j = 0; j < 3; j++)
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							//这两个参数都是为了Rerun
+							String resultForThisCase = "";
+							int TrialCount = 0;
+							while(resultForThisCase.equals("") && TrialCount < 10) {
+								//如果需要rerun，说明没有读取到候选
+								if (TrialCount > 0)
+									for(int time =0; time < pinyin.length(); time++)
+										SendKey(KeyEvent.KEYCODE_DEL);
+								
+								//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
+								for (int j = 0; j < 3; j++)
+									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
-							SendString(pinyin);
+								SendString(pinyin);
 
-							//为了和下一次输入间隔开来
-							for (int j = 0; j < (pinyin.length() < 4 ? 20:10); j++)
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							
-							sleepMil(100);
-							resultToWrite += readLogcat(pinyin, hanzi);
+								//为了和下一次输入间隔开来
+								for (int j = 0; j < (pinyin.length() < 4 ? 10:5); j++)
+									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+
+								sleepMil(100);
+								resultForThisCase = readLogcat(pinyin, hanzi);
+								TrialCount++;
+							}
+							resultToWrite += resultForThisCase;
 							curCount++;
 						}
 
@@ -287,7 +299,8 @@ public class EditActivity extends Activity {
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
-					if ((resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String"))) {
+					if ((resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String"))
+						|| (resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=buf"))) {
 						//计算候选词，用于记录和对比
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
