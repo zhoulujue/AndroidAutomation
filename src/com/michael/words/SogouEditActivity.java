@@ -317,13 +317,13 @@ public class SogouEditActivity extends Activity {
 
 			if (endIndex != -1) {
 				//筛得候选所有信息，顺序是倒着的
-				for (int i = endIndex; i >= 0; i--){
+				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
 
 					//通过type=buf和y坐标筛选候选词以后，把候选截取出来
-					if (resultlist[i].contains(", type=buf") 
-							&& resultlist[i].contains("#y:" + MostYCord)) {
+					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)
+							) {
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
@@ -356,7 +356,7 @@ public class SogouEditActivity extends Activity {
 						//Log.e("reading", "The Word is : " + index + ": " + word);
 						if (word.equals(hanzi)) {
 							//记录在candidateList里真实的索引，便于后面SendChoice使用
-							targetIndex = i;
+							targetIndex = indexToWrite;
 						}
 					}//if (index <= FISRT_SCREEN_THRESHOLD)
 				}//for
@@ -367,7 +367,7 @@ public class SogouEditActivity extends Activity {
 						SendKey(KeyEvent.KEYCODE_DEL);
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
-					SendChoice(33.0);
+					SendChoice("1");
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
@@ -384,7 +384,8 @@ public class SogouEditActivity extends Activity {
 						SendKey(KeyEvent.KEYCODE_SPACE);
 					} else {
 						//如果target在0到11之间
-						SendChoice(candidateList.get(targetIndex).coordinates.x);
+						SendChoice(String.valueOf(targetIndex));
+						//SendChoice(candidateList.get(targetIndex).coordinates.x);
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
@@ -394,14 +395,14 @@ public class SogouEditActivity extends Activity {
 				resultToWrite.append("wordend\n");
 				return resultToWrite.toString();
 			} else {//if (endIndex != -1)
-				return null;
+				return "";
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			return null;
+			return "";
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			return null;
+			return "";
 		}
 	}
 
@@ -524,6 +525,12 @@ public class SogouEditActivity extends Activity {
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
 
+	private void SendChoice(String Keycode) throws IOException{
+		int key = Integer.valueOf(Keycode) + 7;
+		//Log.e("Send Choice", "Keycode:" + key);
+		mInstrumentation.sendKeyDownUpSync(key);
+	}
+	
 	private void SendChoice(double x) throws IOException{
 		int xCord = 
 				new BigDecimal(x).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
@@ -532,17 +539,9 @@ public class SogouEditActivity extends Activity {
 		tapScreen(xCord, yCord);
 	}
 
-	private void SendString(String text) throws IOException, InterruptedException {
-		//final CandidateMeasure measure = mMeasure;
-
+	private void SendString(String text) throws IOException{
+		//Log.e("InputKeyEvent", "text:" + text);
 		mInstrumentation.sendStringSync(text);
-
-		//用来更新输入法界面
-//		tapScreen((float)measure.QxCord, (float)measure.QyCord);
-//		if (text.length() < 4)
-//			sleepMil(50);
-//		mLogcat.read();
-//		tapScreen((float)measure.DELx, (float)measure.DELy);
 	}
 
 	private void tapScreen(float x, float y){
