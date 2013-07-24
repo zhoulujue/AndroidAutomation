@@ -389,8 +389,7 @@ public class SogouEditActivity extends Activity {
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
-				int ChoiceIndex = candidateList.size() - targetIndex;
-				resultToWrite.append("target:" + (ChoiceIndex > 12 ? -1 : ChoiceIndex) + "\n");
+				resultToWrite.append("target:" + targetIndex + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
 				return resultToWrite.toString();
