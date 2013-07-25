@@ -381,7 +381,7 @@ public class SogouEditActivity extends Activity {
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					if (targetIndex == -1){
 						//如果没有找到目标词，那么空格上屏
-						SendChoice(KeyEvent.KEYCODE_ENTER);
+						SendChoice(KeyEvent.KEYCODE_ENTER);	
 					} else {
 						//如果target在0到11之间
 						SendChoice(String.valueOf(targetIndex));
