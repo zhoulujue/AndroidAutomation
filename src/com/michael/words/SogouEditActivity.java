@@ -322,7 +322,7 @@ public class SogouEditActivity extends Activity {
 					resultlist[i] = resultlist[i].replaceAll("'", "");
 
 					//通过type=buf和y坐标筛选候选词以后，把候选截取出来
-					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)
+					if (resultlist[i].contains(", type=buf")//&& resultlist[i].contains("#y:" + MostYCord)
 							) {
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 

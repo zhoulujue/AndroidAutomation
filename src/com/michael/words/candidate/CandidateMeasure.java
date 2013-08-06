@@ -2,7 +2,7 @@ package com.michael.words.candidate;
 
 public class CandidateMeasure {
 	public double CtrlHeight;
-	public double MostYCord;
+	public int MostYCord;
 	public double MostYCordInScreen;
 	public double QxCord;
 	public double QyCord;
@@ -13,7 +13,7 @@ public class CandidateMeasure {
 	
 	public CandidateMeasure(){
 		CtrlHeight = 86.0;
-		MostYCord = 61.0;
+		MostYCord = 61;
 		MostYCordInScreen = 345.0;
 		QxCord = 82.0;
 		QyCord = 420.0;
