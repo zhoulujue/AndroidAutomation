@@ -342,6 +342,8 @@ public class SogouEditActivity extends Activity {
 				int targetIndex = -1;
 				//写进文件的字符，表示一个拼音串的开始
 				resultToWrite.append("wordstart\n");
+				//TODO: 插入时间用于check时间，正式运行的时候要删除
+				resultToWrite.append("time:" + Utils.getDateTime());
 				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
 
 				int indexToWrite = -1;

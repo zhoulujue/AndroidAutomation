@@ -295,6 +295,8 @@ public class EditActivity extends Activity {
 				String targetIndex = "-1";
 				//写进文件的字符，表示一个拼音串的开始
 				resultToWrite.append("wordstart\n");
+				//TODO: 插入时间用于check时间，正式运行的时候要删除
+				resultToWrite.append("time:" + Utils.getDateTime());
 				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
