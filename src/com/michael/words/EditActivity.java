@@ -176,7 +176,7 @@ public class EditActivity extends Activity {
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
 						sleepMil(100);
-						resultToWrite += readLogcat(pinyin, hanzi);
+						resultToWrite += readLogcat(pinyin, hanzi, curCount);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
 						//提取引号到第二个逗号之前的字符：a[0]="我,w,9999,21097634"; -> 我,w
@@ -213,7 +213,7 @@ public class EditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 								sleepMil(100);
-								resultForThisCase = readLogcat(pinyin, hanzi);
+								resultForThisCase = readLogcat(pinyin, hanzi, curCount);
 								TrialCount++;
 							}
 							resultToWrite += resultForThisCase;
@@ -276,7 +276,7 @@ public class EditActivity extends Activity {
 	 * @param hanzi 本次case要找的目标汉字
 	 * @return 本次case分析结果log
 	 */
-	private String readLogcat(String pinyin, String hanzi) {
+	private String readLogcat(String pinyin, String hanzi, int curCount) {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		String RawResult;
@@ -296,7 +296,8 @@ public class EditActivity extends Activity {
 				//写进文件的字符，表示一个拼音串的开始
 				resultToWrite.append("wordstart\n");
 				//TODO: 插入时间用于check时间，正式运行的时候要删除
-				resultToWrite.append("time:" + Utils.getDateTime());
+				resultToWrite.append("time:" + Utils.getDateTime() + "\n");
+				resultToWrite.append("count:" + curCount + "\n");
 				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
