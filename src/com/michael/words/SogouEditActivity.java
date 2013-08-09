@@ -9,10 +9,8 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.Instrumentation;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -31,6 +29,7 @@ import com.michael.shell.Shell;
 import com.michael.words.candidate.Candidate;
 import com.michael.words.candidate.CandidateMeasure;
 import com.michael.words.candidate.Coordinates;
+import com.michael.words.keys.Keybord;
 
 public class SogouEditActivity extends Activity {
 	private EditTextView mEditView;
@@ -41,6 +40,7 @@ public class SogouEditActivity extends Activity {
 	private int mChoice;
 	private CandidateMeasure mMeasure;
 	private SharedPreferences mSharedPreferences;
+	private Keybord mKeybord;
 	public static int FISRT_SCREEN_THRESHOLD = 12;
 
 	@Override
@@ -72,6 +72,8 @@ public class SogouEditActivity extends Activity {
 			writeInfoHead();
 
 			mMeasure = new CandidateMeasure();
+
+			mKeybord = new Keybord(getApplicationContext());
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -177,6 +179,8 @@ public class SogouEditActivity extends Activity {
 
 			//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 			final int configChoice = mChoice;
+			final int keybordType = mKeybord.keybordType;
+
 			int curCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
@@ -187,21 +191,20 @@ public class SogouEditActivity extends Activity {
 				while ((inputStr = mReader.readLine()) != null) {
 					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 					//TODO: 不断访问成员变量，这样也会把CPU带上去
-					//while(mPause){};
+					while(mPause){};
 					//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则说明是要清空上下文
 					if (inputStr.contains("\t")) {
 						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
 						sleepMil(100);
-						resultToWrite += readLogcat(pinyin, hanzi, curCount);
+						resultToWrite += readLogcat(pinyin, hanzi, inputStr);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
-						//提取引号到第二个逗号之前的字符：a[0]="我,w,9999,21097634"; -> 我,w
-						inputStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
-								inputStr.indexOf(",", inputStr.indexOf(",") + 1));
-						String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
-						String hanzi = inputStr.substring(0, inputStr.indexOf(","));
+						//提取拼音和汉字
+						String[] caseStrs = inputStr.split("\"")[1].split(",");
+						String pinyin = caseStrs[keybordType + 1];
+						String hanzi = caseStrs[0];
 
 						//如果遇到#号且是第三种模式，则说明遇到清空Case，但是注意不能先敲空格，那样会把联想上屏
 						if (pinyin.contains("#") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -220,7 +223,7 @@ public class SogouEditActivity extends Activity {
 								if (TrialCount > 0)
 									for(int time =0; time < pinyin.length(); time++)
 										SendKey(KeyEvent.KEYCODE_DEL);
-								
+
 								//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
@@ -232,7 +235,7 @@ public class SogouEditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 								sleepMil(100);
-								resultForThisCase = readLogcat(pinyin, hanzi, curCount);
+								resultForThisCase = readLogcat(pinyin, hanzi, inputStr);
 								TrialCount++;
 							}
 							resultToWrite += resultForThisCase;
@@ -294,10 +297,10 @@ public class SogouEditActivity extends Activity {
 	 * @param hanzi 本次case要找的目标汉字
 	 * @return 本次case分析结果log
 	 */
-	private String readLogcat(String pinyin, String hanzi, int curCount) {
+	private String readLogcat(String pinyin, String hanzi, String inputStr) {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
-		final double MostYCord = mMeasure.MostYCord;
+		
 		String RawResult;
 		try{
 			RawResult = mLogcat.read();
@@ -308,11 +311,15 @@ public class SogouEditActivity extends Activity {
 			for (int i = resultlist.length - 1; i >= 0; i--) {
 				//去掉拼音中的分割符
 				resultlist[i] = resultlist[i].replaceAll("'", "");
+				String text = resultlist[i].split("text:")[1].split("#")[0];
 				//如果遇到拼音串了，说明候选读取结束了
 				if (resultlist[i].contains("text:" + pinyin +"#")) {
 					endIndex = i - 1;
 					break;
-				} 
+				} else if (Utils.isChineseCharacter(text) && resultlist[i].contains(", type=buf")) {
+					endIndex = i;
+					break;
+				}
 			}
 
 			if (endIndex != -1) {
@@ -320,10 +327,12 @@ public class SogouEditActivity extends Activity {
 				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-
-					//通过type=buf和y坐标筛选候选词以后，把候选截取出来
+					String text = resultlist[i].split("text:")[1].split("#")[0];
+					String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
+					
+					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
 					if (resultlist[i].contains(", type=buf")//&& resultlist[i].contains("#y:" + MostYCord)
-							) {
+							&& Utils.isChineseCharacter(text)) {
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
@@ -335,6 +344,8 @@ public class SogouEditActivity extends Activity {
 								resultlist[i].indexOf(", type=")));
 						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
 						candidateList.add(candidate);
+					} else if (!Utils.isChineseCharacter(nexttext)) {
+						break;
 					}
 				}
 
@@ -342,9 +353,8 @@ public class SogouEditActivity extends Activity {
 				int targetIndex = -1;
 				//写进文件的字符，表示一个拼音串的开始
 				resultToWrite.append("wordstart\n");
-				//TODO: 插入时间用于check时间，正式运行的时候要删除
 				resultToWrite.append("time:" + Utils.getDateTime() + "\n");
-				resultToWrite.append("count:" + curCount + "\n");
+				resultToWrite.append("count:" + inputStr + "\n");
 				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
 
 				int indexToWrite = -1;
@@ -359,7 +369,7 @@ public class SogouEditActivity extends Activity {
 						//Log.e("reading", "The Word is : " + index + ": " + word);
 						if (word.equals(hanzi)) {
 							//记录在candidateList里真实的索引，便于后面SendChoice使用
-							targetIndex = indexToWrite;
+							targetIndex = i;
 						}
 					}//if (index <= FISRT_SCREEN_THRESHOLD)
 				}//for
@@ -370,7 +380,8 @@ public class SogouEditActivity extends Activity {
 						SendKey(KeyEvent.KEYCODE_DEL);
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
-					SendChoice("1");
+					//SendChoice("1");
+					SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
@@ -384,15 +395,15 @@ public class SogouEditActivity extends Activity {
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					if (targetIndex == -1){
 						//如果没有找到目标词，那么空格上屏
-						SendChoice(KeyEvent.KEYCODE_ENTER);	
+						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
 					} else {
 						//如果target在0到11之间
-						SendChoice(String.valueOf(targetIndex));
-						//SendChoice(candidateList.get(targetIndex).coordinates.x);
+						//SendChoice(String.valueOf(targetIndex));
+						SendChoice(candidateList.get(targetIndex).coordinates.x);
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
-				resultToWrite.append("target:" + targetIndex + "\n");
+				resultToWrite.append("target:" + (targetIndex == -1 ? -1 : (candidateList.size() - targetIndex)) + "\n");
 				//写进文件的字符，表示一个拼音串的结束。
 				resultToWrite.append("wordend\n");
 				return resultToWrite.toString();
@@ -495,24 +506,17 @@ public class SogouEditActivity extends Activity {
 			}
 
 			Point outSize = new Point();
-			try {
-				((WindowManager) createPackageContext(
-						Utils.getCurrentImeInfo(getApplicationContext()).packageName, 
-						Context.CONTEXT_IGNORE_SECURITY)
-						.getSystemService(Context.WINDOW_SERVICE))
-						.getDefaultDisplay().getRealSize(outSize);
-			} catch (NameNotFoundException e1) {
-				e1.printStackTrace();
-			}
+			outSize = Utils.getCurScreenSize(getApplicationContext());
 			mMeasure.ScreenHeight = outSize.y;
 			mMeasure.ScreenWidth = outSize.x;
-			mMeasure.MostYCordInScreen = mMeasure.ScreenHeight - (singleCtrlHeight * 4) - mostYCord/2.0;
+			//mMeasure.MostYCordInScreen = mMeasure.ScreenHeight - (singleCtrlHeight * 4) - mostYCord/2.0;
+			mMeasure.MostYCordInScreen = mKeybord.getKeyLocation(Keybord.KEYBORD_CANDIDATE_CORD).y;
 			mMeasure.CtrlHeight = singleCtrlHeight;
 			mMeasure.MostYCord = mostYCord;
-			mMeasure.QxCord = QXCord;
-			mMeasure.QyCord = mMeasure.MostYCordInScreen + mostYCord;
-			mMeasure.DELx = mMeasure.ScreenWidth - QXCord * 3;
-			mMeasure.DELy = mMeasure.ScreenHeight - singleCtrlHeight * 1.5;
+			//mMeasure.DELx = mMeasure.ScreenWidth - QXCord * 3;
+			//mMeasure.DELy = mMeasure.ScreenHeight - singleCtrlHeight * 1.5;
+			mMeasure.DELx = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).x;
+			mMeasure.DELy = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).y;
 			try {
 				SendKey(KeyEvent.KEYCODE_DEL);
 			} catch (IOException e) {
@@ -527,12 +531,22 @@ public class SogouEditActivity extends Activity {
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
 
-	private void SendChoice(String Keycode) throws IOException{
-		int key = Integer.valueOf(Keycode) + 7;
-		//Log.e("Send Choice", "Keycode:" + key);
-		mInstrumentation.sendKeyDownUpSync(key);
+	/**
+	 * 发送一些键盘上的控制符
+	 * 包括：dele（删除）、spli（分隔符）、symb（符号）、numb（数字）、
+	 * spac（空格）、swit（中英文切换）、ente（回车）、comm（逗号）、peri（句号）
+	 * @param Keycode
+	 * @throws IOException
+	 */
+	private void SendKey(String KeyCode) throws IOException {
+		Keybord.TouchPoint point = null; 
+		point = mKeybord.getKeyLocation(KeyCode);
+		if (point != null) {
+			tapScreen(point.x, point.y);
+		}
+
 	}
-	
+
 	private void SendChoice(double x) throws IOException{
 		int xCord = 
 				new BigDecimal(x).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
@@ -541,9 +555,22 @@ public class SogouEditActivity extends Activity {
 		tapScreen(xCord, yCord);
 	}
 
+	/**
+	 * 通过触摸屏幕的方式来打字，例如sogou，会拆成一个一个的char来查询位置，然后点击（tapScreen）
+	 * @param text 要发送的键盘事件，例如“sogou”，都是小写；
+	 * @throws IOException
+	 */
 	private void SendString(String text) throws IOException{
 		//Log.e("InputKeyEvent", "text:" + text);
-		mInstrumentation.sendStringSync(text);
+		for (int i = 0; i < text.length(); i ++){
+			String letter = String.valueOf(text.charAt(i));
+			Keybord.TouchPoint point = null;
+			point = mKeybord.getKeyLocation(letter);
+			if (point != null) {
+				tapScreen(point.x, point.y);
+			}
+
+		}
 	}
 
 	private void tapScreen(float x, float y){

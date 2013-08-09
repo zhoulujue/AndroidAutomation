@@ -27,6 +27,8 @@
 	<string name="config_radio_complete_no_choice">输入拼音串，但完全不上屏</string>
 	<string name="config_radio_choice_first_candidate">只上首选，使输入法学词，清除上下文关系</string>
 	<string name="config_radio_choice_first_screen">在首屏找目标词，并上屏，遇分隔符清除上下文</string>
+	<string name="config_radio_keybord_qwerty">26键盘</string>
+	<string name="config_radio_keybord_nine">9键盘</string>
 	<string name="connect">连接</string>
 	<string name="bluetooth_keyboard_warn">测试过程中需要蓝牙键盘，请连接</string>
 	<string name="choose_target_ime_warn">请切换要测试的输入法</string>

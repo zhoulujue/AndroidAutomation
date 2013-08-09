@@ -6,13 +6,13 @@
     android:orientation="vertical" >
 
     <RadioGroup
-        android:id="@+id/config_radioGroup"
+        android:id="@+id/config_radioGroup_choice"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="10dp"
         android:background="@drawable/item_bg"
         android:orientation="vertical"
         android:padding="10dp" >
@@ -41,62 +41,100 @@
     </RadioGroup>
 
     <LinearLayout
-        android:id="@+id/linearLayout1"
+        android:id="@+id/linearLayout_under_choice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/config_radioGroup"
-        android:layout_centerHorizontal="true" >
+        android:layout_below="@+id/config_radioGroup_choice"
+        android:orientation="horizontal" >
 
-        <TextView
-            android:id="@+id/config_textView_bluetooth"
+        <RadioGroup
+            android:id="@+id/config_radioGroup_keybord"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/bluetooth_keyboard_warn"
-            android:textColor="@drawable/haha_black" />
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/item_bg"
+            android:orientation="horizontal"
+            android:padding="10dp" >
 
-        <Button
-            android:id="@+id/config_button_connect"
-            android:layout_width="70dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="10dp"
-            android:background="@drawable/button_green_bg"
-            android:text="@string/connect"
-            android:textColor="@drawable/btn_words_color" />
-    </LinearLayout>
+            <RadioButton
+                android:id="@+id/config_radio_keybord_qwerty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/config_radio_keybord_qwerty"
+                android:textColor="@drawable/haha_blue" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/linearLayout1"
-        android:layout_centerHorizontal="true" >
+            <RadioButton
+                android:id="@+id/config_radio_keybord_nine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_radio_keybord_nine"
+                android:textColor="@drawable/haha_blue" />
+        </RadioGroup>
 
-        <TextView
-            android:id="@+id/textView2"
+        <LinearLayout
+            android:id="@+id/linearLayout_two_button"
             android:layout_width="wrap_content"
+            android:layout_marginTop="10dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:text="@string/choose_target_ime_warn"
-            android:textColor="@drawable/haha_black" />
+            android:orientation="vertical" >
 
-        <Button
-            android:id="@+id/config_button_switch_ime"
-            android:layout_width="80dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="10dp"
-            android:background="@drawable/button_green_bg"
-            android:text="@string/switch_ime"
-            android:textColor="@drawable/btn_words_color" />
+            <LinearLayout
+                android:id="@+id/linearLayout1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center" >
+
+                <TextView
+                    android:id="@+id/config_textView_bluetooth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/bluetooth_keyboard_warn"
+                    android:textColor="@drawable/haha_black" />
+
+                <Button
+                    android:id="@+id/config_button_connect"
+                    android:layout_width="70dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_green_bg"
+                    android:text="@string/connect"
+                    android:textColor="@drawable/btn_words_color" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <TextView
+                    android:id="@+id/textView2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/choose_target_ime_warn"
+                    android:textColor="@drawable/haha_black" />
+
+                <Button
+                    android:id="@+id/config_button_switch_ime"
+                    android:layout_width="80dp"
+                    android:layout_height="25dp"
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/button_green_bg"
+                    android:text="@string/switch_ime"
+                    android:textColor="@drawable/btn_words_color" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 
     <Button
         android:id="@+id/config_button_next_step"
         android:layout_width="90dp"
         android:layout_height="30dp"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/linearLayout_under_choice"
         android:layout_centerHorizontal="true"
         android:layout_margin="10dp"
         android:background="@drawable/button_red_bg"

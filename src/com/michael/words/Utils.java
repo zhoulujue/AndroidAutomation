@@ -21,10 +21,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import android.R.bool;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Point;
 import android.provider.Settings;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
@@ -199,7 +202,7 @@ public class Utils {
 			}
 			return lines;
 		}
-		
+
 		/**
 		 * 随机读取文件内容
 		 */
@@ -363,11 +366,11 @@ public class Utils {
 	public static void showToast(Context context, String string) {
 		Toast.makeText(context, string, Toast.LENGTH_LONG).show();
 	}
-	
+
 	public static void showToast(Context context, int stringId) {
 		Toast.makeText(context, stringId, Toast.LENGTH_LONG).show();
 	}
-	
+
 	/**
 	 * 把FTP上的文件下载到本地，本地的文件名字和服务器上文件的名字是一样的。
 	 * @param host FTP服务器的IP地址，或者FTP服务器的域名
@@ -410,7 +413,7 @@ public class Utils {
 
 
 	}
-	
+
 	public static boolean uploadFile(Context context, String host, String username, String passwd, String remoteDir, String filename) {
 		File file = new File(context.getFilesDir().getPath() + "/" + filename);
 		if (!file.exists())
@@ -448,7 +451,7 @@ public class Utils {
 			return false;
 		}
 	}
-	
+
 	public static PackageInfo getCurrentImeInfo(Context context){
 		InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		List<InputMethodInfo> mInputMethodProperties = imm.getEnabledInputMethodList();
@@ -469,6 +472,23 @@ public class Utils {
 			}
 		}
 		return null;
+	}
+
+	public static Point getCurScreenSize(Context context) {
+		Point outSize = new Point();
+		/*			((WindowManager) context.createPackageContext(
+							Utils.getCurrentImeInfo(context).packageName, 
+							Context.CONTEXT_IGNORE_SECURITY)
+							.getSystemService(Context.WINDOW_SERVICE))
+							.getDefaultDisplay().getRealSize(outSize);*/
+		WindowManager manager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+		manager.getDefaultDisplay().getRealSize(outSize);
+
+		return outSize;
+	}
+
+	public static boolean isChineseCharacter(String str) {
+		return str.matches("[\\u4e00-\\u9fa5]+");
 	}
 	
 }

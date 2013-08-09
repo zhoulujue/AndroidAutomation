@@ -176,14 +176,14 @@ public class EditActivity extends Activity {
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
 						sleepMil(100);
-						resultToWrite += readLogcat(pinyin, hanzi, curCount);
+						resultToWrite += readLogcat(pinyin, hanzi, inputStr);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
 						//提取引号到第二个逗号之前的字符：a[0]="我,w,9999,21097634"; -> 我,w
-						inputStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
+						String caseStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
 								inputStr.indexOf(",", inputStr.indexOf(",") + 1));
-						String pinyin = inputStr.substring(inputStr.indexOf(",") + 1);
-						String hanzi = inputStr.substring(0, inputStr.indexOf(","));
+						String pinyin = caseStr.substring(caseStr.indexOf(",") + 1);
+						String hanzi = caseStr.substring(0, caseStr.indexOf(","));
 
 						//如果遇到#号且是第三种模式，则说明需要清空了，但是注意不能先敲空格那样会把联想上屏
 						if (pinyin.equals("#") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -213,7 +213,7 @@ public class EditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 								sleepMil(100);
-								resultForThisCase = readLogcat(pinyin, hanzi, curCount);
+								resultForThisCase = readLogcat(pinyin, hanzi, inputStr);
 								TrialCount++;
 							}
 							resultToWrite += resultForThisCase;
@@ -276,7 +276,7 @@ public class EditActivity extends Activity {
 	 * @param hanzi 本次case要找的目标汉字
 	 * @return 本次case分析结果log
 	 */
-	private String readLogcat(String pinyin, String hanzi, int curCount) {
+	private String readLogcat(String pinyin, String hanzi, String inputStr) {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		String RawResult;
@@ -297,7 +297,7 @@ public class EditActivity extends Activity {
 				resultToWrite.append("wordstart\n");
 				//TODO: 插入时间用于check时间，正式运行的时候要删除
 				resultToWrite.append("time:" + Utils.getDateTime() + "\n");
-				resultToWrite.append("count:" + curCount + "\n");
+				resultToWrite.append("count:" + inputStr + "\n");
 				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
