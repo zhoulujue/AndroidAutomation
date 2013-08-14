@@ -4,15 +4,21 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.graphics.Point;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -20,6 +26,10 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.michael.shell.Shell;
+import com.michael.words.candidate.Candidate;
+import com.michael.words.candidate.CandidateMeasure;
+import com.michael.words.candidate.Coordinates;
+import com.michael.words.keys.Keybord;
 
 public class EditActivity extends Activity {
 	private EditTextView mEditView;
@@ -28,8 +38,11 @@ public class EditActivity extends Activity {
 	private BufferedReader mReader;
 	private boolean mPause;
 	private int mChoice;
+	private CandidateMeasure mMeasure;
 	private SharedPreferences mSharedPreferences;
-
+	private Keybord mKeybord;
+	public static int FISRT_SCREEN_THRESHOLD = 12;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -55,6 +68,10 @@ public class EditActivity extends Activity {
 			mPause = false;
 
 			mChoice = mSharedPreferences.getInt("choice", 0);
+
+			mKeybord = new Keybord(getApplicationContext());
+
+			mMeasure = new CandidateMeasure();
 
 			writeInfoHead();
 		} catch (IOException e) {
@@ -91,11 +108,11 @@ public class EditActivity extends Activity {
 	private void writeInfoHead() {
 		PackageInfo pInfo = Utils.getCurrentImeInfo(getApplicationContext());
 		if (pInfo != null) {
-				new WriteFileThread(getApplicationContext(), 
-						"IMEName:" + pInfo.packageName + "\n" +
-								"IMEVersionName:" + pInfo.versionName + "\n" +
-								"IMEVersionCode:" + pInfo.versionCode + "\n"
-						).start();
+			new WriteFileThread(getApplicationContext(), 
+					"IMEName:" + pInfo.packageName + "\n" +
+							"IMEVersionName:" + pInfo.versionName + "\n" +
+							"IMEVersionCode:" + pInfo.versionCode + "\n"
+					).start();
 		}
 	}
 
@@ -157,8 +174,13 @@ public class EditActivity extends Activity {
 
 		@Override
 		public void run() {
+			//开始探测输入法
+			probeCandidateHeight();
+
 			//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 			final int configChoice = mChoice;
+			final int keybordType = mKeybord.keybordType;
+
 			int curCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
@@ -176,14 +198,16 @@ public class EditActivity extends Activity {
 						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 						SendString(pinyin);
 						sleepMil(100);
-						resultToWrite += readLogcat(pinyin, hanzi, inputStr);
+						if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+							resultToWrite = readLogcatQwerty(pinyin, hanzi, inputStr);
+						else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+							resultToWrite = readLogcatNine(pinyin, hanzi, inputStr);
 						curCount++;							
 					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
-						//提取引号到第二个逗号之前的字符：a[0]="我,w,9999,21097634"; -> 我,w
-						String caseStr = inputStr.substring(inputStr.indexOf("\"") + 1, 
-								inputStr.indexOf(",", inputStr.indexOf(",") + 1));
-						String pinyin = caseStr.substring(caseStr.indexOf(",") + 1);
-						String hanzi = caseStr.substring(0, caseStr.indexOf(","));
+						//提取拼音和汉字
+						String[] caseStrs = inputStr.split("\"")[1].split(",");
+						String pinyin = caseStrs[keybordType + 1];
+						String hanzi = caseStrs[0];
 
 						//如果遇到#号且是第三种模式，则说明需要清空了，但是注意不能先敲空格那样会把联想上屏
 						if (pinyin.equals("#") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -201,7 +225,7 @@ public class EditActivity extends Activity {
 								if (TrialCount > 0)
 									for(int time =0; time < pinyin.length(); time++)
 										SendKey(KeyEvent.KEYCODE_DEL);
-								
+
 								//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
@@ -213,7 +237,10 @@ public class EditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 								sleepMil(100);
-								resultForThisCase = readLogcat(pinyin, hanzi, inputStr);
+								if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+									resultForThisCase = readLogcatQwerty(pinyin, hanzi, inputStr);
+								else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+									resultForThisCase = readLogcatNine(pinyin, hanzi, inputStr);
 								TrialCount++;
 							}
 							resultToWrite += resultForThisCase;
@@ -276,7 +303,7 @@ public class EditActivity extends Activity {
 	 * @param hanzi 本次case要找的目标汉字
 	 * @return 本次case分析结果log
 	 */
-	private String readLogcat(String pinyin, String hanzi, String inputStr) {
+	private String readLogcatQwerty(String pinyin, String hanzi, String inputStr) {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		String RawResult;
@@ -358,7 +385,222 @@ public class EditActivity extends Activity {
 			return "";
 		}
 	}
+	
+	/**
+	 * pinyin + hanzi组成了一次case，函数读取logcat的hook返回，并将一次case的分析结果log返回;
+	 * 根据ConfigActivity的不同配置，进行不同的上屏或者清除上下文关系操作。
+	 * @param pinyin 本次case的拼音输入串
+	 * @param hanzi 本次case要找的目标汉字
+	 * @return 本次case分析结果log
+	 */
+	private String readLogcatNine(String pinyin, String hanzi, String inputStr) {
+		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
+		final int configChoice = mChoice;
+		final int MostYCord = mMeasure.MostYCord;
+		
+		String RawResult;
+		try{
+			RawResult = mLogcat.read();
+			String[] resultlist = RawResult.split("\n");
+			ArrayList<Candidate> candidateList = new ArrayList<Candidate>();
+			int endIndex = -1;
 
+			for (int i = resultlist.length - 1; i >= 0; i--) {
+				//去掉拼音中的分割符
+				resultlist[i] = resultlist[i].replaceAll("'", "");
+				String text = resultlist[i].split("text:")[1].split("#")[0];
+				//如果遇到符合要求的 #y: 那么断定这个为候选
+				if (resultlist[i].contains("#y:" + MostYCord) && !text.equals("")) {
+					endIndex = i;
+					break;
+				}
+			}
+
+			if (endIndex != -1) {
+				//筛得候选所有信息，顺序是正着的
+				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
+					//去掉拼音中的分割符
+					resultlist[i] = resultlist[i].replaceAll("'", "");
+					String text = resultlist[i].split("text:")[1].split("#")[0];
+					String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
+					
+					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
+					if (resultlist[i].contains(", type=String") && resultlist[i].contains("#y:" + MostYCord)
+							&& Utils.isChineseCharacter(text)) {
+						String word = resultlist[i].substring(
+								resultlist[i].indexOf("text:") + "text:".length(), 
+								resultlist[i].indexOf("#"));
+						double xCord = Double.valueOf(resultlist[i].substring(
+								resultlist[i].indexOf("#x:") + "#x:".length(), 
+								resultlist[i].indexOf("#y:")));
+						double yCord = Double.valueOf(resultlist[i].substring(
+								resultlist[i].indexOf("#y:") + "#y:".length(), 
+								resultlist[i].indexOf(", type=")));
+						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
+						candidateList.add(candidate);
+					} else if (!Utils.isChineseCharacter(nexttext)) {
+						break;
+					}
+				}
+
+				StringBuilder resultToWrite = new StringBuilder();
+				int targetIndex = -1;
+				//写进文件的字符，表示一个拼音串的开始
+				resultToWrite.append("wordstart\n");
+				resultToWrite.append("time:" + Utils.getDateTime() + "\n");
+				resultToWrite.append("count:" + inputStr + "\n");
+				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
+
+				int indexToWrite = -1;
+				//得到了候选，在候选词里面挑出要选择上屏的候选
+				for (int i = candidateList.size() - 1; i >=0; i--) {
+					indexToWrite = candidateList.size() - i;
+					String word = candidateList.get(i).content;
+					if (indexToWrite <= FISRT_SCREEN_THRESHOLD){
+						resultToWrite.append(indexToWrite + ":");
+						resultToWrite.append(word + "\n");
+						//TODO: 测试的时候打开，运行的时候关闭
+						//Log.e("reading", "The Word is : " + index + ": " + word);
+						if (word.equals(hanzi)) {
+							//记录在candidateList里真实的索引，便于后面SendChoice使用
+							targetIndex = i;
+						}
+					}//if (index <= FISRT_SCREEN_THRESHOLD)
+				}//for
+
+				//根据configActivity里面的配置，分不同情况上屏，或者清屏
+				if (configChoice == R.id.config_radio_complete_no_choice) {
+					for (int j = 0; j < pinyin.length(); j++) {
+						SendKey(KeyEvent.KEYCODE_DEL);
+					}
+				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
+					//SendChoice("1");
+					SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							mEditView.setText("");
+						}
+					});
+					SendKey(KeyEvent.KEYCODE_SEMICOLON);
+					SendKey(KeyEvent.KEYCODE_DEL);
+					SendKey(KeyEvent.KEYCODE_SPACE);
+					SendKey(KeyEvent.KEYCODE_DEL);
+				} else if (configChoice == R.id.config_radio_choice_first_screen) {
+					if (targetIndex == -1){
+						//如果没有找到目标词，那么空格上屏
+						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
+					} else {
+						//如果target在0到11之间
+						//SendChoice(String.valueOf(targetIndex));
+						SendChoice(candidateList.get(targetIndex).coordinates.x);
+					}
+				}
+				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
+				resultToWrite.append("target:" + (targetIndex == -1 ? -1 : (candidateList.size() - targetIndex)) + "\n");
+				//写进文件的字符，表示一个拼音串的结束。
+				resultToWrite.append("wordend\n");
+				return resultToWrite.toString();
+			} else {//if (endIndex != -1)
+				return "";
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return "";
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return "";
+		}
+	}
+
+	private void probeCandidateHeight() {
+		//清空输入流
+		double singleCtrlHeight = 0;
+		//double QXCord = 0;
+		try {
+			mLogcat.read();
+			mEditView.showInputMethod();
+			//发送无意义键盘事件，准备接受输入
+			for (int j = 0; j < 3; j++){
+				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+			}
+			//发送探测拼音串
+			SendString("2");
+
+			//等待输入法反应
+			//发送无意义键盘事件，准备接受输入
+			for (int j = 0; j < 30; j++){
+				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+			}
+
+			String rawResult = null;
+			rawResult = mLogcat.read();
+
+			if (rawResult.equals("") || rawResult == null){
+				Utils.showToast(getApplicationContext(), R.string.toast_probe_failed);
+				finish();
+				return;
+			} else {
+				//计算候选的#y:后面的值（大多数字符所在的位置）
+				String[] resultLines = rawResult.split("\n");
+				ArrayList<String> resultList = new ArrayList<String>();
+				for (String oneLine : resultLines){
+					if (oneLine.contains(", type=String"))
+						resultList.add(oneLine);
+				}
+				SparseIntArray array = new SparseIntArray();
+				for (String oneBuf : resultList){
+					int start = oneBuf.indexOf("#y:") + "#y:".length();
+					int end = oneBuf .indexOf(", type=String");
+					String yCordStr = oneBuf.substring(start, end);
+					int yCord = Integer.valueOf(yCordStr.substring(0, yCordStr.indexOf(".")));
+					array.put(yCord, array.get(yCord, 0) + 1);
+				}
+				int MaxCount = 0;
+				int mostYCord = 62;
+				for (int i = 0; i < array.size(); i++){
+					if (array.valueAt(i) > MaxCount){
+						MaxCount = array.valueAt(i);
+						mostYCord = array.keyAt(i);
+					}
+				}
+
+				Point outSize = new Point();
+				outSize = Utils.getCurScreenSize(getApplicationContext());
+				mMeasure.ScreenHeight = outSize.y;
+				mMeasure.ScreenWidth = outSize.x;
+				mMeasure.MostYCordInScreen = mKeybord.getKeyLocation(Keybord.KEYBORD_CANDIDATE_CORD).y;
+				mMeasure.CtrlHeight = singleCtrlHeight;
+				mMeasure.MostYCord = mostYCord;
+				mMeasure.DELx = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).x;
+				mMeasure.DELy = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).y;
+
+				SendKey("dele");
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * 发送一些键盘上的控制符
+	 * 包括：dele（删除）、spli（分隔符）、symb（符号）、numb（数字）、
+	 * spac（空格）、swit（中英文切换）、ente（回车）、comm（逗号）、peri（句号）
+	 * @param Keycode
+	 * @throws IOException
+	 */
+	public void SendKey(String KeyCode) throws IOException {
+		Keybord.TouchPoint point = null; 
+		point = mKeybord.getKeyLocation(KeyCode);
+		if (point != null) {
+			tapScreen(point.x, point.y);
+		}
+
+	}
+	
 	private void SendKey(int Keycode) throws IOException{
 		//Log.e("InputKeyEvent", "Keycode:" + Keycode);
 		mInstrumentation.sendKeyDownUpSync(Keycode);
@@ -370,9 +612,52 @@ public class EditActivity extends Activity {
 		mInstrumentation.sendKeyDownUpSync(key);
 	}
 
+	private void SendChoice(double x) throws IOException{
+		int xCord = 
+				new BigDecimal(x).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
+		int yCord = 
+				new BigDecimal(mMeasure.MostYCordInScreen).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
+		tapScreen(xCord, yCord);
+	}
+	
 	private void SendString(String text) throws IOException{
 		//Log.e("InputKeyEvent", "text:" + text);
-		mInstrumentation.sendStringSync(text);
+		if (Utils.isLetter(text)) {
+			mInstrumentation.sendStringSync(text);
+
+		} else if (Utils.isNumber(text)) {
+
+			for (int i = 0; i < text.length(); i ++){
+				String letter = String.valueOf(text.charAt(i));
+				Keybord.TouchPoint point = null;
+				point = mKeybord.getKeyLocation(letter);
+				if (point != null) {
+					tapScreen(point.x, point.y);
+				}
+			}
+
+		}
+	}
+
+	private void tapScreen(float x, float y){
+		MotionEvent tapDownEvent = MotionEvent.obtain(
+				SystemClock.uptimeMillis(), 
+				SystemClock.uptimeMillis(), 
+				MotionEvent.ACTION_DOWN, 
+				x, 
+				y, 
+				0);
+		MotionEvent tapUpEvent = MotionEvent.obtain(
+				SystemClock.uptimeMillis(), 
+				SystemClock.uptimeMillis(), 
+				MotionEvent.ACTION_UP, 
+				x, 
+				y, 
+				0);
+		mInstrumentation.sendPointerSync(tapDownEvent);
+		mInstrumentation.sendPointerSync(tapUpEvent);
+		tapDownEvent.recycle();
+		tapUpEvent.recycle();
 	}
 
 	@Override

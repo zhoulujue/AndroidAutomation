@@ -21,7 +21,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import android.R.bool;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -491,4 +490,11 @@ public class Utils {
 		return str.matches("[\\u4e00-\\u9fa5]+");
 	}
 	
+	public static boolean isNumber(String str) {
+		return str.matches("[0-9]+");
+	}
+	
+	public static boolean isLetter(String str) {
+		return str.matches("[a-z]+");
+	}
 }

@@ -423,108 +423,73 @@ public class SogouEditActivity extends Activity {
 	private void probeCandidateHeight() {
 		//清空输入流
 		double singleCtrlHeight = 0;
-		double QXCord = 0;
+		//double QXCord = 0;
 		try {
 			mLogcat.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		mEditView.showInputMethod();
-		//发送无意义键盘事件，准备接受输入
-		for (int j = 0; j < 3; j++){
-			try {
+			mEditView.showInputMethod();
+			//发送无意义键盘事件，准备接受输入
+			for (int j = 0; j < 3; j++){
 				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
-		}
-		//发送探测拼音串
-		try {
+			//发送探测拼音串
 			SendKey(KeyEvent.KEYCODE_Q);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		//等待输入法反应
-		//发送无意义键盘事件，准备接受输入
-		for (int j = 0; j < 30; j++){
-			try {
-				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
 
-		String rawResult = null;
-		try {
+			//等待输入法反应
+			//发送无意义键盘事件，准备接受输入
+			for (int j = 0; j < 30; j++){
+				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+			}
+
+			String rawResult = null;
 			rawResult = mLogcat.read();
+
+			if (rawResult.equals("") || rawResult == null){
+				Utils.showToast(getApplicationContext(), R.string.toast_probe_failed);
+				finish();
+				return;
+			} else {
+				//计算候选的#y:后面的值（大多数字符所在的位置）
+				String[] resultLines = rawResult.split("\n");
+				ArrayList<String> resultList = new ArrayList<String>();
+				for (String oneLine : resultLines){
+					if (oneLine.contains(", type=String"))
+						resultList.add(oneLine);
+				}
+				SparseIntArray array = new SparseIntArray();
+				for (String oneBuf : resultList){
+					int start = oneBuf.indexOf("#y:") + "#y:".length();
+					int end = oneBuf .indexOf(", type=String");
+					String yCordStr = oneBuf.substring(start, end);
+					int yCord = Integer.valueOf(yCordStr.substring(0, yCordStr.indexOf(".")));
+					array.put(yCord, array.get(yCord, 0) + 1);
+				}
+				int MaxCount = 0;
+				int mostYCord = 62;
+				for (int i = 0; i < array.size(); i++){
+					if (array.valueAt(i) > MaxCount){
+						MaxCount = array.valueAt(i);
+						mostYCord = array.keyAt(i);
+					}
+				}
+
+				Point outSize = new Point();
+				outSize = Utils.getCurScreenSize(getApplicationContext());
+				mMeasure.ScreenHeight = outSize.y;
+				mMeasure.ScreenWidth = outSize.x;
+				mMeasure.MostYCordInScreen = mKeybord.getKeyLocation(Keybord.KEYBORD_CANDIDATE_CORD).y;
+				mMeasure.CtrlHeight = singleCtrlHeight;
+				mMeasure.MostYCord = mostYCord;
+				mMeasure.DELx = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).x;
+				mMeasure.DELy = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).y;
+
+				SendKey(KeyEvent.KEYCODE_DEL);
+			}
+
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		if (rawResult.equals("") || rawResult == null){
-			Utils.showToast(getApplicationContext(), R.string.toast_probe_failed);
-			finish();
-			return;
-		} else {
-			String[] resultLines = rawResult.split("\n");
-			ArrayList<String> resultList = new ArrayList<String>();
-
-			for (String oneLine : resultLines){
-				if (oneLine.contains(", type=buf"))
-					resultList.add(oneLine);
-				//计算控件的高度
-				if (oneLine.contains("text:Q#")) {
-					int start = oneLine.indexOf("#y:") + "#y:".length();
-					int end = oneLine .indexOf(", type=String");	
-					String yCordStr = oneLine.substring(start, end);
-					singleCtrlHeight = Double.valueOf(yCordStr);
-
-					start = oneLine.indexOf("#x:") + "#x:".length();
-					end = oneLine .indexOf("#y:");	
-					String xCordStr = oneLine.substring(start, end);
-					QXCord = Double.valueOf(xCordStr) * 2.0;
-				}
-			}
-			SparseIntArray array = new SparseIntArray();
-			for (String oneBuf : resultList){
-				int start = oneBuf.indexOf("#y:") + "#y:".length();
-				int end = oneBuf .indexOf(", type=buf");
-				String yCordStr = oneBuf.substring(start, end);
-				int yCord = Integer.valueOf(yCordStr.substring(0, yCordStr.indexOf(".")));
-				array.put(yCord, array.get(yCord, 0) + 1);
-			}
-			int MaxCount = 0;
-			int mostYCord = 62;
-			for (int i = 0; i < array.size(); i++){
-				if (array.valueAt(i) > MaxCount){
-					MaxCount = array.valueAt(i);
-					mostYCord = array.keyAt(i);
-				}
-			}
-
-			Point outSize = new Point();
-			outSize = Utils.getCurScreenSize(getApplicationContext());
-			mMeasure.ScreenHeight = outSize.y;
-			mMeasure.ScreenWidth = outSize.x;
-			//mMeasure.MostYCordInScreen = mMeasure.ScreenHeight - (singleCtrlHeight * 4) - mostYCord/2.0;
-			mMeasure.MostYCordInScreen = mKeybord.getKeyLocation(Keybord.KEYBORD_CANDIDATE_CORD).y;
-			mMeasure.CtrlHeight = singleCtrlHeight;
-			mMeasure.MostYCord = mostYCord;
-			//mMeasure.DELx = mMeasure.ScreenWidth - QXCord * 3;
-			//mMeasure.DELy = mMeasure.ScreenHeight - singleCtrlHeight * 1.5;
-			mMeasure.DELx = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).x;
-			mMeasure.DELy = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).y;
-			try {
-				SendKey(KeyEvent.KEYCODE_DEL);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-
-		}
-
 	}
 
 	private void SendKey(int Keycode) throws IOException{
@@ -538,7 +503,7 @@ public class SogouEditActivity extends Activity {
 	 * @param Keycode
 	 * @throws IOException
 	 */
-	private void SendKey(String KeyCode) throws IOException {
+	public void SendKey(String KeyCode) throws IOException {
 		Keybord.TouchPoint point = null; 
 		point = mKeybord.getKeyLocation(KeyCode);
 		if (point != null) {
