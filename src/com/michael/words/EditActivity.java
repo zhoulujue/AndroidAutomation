@@ -42,7 +42,7 @@ public class EditActivity extends Activity {
 	private SharedPreferences mSharedPreferences;
 	private Keybord mKeybord;
 	public static int FISRT_SCREEN_THRESHOLD = 12;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -385,7 +385,7 @@ public class EditActivity extends Activity {
 			return "";
 		}
 	}
-	
+
 	/**
 	 * pinyin + hanzi组成了一次case，函数读取logcat的hook返回，并将一次case的分析结果log返回;
 	 * 根据ConfigActivity的不同配置，进行不同的上屏或者清除上下文关系操作。
@@ -397,7 +397,7 @@ public class EditActivity extends Activity {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		final int MostYCord = mMeasure.MostYCord;
-		
+
 		String RawResult;
 		try{
 			RawResult = mLogcat.read();
@@ -423,7 +423,7 @@ public class EditActivity extends Activity {
 					resultlist[i] = resultlist[i].replaceAll("'", "");
 					String text = resultlist[i].split("text:")[1].split("#")[0];
 					String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
-					
+
 					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
 					if (resultlist[i].contains(", type=String") && resultlist[i].contains("#y:" + MostYCord)
 							&& Utils.isChineseCharacter(text)) {
@@ -525,7 +525,10 @@ public class EditActivity extends Activity {
 				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 			}
 			//发送探测拼音串
-			SendString("2");
+			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE)
+				SendString("2");
+			else if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+				SendString("q");
 
 			//等待输入法反应
 			//发送无意义键盘事件，准备接受输入
@@ -545,16 +548,19 @@ public class EditActivity extends Activity {
 				String[] resultLines = rawResult.split("\n");
 				ArrayList<String> resultList = new ArrayList<String>();
 				for (String oneLine : resultLines){
-					if (oneLine.contains(", type=String"))
+					if (oneLine.contains(", type=String") || oneLine.contains(", type=buf"))
 						resultList.add(oneLine);
 				}
 				SparseIntArray array = new SparseIntArray();
 				for (String oneBuf : resultList){
-					int start = oneBuf.indexOf("#y:") + "#y:".length();
-					int end = oneBuf .indexOf(", type=String");
-					String yCordStr = oneBuf.substring(start, end);
-					int yCord = Integer.valueOf(yCordStr.substring(0, yCordStr.indexOf(".")));
-					array.put(yCord, array.get(yCord, 0) + 1);
+					String text = oneBuf.split("text:")[1].split("#")[0];
+					if (!text.equals("") && text != null) {
+						int start = oneBuf.indexOf("#y:") + "#y:".length();
+						int end = oneBuf .indexOf(", type=");
+						String yCordStr = oneBuf.substring(start, end);
+						int yCord = Integer.valueOf(yCordStr.substring(0, yCordStr.indexOf(".")));
+						array.put(yCord, array.get(yCord, 0) + 1);
+					}
 				}
 				int MaxCount = 0;
 				int mostYCord = 62;
@@ -600,7 +606,7 @@ public class EditActivity extends Activity {
 		}
 
 	}
-	
+
 	private void SendKey(int Keycode) throws IOException{
 		//Log.e("InputKeyEvent", "Keycode:" + Keycode);
 		mInstrumentation.sendKeyDownUpSync(Keycode);
@@ -619,7 +625,7 @@ public class EditActivity extends Activity {
 				new BigDecimal(mMeasure.MostYCordInScreen).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
 		tapScreen(xCord, yCord);
 	}
-	
+
 	private void SendString(String text) throws IOException{
 		//Log.e("InputKeyEvent", "text:" + text);
 		if (Utils.isLetter(text)) {
