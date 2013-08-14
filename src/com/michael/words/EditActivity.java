@@ -36,7 +36,6 @@ public class EditActivity extends Activity {
 	private EditTextView mEditView;
 	private Shell mLogcat;
 	private Instrumentation mInstrumentation;
-	private BufferedReader mReader;
 	private boolean mPause;
 	private int mChoice;
 	private CandidateMeasure mMeasure;
@@ -52,8 +51,8 @@ public class EditActivity extends Activity {
 		setContentView(R.layout.activity_edit);
 		init();
 		try {
-			File rawFile = new File(getFilesDir() + "/" + "raw.config");
-			if(!rawFile.exists()) {
+			ArrayList<File> rawFiles = Utils.getSuffixFiles(getApplicationContext(), Utils.CONFIG_FILE_SUFFIX);
+			if (rawFiles.isEmpty() || rawFiles == null) {
 				Utils.showToast(getApplicationContext(), R.string.toast_config_missing);
 				finish();
 			}
@@ -61,8 +60,6 @@ public class EditActivity extends Activity {
 			mLogcat = new Shell("su");
 			sleepSec(2);
 			mLogcat.write("logcat CanvasDrawText:E *:S");
-
-			mReader = new BufferedReader(new FileReader(getFilesDir() + "/" + "raw.config"));
 
 			mInstrumentation = new Instrumentation();
 
@@ -189,95 +186,114 @@ public class EditActivity extends Activity {
 				mLogcat.read();
 
 				String inputStr = null;
-				while ((inputStr = mReader.readLine()) != null) {
-					//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
-					//TODO: 不断访问成员变量，这样也会把CPU带上去
-					while(mPause){};
-					//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则说明是要清空上下文
-					if (inputStr.contains("\t")) {
-						String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
-						String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
-						SendString(pinyin);
-						sleepMil(100);
-						if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-							resultToWrite = readLogcatQwerty(pinyin, hanzi, inputStr);
-						else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
-							resultToWrite = readLogcatNine(pinyin, hanzi, inputStr);
-						curCount++;							
-					} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
-						//提取拼音和汉字
-						String[] caseStrs = inputStr.split("\"")[1].split(",");
-						String pinyin = caseStrs[keybordType + 1];
-						String hanzi = caseStrs[0];
+				ArrayList<File> rawFiles = Utils.getSuffixFiles(getApplicationContext(), Utils.CONFIG_FILE_SUFFIX);
+				//每个case文件跑一遍
+				for(File rawconfig : rawFiles) {
+					BufferedReader reader = new BufferedReader(new FileReader(rawconfig));
+					Utils.clearImeContext(mInstrumentation);
+					mEditView.showInputMethod();
+					
+					//清空中间结果
+					curCount = 0;
+					resultToWrite = "";
+					
+					sleepSec(2);
+					while ((inputStr = reader.readLine()) != null) {
+						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
+						//TODO: 不断访问成员变量，这样也会把CPU带上去
+						while(mPause){};
+						//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则说明是要清空上下文
+						if (inputStr.contains("\t")) {
+							String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
+							String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
+							SendString(pinyin);
+							sleepMil(100);
+							if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+								resultToWrite = readLogcatQwerty(pinyin, hanzi, inputStr);
+							else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+								resultToWrite = readLogcatNine(pinyin, hanzi, inputStr);
+							curCount++;							
+						} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
+							//提取拼音和汉字
+							String[] caseStrs = inputStr.split("\"")[1].split(",");
+							String pinyin = caseStrs[keybordType + 1];
+							String hanzi = caseStrs[0];
 
-						//如果遇到#号且是第三种模式，则说明需要清空了，但是注意不能先敲空格那样会把联想上屏
-						if (pinyin.equals("#") && configChoice == R.id.config_radio_choice_first_screen) {
-							SendKey(KeyEvent.KEYCODE_DEL);
-							for (int i = 0; i < 2; i++)
-								SendKey(KeyEvent.KEYCODE_SPACE);
-							for (int i = 0; i < 2; i++)
+							//如果遇到#号且是第三种模式，则说明需要清空了，但是注意不能先敲空格那样会把联想上屏
+							if (pinyin.equals("#") && configChoice == R.id.config_radio_choice_first_screen) {
 								SendKey(KeyEvent.KEYCODE_DEL);
-						} else {
-							//这两个参数都是为了Rerun
-							String resultForThisCase = "";
-							int TrialCount = 0;
-							while(resultForThisCase.equals("") && TrialCount < 10) {
-								//如果需要rerun，说明没有读取到候选
-								if (TrialCount > 0)
-									for(int time =0; time < pinyin.length(); time++)
-										SendKey(KeyEvent.KEYCODE_DEL);
+								for (int i = 0; i < 2; i++)
+									SendKey(KeyEvent.KEYCODE_SPACE);
+								for (int i = 0; i < 2; i++)
+									SendKey(KeyEvent.KEYCODE_DEL);
+							} else {
+								//这两个参数都是为了Rerun
+								String resultForThisCase = "";
+								int TrialCount = 0;
+								while(resultForThisCase.equals("") && TrialCount < 10) {
+									//如果需要rerun，说明没有读取到候选
+									if (TrialCount > 0)
+										for(int time =0; time < pinyin.length(); time++)
+											SendKey(KeyEvent.KEYCODE_DEL);
 
-								//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
-								for (int j = 0; j < 3; j++)
-									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+									//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
+									for (int j = 0; j < 3; j++)
+										SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
-								SendString(pinyin);
+									SendString(pinyin);
 
-								//为了和下一次输入间隔开来
-								for (int j = 0; j < (pinyin.length() < 4 ? 10:5); j++)
-									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+									//为了和下一次输入间隔开来
+									for (int j = 0; j < (pinyin.length() < 4 ? 10:5); j++)
+										SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
-								sleepMil(100);
-								if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-									resultForThisCase = readLogcatQwerty(pinyin, hanzi, inputStr);
-								else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
-									resultForThisCase = readLogcatNine(pinyin, hanzi, inputStr);
-								TrialCount++;
+									sleepMil(100);
+									if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+										resultForThisCase = readLogcatQwerty(pinyin, hanzi, inputStr);
+									else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+										resultForThisCase = readLogcatNine(pinyin, hanzi, inputStr);
+									TrialCount++;
+								}
+								resultToWrite += resultForThisCase;
+								curCount++;
 							}
-							resultToWrite += resultForThisCase;
-							curCount++;
+
 						}
-
+						if (curCount % 20 == 0) {
+							final int count = curCount;
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									mEditView.setText("");
+									((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
+								}
+							});
+							new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+							resultToWrite = "";
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						}
 					}
-					if (curCount % 20 == 0) {
-						final int count = curCount;
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								mEditView.setText("");
-								((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
-							}
-						});
-						new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
-						resultToWrite = "";
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-						SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-					}
+					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
+					final int count = curCount;
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							mEditView.setText("");
+							((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
+						}
+					});
+					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+					//关闭case文件的输入流
+					reader.close();
+					sleepSec(2);
+					Utils.renameResultTxt(rawconfig, getApplicationContext());
+					writeInfoHead();
 				}
-				//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
-				final int count = curCount;
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						mEditView.setText("");
-						((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
-					}
-				});
-				new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			} catch (InterruptedException e) {
@@ -689,7 +705,7 @@ public class EditActivity extends Activity {
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
+
 	private static void sleepSec(int second) {
 		try {
 			Thread.sleep(second * 1000);

@@ -25,6 +25,7 @@ public class WriteFileThread extends Thread {
 		try {
 			FileOutputStream os = mContext.openFileOutput("result.txt", Context.MODE_APPEND);
 			os.write(mResult.getBytes("UTF-8"));
+			os.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (UnsupportedEncodingException e) {

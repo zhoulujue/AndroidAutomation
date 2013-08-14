@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.app.AlertDialog;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -29,6 +30,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
 import android.provider.Settings;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -39,6 +41,8 @@ public class Utils {
 	public static String UPLOAD_PATH = "/Temp/PinZhuan/raw";
 	public static String FTP_HOST_NAME = "10.12.9.184";
 	public static int FTP_PORT = 21;
+	public static String CONFIG_FILE_SUFFIX = "gz.txt";
+	public static String TEMP_RESULT_FILE = "result.txt";
 
 	public static class ReadFromFile {
 		/**
@@ -531,6 +535,38 @@ public class Utils {
 			}
 		});
 		builder.create().show();
+	}
+
+	public static ArrayList<File> getSuffixFiles(Context context, String suffix) {
+		ArrayList<File> files = new ArrayList<File>();
+		File dir = context.getFilesDir();
+		File[] configFiles = dir.listFiles();
+		for (File file : configFiles) {
+			if (file.getAbsolutePath().endsWith("gz.txt")){
+				files.add(file);
+			}
+		}
+		return files;
+	}
+
+	public static void renameResultTxt(File rawConfig, Context context) {
+		File tempResultFile = new File(context.getFilesDir() + "/" + TEMP_RESULT_FILE);
+		String rawConfigName = rawConfig.getName().split("\\.")[0]; 
+		File newFile = new File(context.getFilesDir() + "/" + "result-" + rawConfigName + ".txt");
+		tempResultFile.renameTo(newFile);
+		rawConfig.renameTo(new File(rawConfigName + ".txt"));
+		
+		File resultFile = new File(context.getFilesDir() + "/" + TEMP_RESULT_FILE);
+		try {
+			resultFile.createNewFile();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+	}
+
+	public static void clearImeContext(Instrumentation instrumentation) {
+		for (int i =0; i < 20; i++) 
+			instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
 	}
 
 }
