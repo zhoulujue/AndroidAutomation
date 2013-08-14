@@ -21,7 +21,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
@@ -489,12 +492,45 @@ public class Utils {
 	public static boolean isChineseCharacter(String str) {
 		return str.matches("[\\u4e00-\\u9fa5]+");
 	}
-	
+
 	public static boolean isNumber(String str) {
 		return str.matches("[0-9]+");
 	}
-	
+
 	public static boolean isLetter(String str) {
 		return str.matches("[a-z]+");
 	}
+
+	public static void showDialog(final Context context, int messageId, int titleId, int positiveBtnStr, int negativeBtnStr,
+			boolean cancelable, final Runnable jobRunnable) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(context);
+		builder.setCancelable(cancelable);
+		builder.setMessage(messageId);
+		builder.setTitle(titleId);
+		builder.setPositiveButton(positiveBtnStr, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (jobRunnable != null) {
+					Thread job = new Thread(jobRunnable);
+					job.start();
+					try {
+						job.join();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				dialog.dismiss();
+			}
+
+		});
+		builder.setNegativeButton(positiveBtnStr, new OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+
+			}
+		});
+		builder.create().show();
+	}
+
 }

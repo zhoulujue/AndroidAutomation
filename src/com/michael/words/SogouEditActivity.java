@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -300,7 +301,8 @@ public class SogouEditActivity extends Activity {
 	private String readLogcat(String pinyin, String hanzi, String inputStr) {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
-
+		final int MostYCord = mMeasure.MostYCord;
+		
 		String RawResult;
 		try{
 			RawResult = mLogcat.read();
@@ -311,12 +313,12 @@ public class SogouEditActivity extends Activity {
 			for (int i = resultlist.length - 1; i >= 0; i--) {
 				//去掉拼音中的分割符
 				resultlist[i] = resultlist[i].replaceAll("'", "");
-				String text = resultlist[i].split("text:")[1].split("#")[0];
+				//String text = resultlist[i].split("text:")[1].split("#")[0];
 				//如果遇到拼音串了，说明候选读取结束了
 				if (resultlist[i].contains("text:" + pinyin +"#")) {
 					endIndex = i - 1;
 					break;
-				} else if (Utils.isChineseCharacter(text) && resultlist[i].contains(", type=buf")) {
+				} else if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=buf")) {
 					endIndex = i;
 					break;
 				}
@@ -327,12 +329,11 @@ public class SogouEditActivity extends Activity {
 				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-					String text = resultlist[i].split("text:")[1].split("#")[0];
-					String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
+					//String text = resultlist[i].split("text:")[1].split("#")[0];
+					//String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
 
 					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
-					if (resultlist[i].contains(", type=buf")//&& resultlist[i].contains("#y:" + MostYCord)
-							&& Utils.isChineseCharacter(text)) {
+					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)) {
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
@@ -344,7 +345,7 @@ public class SogouEditActivity extends Activity {
 								resultlist[i].indexOf(", type=")));
 						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
 						candidateList.add(candidate);
-					} else if (!Utils.isChineseCharacter(nexttext)) {
+					} else if (!resultlist[i + 1].contains("#y:" + MostYCord)) {
 						break;
 					}
 				}
@@ -566,6 +567,24 @@ public class SogouEditActivity extends Activity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.edit, menu);
 		return true;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.about:
+			Utils.showDialog(SogouEditActivity.this, 
+					R.string.app_version, 
+					R.string.dialog_about_title, 
+					R.string.dialog_confirm, 
+					R.string.dialog_cancel, 
+					true,
+					null);
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	private static void sleepSec(int second) {

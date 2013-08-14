@@ -18,6 +18,7 @@ import android.preference.PreferenceManager;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -421,12 +422,11 @@ public class EditActivity extends Activity {
 				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-					String text = resultlist[i].split("text:")[1].split("#")[0];
-					String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
+					//String text = resultlist[i].split("text:")[1].split("#")[0];
+					//String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
 
 					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
-					if (resultlist[i].contains(", type=String") && resultlist[i].contains("#y:" + MostYCord)
-							&& Utils.isChineseCharacter(text)) {
+					if (resultlist[i].contains(", type=String") && resultlist[i].contains("#y:" + MostYCord)) {
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
@@ -438,7 +438,7 @@ public class EditActivity extends Activity {
 								resultlist[i].indexOf(", type=")));
 						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
 						candidateList.add(candidate);
-					} else if (!Utils.isChineseCharacter(nexttext)) {
+					} else if (!resultlist[i + 1].contains("#y:" + MostYCord)) {
 						break;
 					}
 				}
@@ -672,6 +672,24 @@ public class EditActivity extends Activity {
 		return true;
 	}
 
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.about:
+			Utils.showDialog(EditActivity.this, 
+					R.string.app_version, 
+					R.string.dialog_about_title, 
+					R.string.dialog_confirm, 
+					R.string.dialog_cancel, 
+					true,
+					null);
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
 	private static void sleepSec(int second) {
 		try {
 			Thread.sleep(second * 1000);

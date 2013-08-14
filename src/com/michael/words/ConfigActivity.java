@@ -1,16 +1,17 @@
 package com.michael.words;
 
-import com.michael.words.keys.Keybord;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
+
+import com.michael.words.keys.Keybord;
 
 public class ConfigActivity extends BaseActivity {
 
@@ -18,7 +19,7 @@ public class ConfigActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);      
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN, WindowManager.LayoutParams. FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_config);
 		init();
@@ -79,4 +80,23 @@ public class ConfigActivity extends BaseActivity {
 
 		}
 	};
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.about:
+			Utils.showDialog(ConfigActivity.this, 
+					R.string.app_version, 
+					R.string.dialog_about_title, 
+					R.string.dialog_confirm, 
+					R.string.dialog_cancel, 
+					true,
+					null);
+			return true;
+
+		default:
+			return super.onOptionsItemSelected(item);
+		}
+	}
+	
 }
