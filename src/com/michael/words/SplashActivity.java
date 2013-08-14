@@ -1,6 +1,7 @@
 package com.michael.words;
 
 import java.io.File;
+import java.io.IOException;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -42,12 +43,19 @@ public class SplashActivity extends Activity {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}*/
+				
+				//TODO: 处理结果文件需要更改，因为结果文件的名字要变
 				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 				//如果本地没有结果文件，说明已经上传成功
 				if (!localFile.exists()) {
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 					editor.putBoolean("LastRunSuccess", true);
 					editor.commit();
+					try {
+						localFile.createNewFile();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				} else {
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 					editor.putBoolean("LastRunSuccess", false);

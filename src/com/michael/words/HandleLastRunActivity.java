@@ -1,6 +1,7 @@
 package com.michael.words;
 
 import java.io.File;
+import java.io.IOException;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -35,6 +36,12 @@ public class HandleLastRunActivity extends BaseActivity {
 			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 			localFile.delete();
 			startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
+			try {
+				localFile.createNewFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			finish();
 		}
 	};
