@@ -323,6 +323,8 @@ public class EditActivity extends Activity {
 	private String readLogcatQwerty(String pinyin, String hanzi, String inputStr) {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
+		final int MostYCord = mMeasure.MostYCord;
+		
 		String RawResult;
 		try {
 			RawResult = mLogcat.read();
@@ -346,7 +348,8 @@ public class EditActivity extends Activity {
 				//得到了候选，在候选词里面挑出要选择上屏的候选
 				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
 					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
-					if ((resultlist[i].contains("type=String") && resultlist[i + 1].contains("type=String"))) {
+					if (resultlist[i].contains("type=String")  && resultlist[i].contains("#y:" + MostYCord) 
+							&& resultlist[i + 1].contains("type=String")) {
 						//计算候选词，用于记录和对比
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
