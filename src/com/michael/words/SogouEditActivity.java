@@ -335,9 +335,12 @@ public class SogouEditActivity extends Activity {
 				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-					//String text = resultlist[i].split("text:")[1].split("#")[0];
+					//根据text: 后面的文字判断要不要对这一行做处理
+					String text = resultlist[i].split("text:")[1].split("#")[0];
 					//String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
-
+					if (text.equals("")) {
+						continue;
+					}
 					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
 					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)) {
 						String word = resultlist[i].substring(
@@ -400,6 +403,9 @@ public class SogouEditActivity extends Activity {
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
+					if (candidateList.size() < 1)
+						return "";
+					
 					if (targetIndex == -1){
 						//如果没有找到目标词，那么空格上屏
 						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
