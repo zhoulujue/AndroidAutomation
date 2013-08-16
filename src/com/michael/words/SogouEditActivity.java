@@ -335,14 +335,14 @@ public class SogouEditActivity extends Activity {
 				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-					//根据text: 后面的文字判断要不要对这一行做处理
-					String text = resultlist[i].split("text:")[1].split("#")[0];
-					//String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
-					if (text.equals("")) {
-						continue;
-					}
-					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
+
 					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)) {
+						//text:后面是空的，或者是index那么不要了
+						String text = resultlist[i].split("text:")[1].split("#")[0];
+						if (text.equals("") || Utils.isNumber(text)){
+							continue;
+						}
+						
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
@@ -445,7 +445,11 @@ public class SogouEditActivity extends Activity {
 				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 			}
 			//发送探测拼音串
-			SendKey(KeyEvent.KEYCODE_Q);
+			//发送探测拼音串
+			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE)
+				SendString("2");
+			else if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+				SendString("q");
 
 			//等待输入法反应
 			//发送无意义键盘事件，准备接受输入

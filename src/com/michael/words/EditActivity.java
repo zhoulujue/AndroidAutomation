@@ -192,11 +192,11 @@ public class EditActivity extends Activity {
 					BufferedReader reader = new BufferedReader(new FileReader(rawconfig));
 					Utils.clearImeContext(mInstrumentation);
 					mEditView.showInputMethod();
-					
+
 					//清空中间结果
 					curCount = 0;
 					resultToWrite = "";
-					
+
 					sleepSec(2);
 					while ((inputStr = reader.readLine()) != null) {
 						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
@@ -208,12 +208,11 @@ public class EditActivity extends Activity {
 							String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 							SendString(pinyin);
 							sleepMil(100);
-							if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-								resultToWrite = readLogcatQwerty(pinyin, hanzi, inputStr);
-							else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
-								resultToWrite = readLogcatNine(pinyin, hanzi, inputStr);
+							resultToWrite = readLogcat(pinyin, hanzi, inputStr);
 							curCount++;							
 						} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
+							//去掉输入case中的拼音分割符
+							inputStr = inputStr.replaceAll("'", "");
 							//提取拼音和汉字
 							String[] caseStrs = inputStr.split("\"")[1].split(",");
 							String pinyin = caseStrs[keybordType + 1];
@@ -247,10 +246,7 @@ public class EditActivity extends Activity {
 										SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 									sleepMil(100);
-									if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-										resultForThisCase = readLogcatQwerty(pinyin, hanzi, inputStr);
-									else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
-										resultForThisCase = readLogcatNine(pinyin, hanzi, inputStr);
+									resultForThisCase = readLogcat(pinyin, hanzi, inputStr);
 									TrialCount++;
 								}
 								resultToWrite += resultForThisCase;
@@ -313,109 +309,6 @@ public class EditActivity extends Activity {
 		super.onStop();
 	}
 
-	/**
-	 * pinyin + hanzi组成了一次case，函数读取logcat的hook返回，并将一次case的分析结果log返回;
-	 * 根据ConfigActivity的不同配置，进行不同的上屏或者清除上下文关系操作。
-	 * @param pinyin 本次case的拼音输入串
-	 * @param hanzi 本次case要找的目标汉字
-	 * @return 本次case分析结果log
-	 */
-	private String readLogcatQwerty(String pinyin, String hanzi, String inputStr) {
-		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
-		final int configChoice = mChoice;
-		final int MostYCord = mMeasure.MostYCord;
-		
-		String RawResult;
-		try {
-			RawResult = mLogcat.read();
-			String[] resultlist = RawResult.split("\n");
-			int startIndex = -1;
-			for (int i = resultlist.length - 1; i >=0; i--) {
-				if (resultlist[i].contains("text:1#")) {
-					startIndex = i - 1;
-					break;
-				}
-			}
-			if (startIndex != -1) {
-				StringBuilder resultToWrite = new StringBuilder();
-				String targetIndex = "-1";
-				//写进文件的字符，表示一个拼音串的开始
-				resultToWrite.append("wordstart\n");
-				//TODO: 插入时间用于check时间，正式运行的时候要删除
-				resultToWrite.append("time:" + Utils.getDateTime() + "\n");
-				resultToWrite.append("count:" + inputStr + "\n");
-				resultToWrite.append("pinyin:" + pinyin + "\t" + hanzi + "\n");
-				//得到了候选，在候选词里面挑出要选择上屏的候选
-				for (int i = startIndex; i < resultlist.length - 1; i+=2) {
-					//去掉拼音中的分割符
-					resultlist[i] = resultlist[i].replaceAll("'", "");
-					//根据text: 后面的文字判断要不要对这一行做处理
-					String text = resultlist[i].split("text:")[1].split("#")[0];
-					//String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
-					if (text.equals("")) {
-						//i 先减去1，然后i+=2就相当于i++，意思是跳过这个空行
-						i -= 1;
-						continue;
-					}
-					
-					//如果读取的两行都是string，那么符合候选词的类型，可以初步判读是候选词，算是去噪音
-					if (resultlist[i].contains("type=String")  && resultlist[i].contains("#y:" + MostYCord) 
-							&& resultlist[i + 1].contains("type=String")) {
-						//计算候选词，用于记录和对比
-						String word = resultlist[i].substring(
-								resultlist[i].indexOf("text:") + "text:".length(), 
-								resultlist[i].indexOf("#"));
-						//计算标号数字，用于按下数字键来选择上屏
-						String index = resultlist[i + 1].substring(
-								resultlist[i + 1].indexOf("text:") + "text:".length(), 
-								resultlist[i + 1].indexOf("#"));
-
-						resultToWrite.append(index + ":");
-						resultToWrite.append(word + "\n");
-						//TODO: 测试的时候打开，运行的时候关闭
-						//Log.e("reading", "The Word is : " + index + ": " + word);
-						//如果候选词和当前要选的词是一样的话，说明本次读到的是要上屏的候选词，那么通过键盘按下index这个数字
-						if (word.equals(hanzi)) {
-							targetIndex = index;
-						}
-					}
-				}
-				//根据configActivity里面的配置，分不同情况上屏，或者清屏
-				if (configChoice == R.id.config_radio_complete_no_choice) {
-					for (int i = 0; i < pinyin.length(); i++) {
-						SendKey(KeyEvent.KEYCODE_DEL);
-					}
-				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
-					SendChoice("1");
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							mEditView.setText("");
-						}
-					});
-					SendKey(KeyEvent.KEYCODE_SEMICOLON);
-					SendKey(KeyEvent.KEYCODE_DEL);
-					SendKey(KeyEvent.KEYCODE_SPACE);
-					SendKey(KeyEvent.KEYCODE_DEL);
-				} else if (configChoice == R.id.config_radio_choice_first_screen) {
-					SendChoice(targetIndex.equals("-1") ? "1" : targetIndex);
-				}
-				//记录是否命中。如果是0，那么没有命中；否则即为命中。
-				resultToWrite.append("target:" + targetIndex + "\n");
-				//写进文件的字符，表示一个拼音串的结束。
-				resultToWrite.append("wordend\n");
-				return resultToWrite.toString();
-			} else {
-				return "";
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-			return "";
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-			return "";
-		}
-	}
 
 	/**
 	 * pinyin + hanzi组成了一次case，函数读取logcat的hook返回，并将一次case的分析结果log返回;
@@ -424,10 +317,11 @@ public class EditActivity extends Activity {
 	 * @param hanzi 本次case要找的目标汉字
 	 * @return 本次case分析结果log
 	 */
-	private String readLogcatNine(String pinyin, String hanzi, String inputStr) {
+	private String readLogcat(String pinyin, String hanzi, String inputStr) {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		final int MostYCord = mMeasure.MostYCord;
+		final int keybordType = mKeybord.keybordType;
 
 		String RawResult;
 		try{
@@ -439,28 +333,29 @@ public class EditActivity extends Activity {
 			for (int i = resultlist.length - 1; i >= 0; i--) {
 				//去掉拼音中的分割符
 				resultlist[i] = resultlist[i].replaceAll("'", "");
-				String text = resultlist[i].split("text:")[1].split("#")[0];
-				//如果遇到符合要求的 #y: 那么断定这个为候选
-				if (resultlist[i].contains("#y:" + MostYCord) && !text.equals("")) {
+				//String text = resultlist[i].split("text:")[1].split("#")[0];
+				//如果遇到拼音串了，说明候选读取结束了
+				if (resultlist[i].contains("text:1#")) {
+					endIndex = i - 1;
+					break;
+				} else if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=String")) {
 					endIndex = i;
 					break;
 				}
 			}
 
 			if (endIndex != -1) {
-				//筛得候选所有信息，顺序是正着的
-				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
+				for (int i = endIndex; ( i >= 0 && (i+2 > endIndex ? true: !resultlist[i + 2].contains("text:1#")) ) ; i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-					//根据text: 后面的文字判断要不要对这一行做处理
-					String text = resultlist[i].split("text:")[1].split("#")[0];
-					//String nexttext = resultlist[i - 1].split("text:")[1].split("#")[0];
-					if (text.equals("")) {
-						continue;
-					}
-					
-					//TODO:通过type=buf和y坐标筛选候选词以后，把候选截取出来，但是搜狗不采用这种筛选逻辑了
+					//筛得候选所有信息，顺序是正着的
 					if (resultlist[i].contains(", type=String") && resultlist[i].contains("#y:" + MostYCord)) {
+						//text:后面是空的，或者index那么不要了
+						String text = resultlist[i].split("text:")[1].split("#")[0];
+						if (text.equals("") || Utils.isNumber(text)){
+							continue;
+						}
+
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
 								resultlist[i].indexOf("#"));
@@ -493,8 +388,6 @@ public class EditActivity extends Activity {
 					if (indexToWrite <= FISRT_SCREEN_THRESHOLD){
 						resultToWrite.append(indexToWrite + ":");
 						resultToWrite.append(word + "\n");
-						//TODO: 测试的时候打开，运行的时候关闭
-						//Log.e("reading", "The Word is : " + index + ": " + word);
 						if (word.equals(hanzi)) {
 							//记录在candidateList里真实的索引，便于后面SendChoice使用
 							targetIndex = i;
@@ -508,8 +401,14 @@ public class EditActivity extends Activity {
 						SendKey(KeyEvent.KEYCODE_DEL);
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
-					//SendChoice("1");
-					SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
+					if (candidateList.size() < 1)
+						return "";
+
+					if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+						SendChoice("1");
+					else if (keybordType == Keybord.KEYBORD_MODEL_NINE)	
+						SendChoice(candidateList.get(0).coordinates.x);
+
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
@@ -523,14 +422,19 @@ public class EditActivity extends Activity {
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					if (candidateList.size() < 1)
 						return "";
-					
+
 					if (targetIndex == -1){
-						//如果没有找到目标词，那么空格上屏
-						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
+						//如果没有找到目标词，那么上屏第一个
+						if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+							SendChoice("1");
+						else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+							SendChoice(candidateList.get(0).coordinates.x);
 					} else {
 						//如果target在0到11之间
-						//SendChoice(String.valueOf(targetIndex));
-						SendChoice(candidateList.get(targetIndex).coordinates.x);
+						if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+							SendChoice(String.valueOf(candidateList.size() - targetIndex));
+						else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+							SendChoice(candidateList.get(targetIndex).coordinates.x);
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
