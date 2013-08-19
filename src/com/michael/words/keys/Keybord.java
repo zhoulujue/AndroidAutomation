@@ -20,6 +20,8 @@ public class Keybord {
 	public int keybordType;
 	
 	public static String SCREEN_SIZE_1280_720 = "1280x720";
+	public static String SCREEN_SIZE_1280_768 = "1280x768";
+	public static String SCREEN_SIZE_2560_1600 = "2560x1600";
 	public static String SCREEN_SIZE_480_320 = "480x320";
 
 	public static int KEYBORD_MODEL_QWERTY = 0;
@@ -89,6 +91,18 @@ public class Keybord {
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_480x320))); 
 					}
+					//1280x726
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_768))
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_1280x726)));
+					}
+					//2560x1600
+					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600))
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_2560x1600)));
+					}
 				} 
 				//26¼üÅÌ
 				else if (CurKeybordChoice == KEYBORD_MODEL_QWERTY) 
@@ -104,6 +118,18 @@ public class Keybord {
 					{
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_480x320))); 
+					}
+					//1280x726
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_1280x726))); 
+					}
+					//2560x1600
+					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_2560x1650)));
 					}
 				}
 
@@ -133,6 +159,18 @@ public class Keybord {
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_9_480x320))); 
 					}
+					//1280x726
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_9_1280x726))); 
+					}
+					//2560x1600
+					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_9_2560x1600))); 
+					}
 				} 
 				//26¼üÅÌ
 				else if (CurKeybordChoice == KEYBORD_MODEL_QWERTY) 
@@ -148,6 +186,18 @@ public class Keybord {
 					{
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_26_480x320))); 
+					}
+					//1280x726
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_26_1280x726))); 
+					}
+					//2560x1600
+					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_26_2560x1600))); 
 					}
 				}
 
