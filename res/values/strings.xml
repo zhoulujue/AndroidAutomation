@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_version">2.1.1810</string>
+    <string name="app_version">2.1.1830</string>
     
     <string name="app_about">关于</string>
     <string name="dialog_confirm">确定</string>
