@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_version">2.1.1800</string>
+    <string name="app_version">2.1.1810</string>
     
     <string name="app_about">关于</string>
     <string name="dialog_confirm">确定</string>
@@ -19,6 +19,7 @@
     <string name="delete">Delete</string>
     <string name="pause">Pause</string>
     <string name="conti">Continue</string>
+    <string name="continue_last">Rerun</string>
     <string name="last_run_failed">本地有未上传的结果文件</string>
     <string name="upload">Upload</string>
     <string name="edit_text_box_hint"></string>

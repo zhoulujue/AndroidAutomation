@@ -27,6 +27,9 @@ public class HandleLastRunActivity extends BaseActivity {
 
 		Button uploadResultBtn = (Button) findViewById(R.id.button_upload_result);
 		uploadResultBtn.setOnClickListener(mOnUploadListener);
+		
+		Button continueLastButton = (Button) findViewById(R.id.button_continue_last);
+		continueLastButton.setOnClickListener(mOnContinueLastListener);
 	}
 
 	private View.OnClickListener mOnDeleteListener = new View.OnClickListener() {
@@ -73,6 +76,19 @@ public class HandleLastRunActivity extends BaseActivity {
 		}
 	};
 
+	private View.OnClickListener mOnContinueLastListener = new View.OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			//上传成功，把标记修改过来，并删除文件，跳转界面
+			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+			editor.putBoolean("LastRunSuccess", false);
+			editor.commit();
+			startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
+			finish();
+		}
+	};
+	
 	protected void dialog() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(HandleLastRunActivity.this);
 		builder.setCancelable(false);

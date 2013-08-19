@@ -187,9 +187,19 @@ public class SogouEditActivity extends Activity {
 
 				String inputStr = null;
 				ArrayList<File> rawFiles = Utils.getSuffixFiles(getApplicationContext(), Utils.CONFIG_FILE_SUFFIX);
+				boolean NeedRerun = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+						.getBoolean("LastRunSuccess", true);
+				
 				//每个case文件跑一遍
 				for(File rawconfig : rawFiles) {
 					BufferedReader reader = new BufferedReader(new FileReader(rawconfig));
+					//check 是否是rerun，恢复现场
+					if (NeedRerun) {
+						int RanCount = Utils.getLastCaseCountFromResult(getApplicationContext());
+						if (RanCount != -1)
+							for (int ranindex = 0; ranindex < RanCount; ranindex ++)
+								reader.readLine();
+					}
 					while ((inputStr = reader.readLine()) != null) {
 						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 						//TODO: 不断访问成员变量，这样也会把CPU带上去

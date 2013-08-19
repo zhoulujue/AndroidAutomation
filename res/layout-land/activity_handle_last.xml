@@ -38,6 +38,16 @@
             android:background="@drawable/button_green_bg"
             android:text="@string/upload"
             android:textColor="@drawable/btn_words_color" />
+        
+        <Button
+            android:id="@+id/button_continue_last"
+            android:layout_width="80dp"
+            android:layout_height="50dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/button_red_bg"
+            android:text="@string/continue_last"
+            android:textColor="@drawable/btn_words_color" />
+        
     </LinearLayout>
 
 </RelativeLayout>

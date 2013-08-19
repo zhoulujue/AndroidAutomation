@@ -131,8 +131,9 @@ public final class R {
         public static final int yellow=0x7f02001b;
     }
     public static final class id {
-        public static final int about=0x7f0a001c;
-        public static final int action_settings=0x7f0a001b;
+        public static final int about=0x7f0a001d;
+        public static final int action_settings=0x7f0a001c;
+        public static final int button_continue_last=0x7f0a001a;
         public static final int button_delete=0x7f0a0013;
         public static final int button_delete_result=0x7f0a0018;
         public static final int button_pause=0x7f0a0011;
@@ -154,7 +155,7 @@ public final class R {
         public static final int linearLayout2=0x7f0a000c;
         public static final int linearLayout_two_button=0x7f0a0008;
         public static final int linearLayout_under_choice=0x7f0a0004;
-        public static final int splash=0x7f0a001a;
+        public static final int splash=0x7f0a001b;
         public static final int textView1=0x7f0a0017;
         public static final int textView2=0x7f0a000d;
         public static final int textView_cur_count=0x7f0a0015;
@@ -185,20 +186,21 @@ public final class R {
         public static final int app_about=0x7f070001;
         public static final int app_name=0x7f070005;
         public static final int app_version=0x7f070000;
-        public static final int bluetooth_keyboard_warn=0x7f07001e;
-        public static final int choose_target_ime_warn=0x7f07001f;
-        public static final int config_radio_choice_first_candidate=0x7f070019;
-        public static final int config_radio_choice_first_screen=0x7f07001a;
+        public static final int bluetooth_keyboard_warn=0x7f07001f;
+        public static final int choose_target_ime_warn=0x7f070020;
+        public static final int config_radio_choice_first_candidate=0x7f07001a;
+        public static final int config_radio_choice_first_screen=0x7f07001b;
         /**  configActivity 
          */
-        public static final int config_radio_complete_no_choice=0x7f070018;
-        public static final int config_radio_keybord_nine=0x7f07001c;
-        public static final int config_radio_keybord_qwerty=0x7f07001b;
-        public static final int config_step_one=0x7f070021;
-        public static final int config_step_thr=0x7f070023;
-        public static final int config_step_two=0x7f070022;
-        public static final int connect=0x7f07001d;
+        public static final int config_radio_complete_no_choice=0x7f070019;
+        public static final int config_radio_keybord_nine=0x7f07001d;
+        public static final int config_radio_keybord_qwerty=0x7f07001c;
+        public static final int config_step_one=0x7f070022;
+        public static final int config_step_thr=0x7f070024;
+        public static final int config_step_two=0x7f070023;
+        public static final int connect=0x7f07001e;
         public static final int conti=0x7f07000e;
+        public static final int continue_last=0x7f07000f;
         public static final int cur_count=0x7f07000b;
         public static final int cur_count_end=0x7f07000a;
         public static final int cur_count_start=0x7f070009;
@@ -206,26 +208,26 @@ public final class R {
         public static final int dialog_about_title=0x7f070004;
         public static final int dialog_cancel=0x7f070003;
         public static final int dialog_confirm=0x7f070002;
-        public static final int edit_text_box_hint=0x7f070011;
+        public static final int edit_text_box_hint=0x7f070012;
         public static final int hello_world=0x7f070007;
-        public static final int last_run_failed=0x7f07000f;
-        public static final int next_step=0x7f070024;
+        public static final int last_run_failed=0x7f070010;
+        public static final int next_step=0x7f070025;
         public static final int pause=0x7f07000d;
         public static final int start=0x7f070008;
-        public static final int switch_ime=0x7f070020;
-        public static final int toast_config_missing=0x7f070026;
+        public static final int switch_ime=0x7f070021;
+        public static final int toast_config_missing=0x7f070027;
         /**  Toast 
          */
-        public static final int toast_probe_failed=0x7f070025;
-        public static final int upload=0x7f070010;
-        public static final int upload_result_btn_delete=0x7f070015;
-        public static final int upload_result_btn_retry=0x7f070014;
-        public static final int upload_result_fail_warn=0x7f070016;
+        public static final int toast_probe_failed=0x7f070026;
+        public static final int upload=0x7f070011;
+        public static final int upload_result_btn_delete=0x7f070016;
+        public static final int upload_result_btn_retry=0x7f070015;
+        public static final int upload_result_fail_warn=0x7f070017;
         /**  上传dialog 
          */
-        public static final int upload_result_failed=0x7f070012;
-        public static final int upload_result_retry=0x7f070013;
-        public static final int upload_success=0x7f070017;
+        public static final int upload_result_failed=0x7f070013;
+        public static final int upload_result_retry=0x7f070014;
+        public static final int upload_success=0x7f070018;
     }
     public static final class style {
         /** 

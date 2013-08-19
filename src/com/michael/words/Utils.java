@@ -8,6 +8,7 @@ import it.sauronsoftware.ftp4j.FTPIllegalReplyException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -553,15 +554,46 @@ public class Utils {
 		File tempResultFile = new File(context.getFilesDir() + "/" + TEMP_RESULT_FILE);
 		String rawConfigName = rawConfig.getName().split("\\.")[0]; 
 		File newFile = new File(context.getFilesDir() + "/" + "result-" + rawConfigName + ".txt");
+		//重命名result.txt文件
 		tempResultFile.renameTo(newFile);
-		rawConfig.renameTo(new File(rawConfigName + ".txt"));
-		
+		//重命名评测集case文件
+		rawConfig.renameTo(new File(context.getFilesDir() + "/" + rawConfigName + ".txt"));
+
+		//重命名以后，创建新的result.txt
 		File resultFile = new File(context.getFilesDir() + "/" + TEMP_RESULT_FILE);
 		try {
 			resultFile.createNewFile();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} 
+	}
+
+	public static int getLastCaseCountFromResult(Context context) {
+		int caseCount = -1;
+		try {
+			File tempResultFile = new File(context.getFilesDir() + "/" + TEMP_RESULT_FILE);
+
+			if (tempResultFile.exists()) {
+				BufferedReader reader = new BufferedReader(new FileReader(tempResultFile));
+				String caseline = null;
+				while ( (caseline = reader.readLine()) != null ) {
+					if (caseline.contains("count:")) {
+						caseCount = Integer.valueOf(caseline.split("\\[")[1].split("\\]")[0]);
+					}
+				}
+				reader.close();
+				return caseCount;
+			} else {
+				return caseCount;
+			}
+
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return caseCount;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return caseCount;
+		}
 	}
 
 	public static void clearImeContext(Instrumentation instrumentation) {
