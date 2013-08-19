@@ -272,7 +272,7 @@ public class SogouEditActivity extends Activity {
 							((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
 						}
 					});
-					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
 					//关闭case文件的输入流
 					reader.close();
 					Utils.renameResultTxt(rawconfig, getApplicationContext());
