@@ -193,23 +193,28 @@ public class SogouEditActivity extends Activity {
 				//每个case文件跑一遍
 				for(File rawconfig : rawFiles) {
 					BufferedReader reader = new BufferedReader(new FileReader(rawconfig));
+					BufferedReader shadowReader = new BufferedReader(new FileReader(rawconfig));
+					shadowReader.readLine();
 					//check 是否是rerun，恢复现场
 					if (NeedRerun) {
 						int RanCount = Utils.getLastCaseCountFromResult(getApplicationContext());
 						if (RanCount != -1)
-							for (int ranindex = 0; ranindex < RanCount; ranindex ++)
+							for (int ranindex = 0; ranindex < RanCount; ranindex ++) {
 								reader.readLine();
+								shadowReader.readLine();
+							}
 					}
-					
+
 					Utils.clearImeContext(mInstrumentation);
 					mEditView.showInputMethod();
-					
+
 					//清空中间结果
 					curCount = 0;
 					resultToWrite = "";
 
 					sleepSec(2);
 					while ((inputStr = reader.readLine()) != null) {
+						String NextCase = shadowReader.readLine();
 						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 						//TODO: 不断访问成员变量，这样也会把CPU带上去
 						while(mPause){};
@@ -247,9 +252,9 @@ public class SogouEditActivity extends Activity {
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								
+
 								findCompletion(hanzi);
-								
+
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							} else {
@@ -283,23 +288,25 @@ public class SogouEditActivity extends Activity {
 								curCount++;
 							}
 						}
-						if (curCount % 20 == 0) {
-							final int count = curCount;
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									mEditView.setText("");
-									((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
-								}
-							});
-							new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
-							resultToWrite = "";
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						if (NextCase != null) {
+							if (curCount % 20 == 0 && !NextCase.contains("&")) {
+								final int count = curCount;
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										mEditView.setText("");
+										((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
+									}
+								});
+								new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+								resultToWrite = "";
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							}
 						}
 					}
 					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
@@ -314,6 +321,7 @@ public class SogouEditActivity extends Activity {
 					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
 					//关闭case文件的输入流
 					reader.close();
+					shadowReader.close();
 					sleepSec(2);
 					Utils.renameResultTxt(rawconfig, getApplicationContext());
 					writeInfoHead();
@@ -411,7 +419,7 @@ public class SogouEditActivity extends Activity {
 					//如果target在0到11之间
 					SendChoice(candidateList.get(targetIndex).coordinates.x);
 				}
-				
+
 			} else {//if (endIndex != -1)
 				return;
 			}
@@ -432,7 +440,7 @@ public class SogouEditActivity extends Activity {
 	 * @return 本次case分析结果log
 	 */
 	private String readLogcat(String pinyin, String hanzi, String inputStr) {
-		
+
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		final int MostYCord = mMeasure.MostYCord;
@@ -459,6 +467,7 @@ public class SogouEditActivity extends Activity {
 			}
 
 			if (endIndex != -1) {
+				double lastX = Double.MAX_VALUE;
 				for (int i = endIndex; ( i >= 0 && resultlist[i].contains("#y:" + MostYCord) ); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
@@ -478,9 +487,12 @@ public class SogouEditActivity extends Activity {
 						double yCord = Double.valueOf(resultlist[i].substring(
 								resultlist[i].indexOf("#y:") + "#y:".length(), 
 								resultlist[i].indexOf(", type=")));
+						if (xCord >= lastX) 
+							break;
+						lastX = xCord;
 						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
 						candidateList.add(candidate);
-					} else if (!resultlist[i + 1].contains("#y:" + MostYCord)) {
+					} else if (!resultlist[i - 1].contains("#y:" + MostYCord)) {
 						break;
 					}
 				}

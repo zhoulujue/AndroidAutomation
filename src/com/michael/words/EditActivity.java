@@ -193,12 +193,16 @@ public class EditActivity extends Activity {
 				//每个case文件跑一遍
 				for(File rawconfig : rawFiles) {
 					BufferedReader reader = new BufferedReader(new FileReader(rawconfig));
+					BufferedReader shadowReader = new BufferedReader(new FileReader(rawconfig));
+					shadowReader.readLine();
 					//check 是否是rerun，恢复现场
 					if (NeedRerun) {
 						int RanCount = Utils.getLastCaseCountFromResult(getApplicationContext());
 						if (RanCount != -1)
-							for (int ranindex = 0; ranindex < RanCount; ranindex ++)
+							for (int ranindex = 0; ranindex < RanCount; ranindex ++) {
 								reader.readLine();
+								shadowReader.readLine();
+							}
 					}
 
 					Utils.clearImeContext(mInstrumentation);
@@ -210,6 +214,7 @@ public class EditActivity extends Activity {
 
 					sleepSec(2);
 					while ((inputStr = reader.readLine()) != null) {
+						String NextCase = shadowReader.readLine();
 						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 						//TODO: 不断访问成员变量，这样也会把CPU带上去
 						while(mPause){};
@@ -283,23 +288,25 @@ public class EditActivity extends Activity {
 								curCount++;
 							}
 						}
-						if (curCount % 20 == 0) {
-							final int count = curCount;
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							runOnUiThread(new Runnable() {
-								@Override
-								public void run() {
-									mEditView.setText("");
-									((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
-								}
-							});
-							new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
-							resultToWrite = "";
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-							SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+						if (NextCase != null) {
+							if (curCount % 20 == 0 && !NextCase.contains("&")) {
+								final int count = curCount;
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								runOnUiThread(new Runnable() {
+									@Override
+									public void run() {
+										mEditView.setText("");
+										((TextView) findViewById(R.id.textView_cur_count)).setText(String.valueOf(count));
+									}
+								});
+								new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+								resultToWrite = "";
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+							}
 						}
 					}
 					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
@@ -314,6 +321,7 @@ public class EditActivity extends Activity {
 					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
 					//关闭case文件的输入流
 					reader.close();
+					shadowReader.close();
 					sleepSec(2);
 					Utils.renameResultTxt(rawconfig, getApplicationContext());
 					writeInfoHead();
@@ -464,6 +472,7 @@ public class EditActivity extends Activity {
 			}
 
 			if (endIndex != -1) {
+				double lastX = Double.MAX_VALUE;
 				for (int i = endIndex; ( i >= 0 && (i+2 > endIndex ? true: !resultlist[i + 2].contains("text:1#")) ) ; i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
@@ -483,9 +492,12 @@ public class EditActivity extends Activity {
 						double yCord = Double.valueOf(resultlist[i].substring(
 								resultlist[i].indexOf("#y:") + "#y:".length(), 
 								resultlist[i].indexOf(", type=")));
+						if (xCord >= lastX) 
+							break;
+						lastX = xCord;
 						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
 						candidateList.add(candidate);
-					} else if (!resultlist[i + 1].contains("#y:" + MostYCord)) {
+					} else if (!resultlist[i - 1].contains("#y:" + MostYCord)) {
 						break;
 					}
 				}
