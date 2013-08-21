@@ -467,9 +467,8 @@ public class EditActivity extends Activity {
 				for (int i = endIndex; ( i >= 0 && (i+2 > endIndex ? true: !resultlist[i + 2].contains("text:1#")) ) ; i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-					//筛得候选所有信息，顺序是正着的
 					if (resultlist[i].contains(", type=String") && resultlist[i].contains("#y:" + MostYCord)) {
-						//text:后面是空的，或者index那么不要了
+						//text:后面是空的，或者index,那么不要了
 						String text = resultlist[i].split("text:")[1].split("#")[0];
 						if (text.equals("") || Utils.isNumber(text)){
 							continue;

@@ -432,6 +432,7 @@ public class SogouEditActivity extends Activity {
 	 * @return 本次case分析结果log
 	 */
 	private String readLogcat(String pinyin, String hanzi, String inputStr) {
+		
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		final int MostYCord = mMeasure.MostYCord;
@@ -458,13 +459,11 @@ public class SogouEditActivity extends Activity {
 			}
 
 			if (endIndex != -1) {
-				//筛得候选所有信息，顺序是倒着的
-				for (int i = endIndex; (i >= 0 && !resultlist[i].contains("text:1#")); i--){
+				for (int i = endIndex; ( i >= 0 && resultlist[i].contains("#y:" + MostYCord) ); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
-
 					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)) {
-						//text:后面是空的，或者是index那么不要了
+						//text:后面是空的，或者是index,那么不要了
 						String text = resultlist[i].split("text:")[1].split("#")[0];
 						if (text.equals("") || Utils.isNumber(text)){
 							continue;
