@@ -360,7 +360,7 @@ public class EditActivity extends Activity {
 			}
 
 			if (endIndex != -1) {
-				double lastX = 0;
+				double lastX = Double.MAX_VALUE;
 				for (int i = endIndex; ( i >= 0 && resultlist[i].contains("#y:" + MostYCord) ); i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
@@ -380,7 +380,7 @@ public class EditActivity extends Activity {
 						double yCord = Double.valueOf(resultlist[i].substring(
 								resultlist[i].indexOf("#y:") + "#y:".length(), 
 								resultlist[i].indexOf(", type=")));
-						if (xCord > lastX) 
+						if (xCord >= lastX) 
 							break;
 						lastX = xCord;
 						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
@@ -408,7 +408,6 @@ public class EditActivity extends Activity {
 					return;
 
 				if (targetIndex == -1){
-					//如果没有找到目标词，那么上屏第一个
 					return;
 				} else {
 					//如果target在0到11之间
