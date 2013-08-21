@@ -600,5 +600,12 @@ public class Utils {
 		for (int i =0; i < 20; i++) 
 			instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
 	}
+	
+	public static void showInputMethodPicker(Context context) {
+        InputMethodManager imeManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE); 
+        if (imeManager != null) {
+            imeManager.showInputMethodPicker();
+        }
+    }
 
 }

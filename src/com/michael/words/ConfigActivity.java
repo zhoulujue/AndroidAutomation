@@ -49,8 +49,7 @@ public class ConfigActivity extends BaseActivity {
 
 		@Override
 		public void onClick(View v) {
-			Intent intent = new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS);
-			startActivity(intent);
+			Utils.showInputMethodPicker(getApplicationContext());
 		}
 	};
 

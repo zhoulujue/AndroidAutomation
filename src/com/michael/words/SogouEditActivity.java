@@ -189,7 +189,7 @@ public class SogouEditActivity extends Activity {
 				ArrayList<File> rawFiles = Utils.getSuffixFiles(getApplicationContext(), Utils.CONFIG_FILE_SUFFIX);
 				boolean NeedRerun = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
 						.getBoolean("LastRunSuccess", true);
-				
+
 				//每个case文件跑一遍
 				for(File rawconfig : rawFiles) {
 					BufferedReader reader = new BufferedReader(new FileReader(rawconfig));
@@ -200,6 +200,15 @@ public class SogouEditActivity extends Activity {
 							for (int ranindex = 0; ranindex < RanCount; ranindex ++)
 								reader.readLine();
 					}
+					
+					Utils.clearImeContext(mInstrumentation);
+					mEditView.showInputMethod();
+					
+					//清空中间结果
+					curCount = 0;
+					resultToWrite = "";
+
+					sleepSec(2);
 					while ((inputStr = reader.readLine()) != null) {
 						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
 						//TODO: 不断访问成员变量，这样也会把CPU带上去
@@ -213,11 +222,19 @@ public class SogouEditActivity extends Activity {
 							resultToWrite += readLogcat(pinyin, hanzi, inputStr);
 							curCount++;							
 						} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
-							//提取拼音和汉字
-							String[] caseStrs = inputStr.split("\"")[1].split(",");
-							String pinyin = caseStrs[keybordType + 1];
-							String hanzi = caseStrs[0];
-
+							//去掉输入case中的拼音分割符
+							inputStr = inputStr.replaceAll("'", "");
+							//提取拼音和汉字,如果提取不到拼音和汉字,那么抛弃这条case
+							String pinyin = "";
+							String hanzi = "";
+							try {
+								String[] caseStrs = inputStr.split("\"")[1].split(",");
+								pinyin = caseStrs[keybordType + 1];
+								hanzi = caseStrs[0];
+							} catch (IndexOutOfBoundsException e) {
+								e.printStackTrace();
+								continue;
+							}
 							//如果遇到#号且是第三种模式，则说明遇到清空Case，但是注意不能先敲空格，那样会把联想上屏
 							if (pinyin.contains("#") && configChoice == R.id.config_radio_choice_first_screen) {
 								SendKey(KeyEvent.KEYCODE_DEL);
@@ -225,8 +242,17 @@ public class SogouEditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_SPACE);
 								for (int i = 0; i < 2; i++)
 									SendKey(KeyEvent.KEYCODE_DEL);
+							} else if (pinyin.contains("*")) {
+								SendKey(KeyEvent.KEYCODE_DEL);
+							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
+								for (int j = 0; j < 3; j++)
+									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								
+								findCompletion(hanzi);
+								
+								for (int j = 0; j < 3; j++)
+									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							} else {
-
 								//这两个参数都是为了Rerun
 								String resultForThisCase = "";
 								int TrialCount = 0;
@@ -250,6 +276,9 @@ public class SogouEditActivity extends Activity {
 									resultForThisCase = readLogcat(pinyin, hanzi, inputStr);
 									TrialCount++;
 								}
+								if (resultForThisCase.equals("") && TrialCount == 10)
+									for(int time =0; time < pinyin.length(); time++)
+										SendKey(KeyEvent.KEYCODE_DEL);
 								resultToWrite += resultForThisCase;
 								curCount++;
 							}
@@ -285,7 +314,9 @@ public class SogouEditActivity extends Activity {
 					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
 					//关闭case文件的输入流
 					reader.close();
+					sleepSec(2);
 					Utils.renameResultTxt(rawconfig, getApplicationContext());
+					writeInfoHead();
 				}
 
 			} catch (IOException e) {
@@ -305,6 +336,93 @@ public class SogouEditActivity extends Activity {
 			e.printStackTrace();
 		}
 		super.onStop();
+	}
+
+	private void findCompletion(String hanzi) {
+		final int MostYCord = mMeasure.MostYCord;
+
+		String RawResult;
+		try{
+			RawResult = mLogcat.read();
+			String[] resultlist = RawResult.split("\n");
+			ArrayList<Candidate> candidateList = new ArrayList<Candidate>();
+			int endIndex = -1;
+
+			for (int i = resultlist.length - 1; i >= 0; i--) {
+				//去掉拼音中的分割符
+				resultlist[i] = resultlist[i].replaceAll("'", "");
+				if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=buf")) {
+					endIndex = i;
+					break;
+				}
+			}
+
+			if (endIndex != -1) {
+				double lastX = 0;
+				for (int i = endIndex; ( i >= 0 && resultlist[i].contains("#y:" + MostYCord) ); i--){
+					//去掉拼音中的分割符
+					resultlist[i] = resultlist[i].replaceAll("'", "");
+					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)) {
+						//text:后面是空的，或者是index,那么不要了
+						String text = resultlist[i].split("text:")[1].split("#")[0];
+						if (text.equals("") || Utils.isNumber(text)){
+							continue;
+						}
+
+						String word = resultlist[i].substring(
+								resultlist[i].indexOf("text:") + "text:".length(), 
+								resultlist[i].indexOf("#x"));
+						double xCord = Double.valueOf(resultlist[i].substring(
+								resultlist[i].indexOf("#x:") + "#x:".length(), 
+								resultlist[i].indexOf("#y:")));
+						double yCord = Double.valueOf(resultlist[i].substring(
+								resultlist[i].indexOf("#y:") + "#y:".length(), 
+								resultlist[i].indexOf(", type=")));
+						if (xCord > lastX) 
+							break;
+						lastX = xCord;
+						Candidate candidate = new Candidate(word, new Coordinates(xCord, yCord));
+						candidateList.add(candidate);
+					} else if (!resultlist[i - 1].contains("#y:" + MostYCord)) {
+						break;
+					}
+				}
+
+				int targetIndex = -1;
+				int indexToWrite = -1;
+				//得到了候选，在候选词里面挑出要选择上屏的候选
+				for (int i = candidateList.size() - 1; i >=0; i--) {
+					indexToWrite = candidateList.size() - i;
+					String word = candidateList.get(i).content;
+					if (indexToWrite <= FISRT_SCREEN_THRESHOLD){
+						if (word.equals(hanzi)) {
+							//记录在candidateList里真实的索引，便于后面SendChoice使用
+							targetIndex = i;
+						}
+					}//if (index <= FISRT_SCREEN_THRESHOLD)
+				}//for
+
+				if (candidateList.size() < 1)
+					return;
+
+				if (targetIndex == -1){
+					//如果没有找到目标词，那么空格上屏
+					SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
+				} else {
+					//如果target在0到11之间
+					SendChoice(candidateList.get(targetIndex).coordinates.x);
+				}
+				
+			} else {//if (endIndex != -1)
+				return;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			return;
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			return;
+		}
 	}
 
 	/**
@@ -352,10 +470,10 @@ public class SogouEditActivity extends Activity {
 						if (text.equals("") || Utils.isNumber(text)){
 							continue;
 						}
-						
+
 						String word = resultlist[i].substring(
 								resultlist[i].indexOf("text:") + "text:".length(), 
-								resultlist[i].indexOf("#"));
+								resultlist[i].indexOf("#x"));
 						double xCord = Double.valueOf(resultlist[i].substring(
 								resultlist[i].indexOf("#x:") + "#x:".length(), 
 								resultlist[i].indexOf("#y:")));
@@ -415,7 +533,7 @@ public class SogouEditActivity extends Activity {
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					if (candidateList.size() < 1)
 						return "";
-					
+
 					if (targetIndex == -1){
 						//如果没有找到目标词，那么空格上屏
 						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
@@ -454,7 +572,6 @@ public class SogouEditActivity extends Activity {
 			for (int j = 0; j < 3; j++){
 				SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 			}
-			//发送探测拼音串
 			//发送探测拼音串
 			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE)
 				SendString("2");
