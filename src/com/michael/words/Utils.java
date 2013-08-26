@@ -607,5 +607,13 @@ public class Utils {
             imeManager.showInputMethodPicker();
         }
     }
+	
+    public static void showSoftInput(EditTextView editView, Context context) {
+        if (editView != null) {
+        	editView.requestFocus();
+            InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
+        }
+    }
 
 }

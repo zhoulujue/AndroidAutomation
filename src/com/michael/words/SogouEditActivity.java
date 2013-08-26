@@ -182,6 +182,7 @@ public class SogouEditActivity extends Activity {
 			int curCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
+			Utils.showSoftInput(mEditView, getApplicationContext());
 			try {
 				mLogcat.read();
 
