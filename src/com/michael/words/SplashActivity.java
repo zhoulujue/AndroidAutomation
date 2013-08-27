@@ -3,6 +3,8 @@ package com.michael.words;
 import java.io.File;
 import java.io.IOException;
 
+import com.michael.words.utils.Utils;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;

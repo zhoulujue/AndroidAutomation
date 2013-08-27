@@ -1,4 +1,4 @@
-package com.michael.words;
+package com.michael.words.utils;
 
 import it.sauronsoftware.ftp4j.FTPAbortedException;
 import it.sauronsoftware.ftp4j.FTPDataTransferException;
@@ -22,8 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.michael.shell.Shell;
-
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -38,6 +37,8 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
+import com.michael.words.EditTextView;
 
 public class Utils {
 
@@ -602,33 +603,56 @@ public class Utils {
 		for (int i =0; i < 20; i++) 
 			instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
 	}
-	
-	public static void clearImeData(String packageName) {
-		try {
-			Shell shell = new Shell("su");
-			shell.write("pm claer" + " " + packageName);
-			shell.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		
-	}
-	
-	public static void showInputMethodPicker(Context context) {
-        InputMethodManager imeManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE); 
-        if (imeManager != null) {
-            imeManager.showInputMethodPicker();
-        }
-    }
-	
-    public static void showSoftInput(EditTextView editView, Context context) {
-        if (editView != null) {
-        	editView.requestFocus();
-            InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
-        }
-    }
 
+	@SuppressLint("SdCardPath")
+	public static void clearImeData(String packageName, Context context) {
+		InstallTool tool=new InstallTool(context);
+		tool.doAction(ToolsConstants.CLEAR,packageName);
+	}
+
+	public static boolean deleteDir(File dir) {
+		if (dir != null && dir.isDirectory()) {
+			String[] children = dir.list();
+			for (int i = 0; i < children.length; i++) {
+				boolean success = deleteDir(new File(dir, children[i]));
+				if (!success) {
+					return false;
+				}
+			}
+		}
+
+		return dir.delete();
+	}
+
+	public static void showInputMethodPicker(Context context) {
+		InputMethodManager imeManager = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE); 
+		if (imeManager != null) {
+			imeManager.showInputMethodPicker();
+		}
+	}
+
+	public static void showSoftInput(EditTextView editView, Context context) {
+		if (editView != null) {
+			editView.requestFocus();
+			InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+			imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
+		}
+	}
+
+	public static void execCommand(String... command) {
+		 Process process = null;
+		 try {
+		  process = new ProcessBuilder().command(command).start();
+		  //对于命令的执行结果我们可以通过流来读取
+		  // InputStream in = process.getInputStream();
+		  // OutputStream out = process.getOutputStream();
+		  // InputStream err = process.getErrorStream();
+		 } catch (IOException e) {
+		  e.printStackTrace();
+		 } finally {
+		  if (process != null)
+		   process.destroy();
+		 }
+		}
+	
 }

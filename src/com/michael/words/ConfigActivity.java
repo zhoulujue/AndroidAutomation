@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.RadioGroup;
 
 import com.michael.words.keys.Keybord;
+import com.michael.words.utils.Utils;
 
 public class ConfigActivity extends BaseActivity {
 

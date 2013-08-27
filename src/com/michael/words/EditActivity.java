@@ -32,6 +32,7 @@ import com.michael.words.candidate.Candidate;
 import com.michael.words.candidate.CandidateMeasure;
 import com.michael.words.candidate.Coordinates;
 import com.michael.words.keys.Keybord;
+import com.michael.words.utils.Utils;
 
 public class EditActivity extends Activity {
 	private EditTextView mEditView;
@@ -332,7 +333,7 @@ public class EditActivity extends Activity {
 					sleepSec(2);
 					Utils.renameResultTxt(rawconfig, getApplicationContext());
 					writeInfoHead();
-					Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName);
+					Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName, getBaseContext());
 				}
 
 			} catch (IOException e) {

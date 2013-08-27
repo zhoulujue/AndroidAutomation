@@ -12,7 +12,7 @@ import android.graphics.Point;
 import android.preference.PreferenceManager;
 
 import com.michael.words.R;
-import com.michael.words.Utils;
+import com.michael.words.utils.Utils;
 
 public class Keybord {
 	private HashMap<String, TouchPoint> mKeybordMap;
