@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import com.michael.shell.Shell;
+
 import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.content.Context;
@@ -599,6 +601,19 @@ public class Utils {
 	public static void clearImeContext(Instrumentation instrumentation) {
 		for (int i =0; i < 20; i++) 
 			instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DEL);
+	}
+	
+	public static void clearImeData(String packageName) {
+		try {
+			Shell shell = new Shell("su");
+			shell.write("pm claer" + " " + packageName);
+			shell.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		
 	}
 	
 	public static void showInputMethodPicker(Context context) {

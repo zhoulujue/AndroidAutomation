@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -67,11 +68,15 @@ public class SogouEditActivity extends Activity {
 
 			mChoice = mSharedPreferences.getInt("choice", 0);
 
-			writeInfoHead();
-
 			mMeasure = new CandidateMeasure();
 
 			mKeybord = new Keybord(getApplicationContext());
+			
+			writeInfoHead();
+			
+			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -208,12 +213,13 @@ public class SogouEditActivity extends Activity {
 
 					Utils.clearImeContext(mInstrumentation);
 					mEditView.showInputMethod();
+					Utils.showSoftInput(mEditView, getApplicationContext());
 
 					//清空中间结果
 					curCount = 0;
 					resultToWrite = "";
 
-					sleepSec(2);
+					sleepSec(15);
 					while ((inputStr = reader.readLine()) != null) {
 						String NextCase = shadowReader.readLine();
 						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
@@ -326,6 +332,7 @@ public class SogouEditActivity extends Activity {
 					sleepSec(2);
 					Utils.renameResultTxt(rawconfig, getApplicationContext());
 					writeInfoHead();
+					Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName);
 				}
 
 			} catch (IOException e) {
