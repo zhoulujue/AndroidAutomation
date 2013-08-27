@@ -71,7 +71,8 @@ public class Keybord {
 		{
 			if (outSize != null) 
 			{
-				String ScreenSize = String.valueOf(outSize.x) + "x" + String.valueOf(outSize.y);
+				String ScreenSize = String.valueOf(outSize.x > outSize.y ? outSize.x : outSize.y) 
+						+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
 
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 				int CurKeybordChoice = sharedPreferences.getInt("keybord", 0);
@@ -95,7 +96,7 @@ public class Keybord {
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768))
 					{
 						reader = new BufferedReader(
-								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_1280x726)));
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_1280x768)));
 					}
 					//2560x1600
 					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600))
@@ -123,7 +124,7 @@ public class Keybord {
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
 					{
 						reader = new BufferedReader(
-								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_1280x726))); 
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_1280x768))); 
 					}
 					//2560x1600
 					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
@@ -163,7 +164,7 @@ public class Keybord {
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
 					{
 						reader = new BufferedReader(
-								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_9_1280x726))); 
+								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_9_1280x768))); 
 					}
 					//2560x1600
 					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
@@ -191,7 +192,7 @@ public class Keybord {
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
 					{
 						reader = new BufferedReader(
-								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_26_1280x726))); 
+								new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_26_1280x768))); 
 					}
 					//2560x1600
 					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 

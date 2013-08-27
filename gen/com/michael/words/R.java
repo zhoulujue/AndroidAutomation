@@ -173,19 +173,19 @@ public final class R {
     }
     public static final class raw {
         public static final int baidu_26_1280x720=0x7f040000;
-        public static final int baidu_26_1280x726=0x7f040001;
+        public static final int baidu_26_1280x768=0x7f040001;
         public static final int baidu_26_2560x1600=0x7f040002;
         public static final int baidu_26_480x320=0x7f040003;
         public static final int baidu_9_1280x720=0x7f040004;
-        public static final int baidu_9_1280x726=0x7f040005;
+        public static final int baidu_9_1280x768=0x7f040005;
         public static final int baidu_9_2560x1600=0x7f040006;
         public static final int baidu_9_480x320=0x7f040007;
         public static final int sogou_26_1280x720=0x7f040008;
-        public static final int sogou_26_1280x726=0x7f040009;
+        public static final int sogou_26_1280x768=0x7f040009;
         public static final int sogou_26_2560x1650=0x7f04000a;
         public static final int sogou_26_480x320=0x7f04000b;
         public static final int sogou_9_1280x720=0x7f04000c;
-        public static final int sogou_9_1280x726=0x7f04000d;
+        public static final int sogou_9_1280x768=0x7f04000d;
         public static final int sogou_9_2560x1600=0x7f04000e;
         public static final int sogou_9_480x320=0x7f04000f;
     }
