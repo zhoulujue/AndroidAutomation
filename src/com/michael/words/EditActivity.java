@@ -255,6 +255,9 @@ public class EditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_SPACE);
 								for (int i = 0; i < 2; i++)
 									SendKey(KeyEvent.KEYCODE_DEL);
+								
+								mLogcat.read();
+								
 							} else if (pinyin.contains("*")) {
 								SendKey(KeyEvent.KEYCODE_DEL);
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -265,6 +268,9 @@ public class EditActivity extends Activity {
 
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								
+								mLogcat.read();
+								
 							} else {
 								//这两个参数都是为了Rerun
 								String resultForThisCase = "";
@@ -279,6 +285,7 @@ public class EditActivity extends Activity {
 									for (int j = 0; j < 3; j++)
 										SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
+									mLogcat.read();
 									SendString(pinyin);
 
 									//为了和下一次输入间隔开来
