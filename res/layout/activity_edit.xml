@@ -56,7 +56,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/button_start"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="15dp" >
+        android:layout_marginTop="-20dp" >
 
         <TextView
             android:id="@+id/textView_cur_count_start"
