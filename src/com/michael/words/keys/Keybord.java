@@ -140,7 +140,8 @@ public class Keybord {
 		{
 			if (outSize != null) 
 			{
-				String ScreenSize = String.valueOf(outSize.x) + "x" + String.valueOf(outSize.y);
+				String ScreenSize = String.valueOf(outSize.x > outSize.y ? outSize.x : outSize.y) 
+						+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
 
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
 				int CurKeybordChoice = sharedPreferences.getInt("keybord", 0);

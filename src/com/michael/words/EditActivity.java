@@ -252,7 +252,9 @@ public class EditActivity extends Activity {
 							if (pinyin.contains("#") && configChoice == R.id.config_radio_choice_first_screen) {
 								SendKey(KeyEvent.KEYCODE_DEL);
 								for (int i = 0; i < 2; i++)
-									SendKey(KeyEvent.KEYCODE_SPACE);
+									//百度新版space会变成外接键盘的模式
+									//SendKey(KeyEvent.KEYCODE_SPACE);
+									SendKey(Keybord.KEYBORD_SPACE_BUTTON);
 								for (int i = 0; i < 2; i++)
 									SendKey(KeyEvent.KEYCODE_DEL);
 								
@@ -561,9 +563,11 @@ public class EditActivity extends Activity {
 							mEditView.setText("");
 						}
 					});
-					SendKey(KeyEvent.KEYCODE_SEMICOLON);
+					//新版百度接受符号后，变外接键盘
+					//SendKey(KeyEvent.KEYCODE_SEMICOLON);
 					SendKey(KeyEvent.KEYCODE_DEL);
-					SendKey(KeyEvent.KEYCODE_SPACE);
+					SendKey(KeyEvent.KEYCODE_DEL);
+					SendKey(Keybord.KEYBORD_SPACE_BUTTON);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					if (candidateList.size() < 1)
