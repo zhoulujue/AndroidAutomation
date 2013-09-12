@@ -456,7 +456,6 @@ public class SogouEditActivity extends Activity {
 	 * @return 本次case分析结果log
 	 */
 	private String readLogcat(String pinyin, String hanzi, String inputStr) {
-
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		final int MostYCord = mMeasure.MostYCord;
@@ -484,7 +483,7 @@ public class SogouEditActivity extends Activity {
 
 			if (endIndex != -1) {
 				double lastX = Double.MAX_VALUE;
-				for (int i = endIndex; ( i >= 0 && resultlist[i].contains("#y:" + MostYCord) ); i--){
+				for (int i = endIndex; ( i >= 0 && resultlist[i].contains("#y:" + MostYCord) ) ; i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
 					if (resultlist[i].contains(", type=buf") && resultlist[i].contains("#y:" + MostYCord)) {
@@ -529,8 +528,6 @@ public class SogouEditActivity extends Activity {
 					if (indexToWrite <= FISRT_SCREEN_THRESHOLD){
 						resultToWrite.append(indexToWrite + ":");
 						resultToWrite.append(word + "\n");
-						//TODO: 测试的时候打开，运行的时候关闭
-						//Log.e("reading", "The Word is : " + index + ": " + word);
 						if (word.equals(hanzi)) {
 							//记录在candidateList里真实的索引，便于后面SendChoice使用
 							targetIndex = i;
@@ -544,6 +541,8 @@ public class SogouEditActivity extends Activity {
 						SendKey(KeyEvent.KEYCODE_DEL);
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
+					if (candidateList.size() < 1)
+						return "";
 					//SendChoice("1");
 					SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
 					runOnUiThread(new Runnable() {
@@ -552,7 +551,8 @@ public class SogouEditActivity extends Activity {
 							mEditView.setText("");
 						}
 					});
-					SendKey(KeyEvent.KEYCODE_SEMICOLON);
+					//SendKey(KeyEvent.KEYCODE_SEMICOLON);
+					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_SPACE);
 					SendKey(KeyEvent.KEYCODE_DEL);
@@ -585,7 +585,6 @@ public class SogouEditActivity extends Activity {
 			return "";
 		}
 	}
-
 
 	private void probeCandidateHeight() {
 		//清空输入流

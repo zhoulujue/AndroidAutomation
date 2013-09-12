@@ -466,7 +466,6 @@ public class EditActivity extends Activity {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 		final int configChoice = mChoice;
 		final int MostYCord = mMeasure.MostYCord;
-		final int keybordType = mKeybord.keybordType;
 
 		String RawResult;
 		try{
@@ -480,7 +479,7 @@ public class EditActivity extends Activity {
 				resultlist[i] = resultlist[i].replaceAll("'", "");
 				//String text = resultlist[i].split("text:")[1].split("#")[0];
 				//如果遇到拼音串了，说明候选读取结束了
-				if (resultlist[i].contains("text:1#")) {
+				if (resultlist[i].contains("text:" + pinyin +"#")) {
 					endIndex = i - 1;
 					break;
 				} else if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=String")) {
@@ -491,11 +490,11 @@ public class EditActivity extends Activity {
 
 			if (endIndex != -1) {
 				double lastX = Double.MAX_VALUE;
-				for (int i = endIndex; ( i >= 0 && (i+2 > endIndex ? true: !resultlist[i + 2].contains("text:1#")) ) ; i--){
+				for (int i = endIndex; ( i >= 0 && resultlist[i].contains("#y:" + MostYCord) ) ; i--){
 					//去掉拼音中的分割符
 					resultlist[i] = resultlist[i].replaceAll("'", "");
 					if (resultlist[i].contains(", type=String") && resultlist[i].contains("#y:" + MostYCord)) {
-						//text:后面是空的，或者index,那么不要了
+						//text:后面是空的，或者是index,那么不要了
 						String text = resultlist[i].split("text:")[1].split("#")[0];
 						if (text.equals("") || Utils.isNumber(text)){
 							continue;
@@ -551,19 +550,14 @@ public class EditActivity extends Activity {
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
 					if (candidateList.size() < 1)
 						return "";
-
-					//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-					//	SendChoice("1");
-					//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)	
-					SendChoice(candidateList.get(0).coordinates.x);
-
+					//SendChoice("1");
+					SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							mEditView.setText("");
 						}
 					});
-					//新版百度接受符号后，变外接键盘
 					//SendKey(KeyEvent.KEYCODE_SEMICOLON);
 					SendKey(KeyEvent.KEYCODE_DEL);
 					SendKey(KeyEvent.KEYCODE_DEL);
@@ -574,16 +568,11 @@ public class EditActivity extends Activity {
 						return "";
 
 					if (targetIndex == -1){
-						//如果没有找到目标词，那么上屏第一个
-						//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-						//	SendChoice("1");
-						//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+						//如果没有找到目标词，那么空格上屏
 						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
 					} else {
 						//如果target在0到11之间
-						//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-						//	SendChoice(String.valueOf(candidateList.size() - targetIndex));
-						//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+						//SendChoice(String.valueOf(targetIndex));
 						SendChoice(candidateList.get(targetIndex).coordinates.x);
 					}
 				}
