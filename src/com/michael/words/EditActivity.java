@@ -70,7 +70,7 @@ public class EditActivity extends Activity {
 			mChoice = mSharedPreferences.getInt("choice", 0);
 
 			mMeasure = new CandidateMeasure();
-			
+
 			mKeybord = new Keybord(getApplicationContext());
 
 			writeInfoHead();
@@ -257,9 +257,9 @@ public class EditActivity extends Activity {
 									SendKey(Keybord.KEYBORD_SPACE_BUTTON);
 								for (int i = 0; i < 2; i++)
 									SendKey(KeyEvent.KEYCODE_DEL);
-								
+
 								mLogcat.read();
-								
+
 							} else if (pinyin.contains("*")) {
 								SendKey(KeyEvent.KEYCODE_DEL);
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -270,9 +270,9 @@ public class EditActivity extends Activity {
 
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								
+
 								mLogcat.read();
-								
+
 							} else {
 								//这两个参数都是为了Rerun
 								String resultForThisCase = "";
@@ -437,10 +437,10 @@ public class EditActivity extends Activity {
 					return;
 				} else {
 					//如果target在0到11之间
-					if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-						SendChoice(String.valueOf(candidateList.size() - targetIndex));
-					else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
-						SendChoice(candidateList.get(targetIndex).coordinates.x);
+					//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+					//SendChoice(String.valueOf(candidateList.size() - targetIndex));
+					//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+					SendChoice(candidateList.get(targetIndex).coordinates.x);
 				}
 				return;
 			} else {//if (endIndex != -1)
@@ -552,10 +552,10 @@ public class EditActivity extends Activity {
 					if (candidateList.size() < 1)
 						return "";
 
-					if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-						SendChoice("1");
-					else if (keybordType == Keybord.KEYBORD_MODEL_NINE)	
-						SendChoice(candidateList.get(0).coordinates.x);
+					//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+					//	SendChoice("1");
+					//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)	
+					SendChoice(candidateList.get(0).coordinates.x);
 
 					runOnUiThread(new Runnable() {
 						@Override
@@ -575,16 +575,16 @@ public class EditActivity extends Activity {
 
 					if (targetIndex == -1){
 						//如果没有找到目标词，那么上屏第一个
-						if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-							SendChoice("1");
-						else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
-							SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
+						//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+						//	SendChoice("1");
+						//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
 					} else {
 						//如果target在0到11之间
-						if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-							SendChoice(String.valueOf(candidateList.size() - targetIndex));
-						else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
-							SendChoice(candidateList.get(targetIndex).coordinates.x);
+						//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+						//	SendChoice(String.valueOf(candidateList.size() - targetIndex));
+						//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
+						SendChoice(candidateList.get(targetIndex).coordinates.x);
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
@@ -724,14 +724,14 @@ public class EditActivity extends Activity {
 
 		//} else if (Utils.isNumber(text)) {
 
-			for (int i = 0; i < text.length(); i ++){
-				String letter = String.valueOf(text.charAt(i));
-				Keybord.TouchPoint point = null;
-				point = mKeybord.getKeyLocation(letter);
-				if (point != null) {
-					tapScreen(point.x, point.y);
-				}
+		for (int i = 0; i < text.length(); i ++){
+			String letter = String.valueOf(text.charAt(i));
+			Keybord.TouchPoint point = null;
+			point = mKeybord.getKeyLocation(letter);
+			if (point != null) {
+				tapScreen(point.x, point.y);
 			}
+		}
 
 		//}
 	}
