@@ -719,10 +719,10 @@ public class EditActivity extends Activity {
 
 	private void SendString(String text) throws IOException{
 		//Log.e("InputKeyEvent", "text:" + text);
-		if (Utils.isLetter(text)) {
-			mInstrumentation.sendStringSync(text);
+		//if (Utils.isLetter(text)) {
+		//	mInstrumentation.sendStringSync(text);
 
-		} else if (Utils.isNumber(text)) {
+		//} else if (Utils.isNumber(text)) {
 
 			for (int i = 0; i < text.length(); i ++){
 				String letter = String.valueOf(text.charAt(i));
@@ -733,7 +733,7 @@ public class EditActivity extends Activity {
 				}
 			}
 
-		}
+		//}
 	}
 
 	private void tapScreen(float x, float y){
