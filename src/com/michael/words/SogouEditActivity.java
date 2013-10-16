@@ -472,10 +472,11 @@ public class SogouEditActivity extends Activity {
 				resultlist[i] = resultlist[i].replaceAll("'", "");
 				//String text = resultlist[i].split("text:")[1].split("#")[0];
 				//如果遇到拼音串了，说明候选读取结束了
-				if (resultlist[i].contains("text:" + pinyin +"#")) {
-					endIndex = i - 1;
-					break;
-				} else if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=buf")) {
+//				if (resultlist[i].contains("text:" + pinyin +"#")) {
+//					endIndex = i - 1;
+//					break;
+//				} else 
+					if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=buf")) {
 					endIndex = i;
 					break;
 				}
