@@ -292,7 +292,7 @@ public class SogouEditActivity extends Activity {
 									for (int j = 0; j < (pinyin.length() < 4 ? 10:5); j++)
 										SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
-									sleepMil(100);
+									sleepMil(200);
 									resultForThisCase = readLogcat(pinyin, hanzi, inputStr);
 									TrialCount++;
 								}
@@ -706,6 +706,7 @@ public class SogouEditActivity extends Activity {
 			point = mKeybord.getKeyLocation(letter);
 			if (point != null) {
 				tapScreen(point.x, point.y);
+				sleepMil(10);
 			}
 
 		}
