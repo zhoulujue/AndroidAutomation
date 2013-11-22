@@ -61,7 +61,7 @@ public class EditTextView extends EditText {
     public void showInputMethod() {
         InputMethodManager imm = getInputMethodManager();
         if (imm != null) {
-            imm.showSoftInput(this, 0);
+            imm.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT);
         }
     }
 

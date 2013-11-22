@@ -23,12 +23,14 @@ import java.util.List;
 import java.util.Locale;
 
 import android.annotation.SuppressLint;
+import android.app.ActivityManager;
 import android.app.AlertDialog;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Point;
 import android.provider.Settings;
@@ -606,6 +608,12 @@ public class Utils {
 
 	@SuppressLint("SdCardPath")
 	public static void clearImeData(String packageName, Context context) {
+        ActivityManager am = (ActivityManager)context.getSystemService(
+                Context.ACTIVITY_SERVICE);
+        am.forceStopPackage(packageName);
+        PackageManager pm = (PackageManager)context.getPackageManager();
+        pm.deleteApplicationCacheFiles(packageName, null);
+        pm.clearApplicationUserData(packageName, null);
 		InstallTool tool=new InstallTool(context);
 		tool.doAction(ToolsConstants.CLEAR,packageName);
 	}
@@ -631,14 +639,20 @@ public class Utils {
 		}
 	}
 
-	public static void showSoftInput(EditTextView editView, Context context) {
+	public static boolean showSoftInput(EditTextView editView, Context context) {
 		if (editView != null) {
 			editView.requestFocus();
 			InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
-			imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
+			return imm.showSoftInput(editView, InputMethodManager.SHOW_IMPLICIT);
 		}
+		return false;
 	}
 
+	public static boolean isIMEActive(EditTextView view, Context context) {
+		InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
+		return imm.isActive() && imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
+	}
+	
 	public static void execCommand(String... command) {
 		 Process process = null;
 		 try {

@@ -9,13 +9,17 @@ import java.util.ArrayList;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,6 +47,7 @@ public class SogouEditActivity extends Activity {
 	private CandidateMeasure mMeasure;
 	private SharedPreferences mSharedPreferences;
 	private Keybord mKeybord;
+	private WakeLock mWakeLock;
 	public static int FISRT_SCREEN_THRESHOLD = 12;
 
 	@Override
@@ -52,6 +57,8 @@ public class SogouEditActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN, WindowManager.LayoutParams. FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_edit);
 		init();
+		PowerManager powerManager = (PowerManager)this.getSystemService(Context.POWER_SERVICE);
+		mWakeLock = powerManager.newWakeLock(PowerManager.FULL_WAKE_LOCK, "My Lock");
 		try {
 			ArrayList<File> rawFiles = Utils.getSuffixFiles(getApplicationContext(), Utils.CONFIG_FILE_SUFFIX);
 			if (rawFiles.isEmpty() || rawFiles == null) {
@@ -92,6 +99,18 @@ public class SogouEditActivity extends Activity {
 		super.onBackPressed();
 	}
 
+	@Override
+	protected void onResume() {
+		mWakeLock.acquire();
+		super.onResume();
+	}
+	
+	@Override
+	protected void onPause() {
+		mWakeLock.release();
+		super.onPause();
+	}
+	
 	private void init() {
 		mEditView = (EditTextView) findViewById(R.id.editText1);
 		//mEditView.setOnKeyListener(mOnLeftCTRListener);
@@ -214,13 +233,21 @@ public class SogouEditActivity extends Activity {
 
 					Utils.clearImeContext(mInstrumentation);
 					mEditView.showInputMethod();
-					Utils.showSoftInput(mEditView, getApplicationContext());
-
+					tapScreen(370.0f, 75.0f);
+					sleepSec(10);
+					tapScreen(370.0f, 75.0f);
+					sleepSec(10);
+					tapScreen(370.0f, 75.0f);
+					sleepSec(10);
+					
+					mLogcat = new Shell("su");
+					sleepSec(2);
+					mLogcat.write("logcat CanvasDrawText:E *:S");
+					
 					//清空中间结果
 					curCount = 0;
 					resultToWrite = "";
 
-					sleepSec(15);
 					while ((inputStr = reader.readLine()) != null) {
 						String NextCase = shadowReader.readLine();
 						//暂停功能暂时采用死循环实现，死循环会把CPU带上去，这样不好
