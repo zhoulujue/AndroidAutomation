@@ -226,8 +226,10 @@ public class EditActivity extends Activity {
 						int RanCount = Utils.getLastCaseCountFromResult(getApplicationContext());
 						if (RanCount != -1)
 							for (int ranindex = 0; ranindex < RanCount; ranindex ++) {
-								reader.readLine();
+								String temp = reader.readLine();
 								shadowReader.readLine();
+								if (temp.contains("a[" + RanCount + "]"))
+									break;
 							}
 					}
 
@@ -591,15 +593,22 @@ public class EditActivity extends Activity {
 					SendKey(Keybord.KEYBORD_SPACE_BUTTON);
 					SendKey(KeyEvent.KEYCODE_DEL);
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
-					if (candidateList.size() < 1)
+					if (candidateList.size() < 1) {
+						//没有正确的读取到候选，如果后面跟着联想词的case，也就没有意义，清空让findCompletion找不到
+						mLogcat.read();
 						return "";
+					}
 
 					if (targetIndex == -1){
-						//如果没有找到目标词，那么空格上屏
-						SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
+						//如果没有找到目标词，那么删除已经打过的字，不上屏
+						for(int time =0; time < pinyin.length(); time++)
+							SendKey(KeyEvent.KEYCODE_DEL);
+						//清空logcat，没有找到，如果后面跟着联想词的case，也就没有意义，清空让findCompletion找不到
+						mLogcat.read();
 					} else {
-						//如果target在0到11之间
-						//SendChoice(String.valueOf(targetIndex));
+						//选了候选以后才有联想，为了findCompletion读取的更准确，先清空logcat
+						mLogcat.read();
+						//如果target在0到11之间，选择目标词上屏
 						SendChoice(candidateList.get(targetIndex).coordinates.x);
 					}
 				}
