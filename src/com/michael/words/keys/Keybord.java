@@ -21,6 +21,7 @@ public class Keybord {
 	
 	public static String SCREEN_SIZE_1280_720 = "1280x720";
 	public static String SCREEN_SIZE_1280_768 = "1280x768";
+	public static String SCREEN_SIZE_1280_800 = "1280x800";
 	public static String SCREEN_SIZE_2560_1600 = "2560x1600";
 	public static String SCREEN_SIZE_480_320 = "480x320";
 
@@ -92,11 +93,17 @@ public class Keybord {
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_480x320))); 
 					}
-					//1280x726
+					//1280x768
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768))
 					{
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_1280x768)));
+					}
+					//1280x800
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_800))
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_9_1280x800)));
 					}
 					//2560x1600
 					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600))
@@ -120,11 +127,17 @@ public class Keybord {
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_480x320))); 
 					}
-					//1280x726
+					//1280x768
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
 					{
 						reader = new BufferedReader(
 								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_1280x768))); 
+					}
+					//1280x800
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_800)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.sogou_26_1280x800))); 
 					}
 					//2560x1600
 					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
