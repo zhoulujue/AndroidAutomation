@@ -613,26 +613,62 @@ public class Utils {
 		ActivityManager am = (ActivityManager)context.getSystemService(
 				Context.ACTIVITY_SERVICE);
 		PackageManager pm = (PackageManager)context.getPackageManager();
-		try{
-			Method forceStopPackage = am.getClass().getMethod("forceStopPackage", String.class);
-			forceStopPackage.invoke(am, packageName);
-			
-			Method deleteApplicationCacheFiles = 
-					pm.getClass().getMethod("deleteApplicationCacheFiles", new Class[]{String.class, null});
-			deleteApplicationCacheFiles.invoke(pm, new Object[]{packageName, null});
-			
-			Method clearApplicationUserData = 
-					pm.getClass().getMethod("clearApplicationUserData", new Class[]{String.class, null});
-			clearApplicationUserData.invoke(pm, new Object[]{packageName, null});
+		Method forceStopPackage = null;
+		try {
+			forceStopPackage = am.getClass().getMethod("forceStopPackage", String.class);
 		} catch (NoSuchMethodException e) {
-
-		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
+		}
+		try {
+			forceStopPackage.invoke(am, packageName);
 		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
 			e.printStackTrace();
 		}
+
+		Method deleteApplicationCacheFiles = null;
+		try {
+			Class<?> type = Class.forName("android.content.pm.IPackageDataObserver");
+			deleteApplicationCacheFiles = pm.getClass().getMethod("deleteApplicationCacheFiles", new Class[]{String.class, type});
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		try {
+			deleteApplicationCacheFiles.invoke(pm, new Object[]{packageName, null});
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		Method clearApplicationUserData = null;
+		try {
+			Class<?> type = Class.forName("android.content.pm.IPackageDataObserver");
+			clearApplicationUserData = pm.getClass().getMethod("clearApplicationUserData", new Class[]{String.class, type});
+		} catch (NoSuchMethodException e1) {
+			e1.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		try {
+			clearApplicationUserData.invoke(pm, new Object[]{packageName, null});
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+		//am.forceStopPackage(packageName);
+		//pm.deleteApplicationCacheFiles(packageName, null);
+		//pm.clearApplicationUserData(packageName, null);
 	}
 
 	public static boolean deleteDir(File dir) {

@@ -6,7 +6,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Collections;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -48,6 +47,7 @@ public class SogouEditActivity extends Activity {
 	private SharedPreferences mSharedPreferences;
 	private Keybord mKeybord;
 	private WakeLock mWakeLock;
+	private int mCurCount = 0;
 	private ArrayList<Candidate> mLastSuccCandidateList;
 	public static int FISRT_SCREEN_THRESHOLD = 12;
 
@@ -206,7 +206,7 @@ public class SogouEditActivity extends Activity {
 			final int configChoice = mChoice;
 			final int keybordType = mKeybord.keybordType;
 
-			int curCount = 0;
+			mCurCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
 			Utils.showSoftInput(mEditView, getApplicationContext());
@@ -249,7 +249,7 @@ public class SogouEditActivity extends Activity {
 					mLogcat.write("logcat CanvasDrawText:E *:S");
 					
 					//清空中间结果
-					curCount = 0;
+					mCurCount = 0;
 					resultToWrite = "";
 
 					while ((inputStr = reader.readLine()) != null) {
@@ -264,7 +264,7 @@ public class SogouEditActivity extends Activity {
 							SendString(pinyin);
 							sleepMil(100);
 							resultToWrite += readLogcat(pinyin, hanzi, inputStr);
-							curCount++;							
+							mCurCount++;							
 						} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
 							//去掉输入case中的拼音分割符
 							inputStr = inputStr.replaceAll("'", "");
@@ -301,7 +301,7 @@ public class SogouEditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								
 								mLogcat.read();
-								curCount++;
+								mCurCount++;
 							} else {
 								//这两个参数都是为了Rerun
 								String resultForThisCase = "";
@@ -331,15 +331,16 @@ public class SogouEditActivity extends Activity {
 									for(int time =0; time < pinyin.length(); time++)
 										SendKey(KeyEvent.KEYCODE_DEL);
 								resultToWrite += resultForThisCase;
-								curCount++;
+								mCurCount++;
 							}
 						}
 						if (NextCase != null) {
-							if (curCount % 20 == 0 && !NextCase.contains("&")) {
-								final int count = curCount;
+							if (mCurCount % 20 == 0 && !NextCase.contains(",&,")) {
+								final int count = mCurCount;
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
@@ -356,7 +357,7 @@ public class SogouEditActivity extends Activity {
 						}
 					}
 					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
-					final int count = curCount;
+					final int count = mCurCount;
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {

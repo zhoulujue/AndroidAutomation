@@ -16,10 +16,9 @@ import android.content.pm.PackageInfo;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.PowerManager;
-import android.os.SystemClock;
 import android.os.PowerManager.WakeLock;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -96,6 +95,12 @@ public class EditActivity extends Activity {
 	}
 
 	@Override
+	public void onBackPressed() {
+		new Thread(uploadToFtp).start();
+		super.onBackPressed();
+	}
+	
+	@Override
 	protected void onResume() {
 		mWakeLock.acquire();
 		super.onResume();
@@ -107,12 +112,6 @@ public class EditActivity extends Activity {
 		super.onPause();
 	}
 	
-	@Override
-	public void onBackPressed() {
-		new Thread(uploadToFtp).start();
-		super.onBackPressed();
-	}
-
 	private void init() {
 		mEditView = (EditTextView) findViewById(R.id.editText1);
 		//mEditView.setOnKeyListener(mOnLeftCTRListener);
@@ -341,6 +340,7 @@ public class EditActivity extends Activity {
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
