@@ -6,6 +6,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import android.app.Activity;
 import android.app.Instrumentation;
@@ -19,7 +20,6 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -48,6 +48,7 @@ public class SogouEditActivity extends Activity {
 	private SharedPreferences mSharedPreferences;
 	private Keybord mKeybord;
 	private WakeLock mWakeLock;
+	private ArrayList<Candidate> mLastSuccCandidateList;
 	public static int FISRT_SCREEN_THRESHOLD = 12;
 
 	@Override
@@ -85,6 +86,7 @@ public class SogouEditActivity extends Activity {
 			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
+			//mLastSuccCandidateList = new ArrayList<Candidate>();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -299,7 +301,7 @@ public class SogouEditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								
 								mLogcat.read();
-								
+								curCount++;
 							} else {
 								//这两个参数都是为了Rerun
 								String resultForThisCase = "";
@@ -392,6 +394,11 @@ public class SogouEditActivity extends Activity {
 	}
 
 	private void findCompletion(String hanzi) {
+		if (null == mLastSuccCandidateList)
+			return;
+		if (mLastSuccCandidateList.size() < 1)
+			return;
+		
 		final int MostYCord = mMeasure.MostYCord;
 
 		String RawResult;
@@ -441,6 +448,9 @@ public class SogouEditActivity extends Activity {
 					}
 				}
 
+				if (candidateList.equals(mLastSuccCandidateList))
+					return;
+				
 				int targetIndex = -1;
 				int indexToWrite = -1;
 				//得到了候选，在候选词里面挑出要选择上屏的候选
@@ -604,6 +614,7 @@ public class SogouEditActivity extends Activity {
 						mLogcat.read();
 						//如果target在0到11之间，选择目标词上屏
 						SendChoice(candidateList.get(targetIndex).coordinates.x);
+						mLastSuccCandidateList = new ArrayList<Candidate>(candidateList);
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。

@@ -16,6 +16,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.io.Reader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -608,14 +610,29 @@ public class Utils {
 
 	@SuppressLint("SdCardPath")
 	public static void clearImeData(String packageName, Context context) {
-        ActivityManager am = (ActivityManager)context.getSystemService(
-                Context.ACTIVITY_SERVICE);
-        am.forceStopPackage(packageName);
-        PackageManager pm = (PackageManager)context.getPackageManager();
-        pm.deleteApplicationCacheFiles(packageName, null);
-        pm.clearApplicationUserData(packageName, null);
-		InstallTool tool=new InstallTool(context);
-		tool.doAction(ToolsConstants.CLEAR,packageName);
+		ActivityManager am = (ActivityManager)context.getSystemService(
+				Context.ACTIVITY_SERVICE);
+		PackageManager pm = (PackageManager)context.getPackageManager();
+		try{
+			Method forceStopPackage = am.getClass().getMethod("forceStopPackage", String.class);
+			forceStopPackage.invoke(am, packageName);
+			
+			Method deleteApplicationCacheFiles = 
+					pm.getClass().getMethod("deleteApplicationCacheFiles", new Class[]{String.class, null});
+			deleteApplicationCacheFiles.invoke(pm, new Object[]{packageName, null});
+			
+			Method clearApplicationUserData = 
+					pm.getClass().getMethod("clearApplicationUserData", new Class[]{String.class, null});
+			clearApplicationUserData.invoke(pm, new Object[]{packageName, null});
+		} catch (NoSuchMethodException e) {
+
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public static boolean deleteDir(File dir) {
@@ -652,21 +669,21 @@ public class Utils {
 		InputMethodManager imm = (InputMethodManager)context.getSystemService(Context.INPUT_METHOD_SERVICE);
 		return imm.isActive() && imm.showSoftInput(view, InputMethodManager.SHOW_FORCED);
 	}
-	
+
 	public static void execCommand(String... command) {
-		 Process process = null;
-		 try {
-		  process = new ProcessBuilder().command(command).start();
-		  //对于命令的执行结果我们可以通过流来读取
-		  // InputStream in = process.getInputStream();
-		  // OutputStream out = process.getOutputStream();
-		  // InputStream err = process.getErrorStream();
-		 } catch (IOException e) {
-		  e.printStackTrace();
-		 } finally {
-		  if (process != null)
-		   process.destroy();
-		 }
+		Process process = null;
+		try {
+			process = new ProcessBuilder().command(command).start();
+			//对于命令的执行结果我们可以通过流来读取
+			// InputStream in = process.getInputStream();
+			// OutputStream out = process.getOutputStream();
+			// InputStream err = process.getErrorStream();
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			if (process != null)
+				process.destroy();
 		}
-	
+	}
+
 }

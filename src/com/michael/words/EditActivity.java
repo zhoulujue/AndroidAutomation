@@ -48,6 +48,7 @@ public class EditActivity extends Activity {
 	private SharedPreferences mSharedPreferences;
 	private Keybord mKeybord;
 	private WakeLock mWakeLock;
+	private ArrayList<Candidate> mLastSuccCandidateList;
 	public static int FISRT_SCREEN_THRESHOLD = 12;
 
 	@Override
@@ -85,6 +86,7 @@ public class EditActivity extends Activity {
 			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
+			//mLastSuccCandidateList = new ArrayList<Candidate>();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
@@ -394,6 +396,10 @@ public class EditActivity extends Activity {
 
 
 	private void findCompletion(String hanzi) {
+		if (null == mLastSuccCandidateList)
+			return;
+		if (mLastSuccCandidateList.size() < 1)
+			return;
 		final int MostYCord = mMeasure.MostYCord;
 		final int keybordType = mKeybord.keybordType;
 
@@ -444,6 +450,9 @@ public class EditActivity extends Activity {
 					}
 				}
 
+				if (candidateList.equals(mLastSuccCandidateList))
+					return;
+				
 				int targetIndex = -1;
 				int indexToWrite = -1;
 				//得到了候选，在候选词里面挑出要选择上屏的候选
@@ -610,6 +619,7 @@ public class EditActivity extends Activity {
 						mLogcat.read();
 						//如果target在0到11之间，选择目标词上屏
 						SendChoice(candidateList.get(targetIndex).coordinates.x);
+						mLastSuccCandidateList = new ArrayList<Candidate>(candidateList);
 					}
 				}
 				//记录是否命中。如果是-1，那么没有命中；否则即为命中。
