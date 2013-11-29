@@ -80,9 +80,9 @@ public class SogouEditActivity extends Activity {
 			mMeasure = new CandidateMeasure();
 
 			mKeybord = new Keybord(getApplicationContext());
-			
+
 			writeInfoHead();
-			
+
 			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
@@ -247,7 +247,7 @@ public class SogouEditActivity extends Activity {
 					mLogcat = new Shell("su");
 					sleepSec(2);
 					mLogcat.write("logcat CanvasDrawText:E *:S");
-					
+
 					//清空中间结果
 					mCurCount = 0;
 					resultToWrite = "";

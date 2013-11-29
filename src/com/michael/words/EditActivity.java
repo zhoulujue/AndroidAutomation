@@ -99,7 +99,7 @@ public class EditActivity extends Activity {
 		new Thread(uploadToFtp).start();
 		super.onBackPressed();
 	}
-	
+
 	@Override
 	protected void onResume() {
 		mWakeLock.acquire();
@@ -246,6 +246,7 @@ public class EditActivity extends Activity {
 					mLogcat = new Shell("su");
 					sleepSec(2);
 					mLogcat.write("logcat CanvasDrawText:E *:S");
+
 					//清空中间结果
 					curCount = 0;
 					resultToWrite = "";
@@ -301,7 +302,7 @@ public class EditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 								mLogcat.read();
-
+								curCount++;
 							} else {
 								//这两个参数都是为了Rerun
 								String resultForThisCase = "";
@@ -335,7 +336,7 @@ public class EditActivity extends Activity {
 							}
 						}
 						if (NextCase != null) {
-							if (curCount % 20 == 0 && !NextCase.contains("&")) {
+							if (curCount % 20 == 0 && !NextCase.contains(",&,")) {
 								final int count = curCount;
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
@@ -717,6 +718,10 @@ public class EditActivity extends Activity {
 		}
 	}
 
+	private void SendKey(int Keycode) throws IOException{
+		mInstrumentation.sendKeyDownUpSync(Keycode);
+	}
+	
 	/**
 	 * 发送一些键盘上的控制符
 	 * 包括：dele（删除）、spli（分隔符）、symb（符号）、numb（数字）、
@@ -733,17 +738,6 @@ public class EditActivity extends Activity {
 
 	}
 
-	private void SendKey(int Keycode) throws IOException{
-		//Log.e("InputKeyEvent", "Keycode:" + Keycode);
-		mInstrumentation.sendKeyDownUpSync(Keycode);
-	}
-
-	private void SendChoice(String Keycode) throws IOException{
-		int key = Integer.valueOf(Keycode) + 7;
-		//Log.e("Send Choice", "Keycode:" + key);
-		mInstrumentation.sendKeyDownUpSync(key);
-	}
-
 	private void SendChoice(double x) throws IOException{
 		int xCord = 
 				new BigDecimal(x).setScale(0, BigDecimal.ROUND_HALF_UP).intValue();
@@ -752,23 +746,21 @@ public class EditActivity extends Activity {
 		tapScreen(xCord, yCord);
 	}
 
+	/**
+	 * 通过触摸屏幕的方式来打字，例如sogou，会拆成一个一个的char来查询位置，然后点击（tapScreen）
+	 * @param text 要发送的键盘事件，例如“sogou”，都是小写；
+	 * @throws IOException
+	 */
 	private void SendString(String text) throws IOException{
-		//Log.e("InputKeyEvent", "text:" + text);
-		//if (Utils.isLetter(text)) {
-		//	mInstrumentation.sendStringSync(text);
-
-		//} else if (Utils.isNumber(text)) {
-
 		for (int i = 0; i < text.length(); i ++){
 			String letter = String.valueOf(text.charAt(i));
 			Keybord.TouchPoint point = null;
 			point = mKeybord.getKeyLocation(letter);
 			if (point != null) {
 				tapScreen(point.x, point.y);
+				
 			}
 		}
-
-		//}
 	}
 
 	private void tapScreen(float x, float y){
