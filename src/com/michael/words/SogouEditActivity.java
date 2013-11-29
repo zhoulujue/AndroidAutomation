@@ -128,6 +128,7 @@ public class SogouEditActivity extends Activity {
 		deleteButton.setOnClickListener(mOnButtonDeleteListener);
 
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
 	}
 
 	private void writeInfoHead() {
@@ -264,7 +265,7 @@ public class SogouEditActivity extends Activity {
 							SendString(pinyin);
 							sleepMil(100);
 							resultToWrite += readLogcat(pinyin, hanzi, inputStr);
-							mCurCount++;							
+							mCurCount++;						
 						} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
 							//去掉输入case中的拼音分割符
 							inputStr = inputStr.replaceAll("'", "");
@@ -286,9 +287,9 @@ public class SogouEditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_SPACE);
 								for (int i = 0; i < 2; i++)
 									SendKey(KeyEvent.KEYCODE_DEL);
-								
+
 								mLogcat.read();
-								
+
 							} else if (pinyin.contains("*")) {
 								SendKey(KeyEvent.KEYCODE_DEL);
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -399,8 +400,9 @@ public class SogouEditActivity extends Activity {
 			return;
 		if (mLastSuccCandidateList.size() < 1)
 			return;
-		
+
 		final int MostYCord = mMeasure.MostYCord;
+
 
 		String RawResult;
 		try{
@@ -747,7 +749,6 @@ public class SogouEditActivity extends Activity {
 	 * @throws IOException
 	 */
 	private void SendString(String text) throws IOException{
-		//Log.e("InputKeyEvent", "text:" + text);
 		for (int i = 0; i < text.length(); i ++){
 			String letter = String.valueOf(text.charAt(i));
 			Keybord.TouchPoint point = null;
@@ -756,7 +757,6 @@ public class SogouEditActivity extends Activity {
 				tapScreen(point.x, point.y);
 				sleepMil(10);
 			}
-
 		}
 	}
 

@@ -47,6 +47,7 @@ public class EditActivity extends Activity {
 	private SharedPreferences mSharedPreferences;
 	private Keybord mKeybord;
 	private WakeLock mWakeLock;
+	private int mCurCount = 0;
 	private ArrayList<Candidate> mLastSuccCandidateList;
 	public static int FISRT_SCREEN_THRESHOLD = 12;
 
@@ -127,6 +128,7 @@ public class EditActivity extends Activity {
 		deleteButton.setOnClickListener(mOnButtonDeleteListener);
 
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+		
 	}
 
 	private void writeInfoHead() {
@@ -205,7 +207,7 @@ public class EditActivity extends Activity {
 			final int configChoice = mChoice;
 			final int keybordType = mKeybord.keybordType;
 
-			int curCount = 0;
+			mCurCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
 			Utils.showSoftInput(mEditView, getApplicationContext());
@@ -248,7 +250,7 @@ public class EditActivity extends Activity {
 					mLogcat.write("logcat CanvasDrawText:E *:S");
 
 					//清空中间结果
-					curCount = 0;
+					mCurCount = 0;
 					resultToWrite = "";
 
 					while ((inputStr = reader.readLine()) != null) {
@@ -263,7 +265,7 @@ public class EditActivity extends Activity {
 							SendString(pinyin);
 							sleepMil(100);
 							resultToWrite += readLogcat(pinyin, hanzi, inputStr);
-							curCount++;							
+							mCurCount++;						
 						} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
 							//去掉输入case中的拼音分割符
 							inputStr = inputStr.replaceAll("'", "");
@@ -302,7 +304,7 @@ public class EditActivity extends Activity {
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 
 								mLogcat.read();
-								curCount++;
+								mCurCount++;
 							} else {
 								//这两个参数都是为了Rerun
 								String resultForThisCase = "";
@@ -332,12 +334,12 @@ public class EditActivity extends Activity {
 									for(int time =0; time < pinyin.length(); time++)
 										SendKey(KeyEvent.KEYCODE_DEL);
 								resultToWrite += resultForThisCase;
-								curCount++;
+								mCurCount++;
 							}
 						}
 						if (NextCase != null) {
-							if (curCount % 20 == 0 && !NextCase.contains(",&,")) {
-								final int count = curCount;
+							if (mCurCount % 20 == 0 && !NextCase.contains(",&,")) {
+								final int count = mCurCount;
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
@@ -358,7 +360,7 @@ public class EditActivity extends Activity {
 						}
 					}
 					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
-					final int count = curCount;
+					final int count = mCurCount;
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
@@ -395,14 +397,14 @@ public class EditActivity extends Activity {
 		super.onStop();
 	}
 
-
 	private void findCompletion(String hanzi) {
 		if (null == mLastSuccCandidateList)
 			return;
 		if (mLastSuccCandidateList.size() < 1)
 			return;
+
 		final int MostYCord = mMeasure.MostYCord;
-		final int keybordType = mKeybord.keybordType;
+
 
 		String RawResult;
 		try{
@@ -475,12 +477,9 @@ public class EditActivity extends Activity {
 					return;
 				} else {
 					//如果target在0到11之间
-					//if (keybordType == Keybord.KEYBORD_MODEL_QWERTY)
-					//SendChoice(String.valueOf(candidateList.size() - targetIndex));
-					//else if (keybordType == Keybord.KEYBORD_MODEL_NINE)
 					SendChoice(candidateList.get(targetIndex).coordinates.x);
 				}
-				return;
+
 			} else {//if (endIndex != -1)
 				return;
 			}
@@ -721,7 +720,7 @@ public class EditActivity extends Activity {
 	private void SendKey(int Keycode) throws IOException{
 		mInstrumentation.sendKeyDownUpSync(Keycode);
 	}
-	
+
 	/**
 	 * 发送一些键盘上的控制符
 	 * 包括：dele（删除）、spli（分隔符）、symb（符号）、numb（数字）、
