@@ -282,18 +282,18 @@ public class EditActivity extends Activity {
 							}
 							//如果遇到#号且是第三种模式，则说明遇到清空Case，但是注意不能先敲空格，那样会把联想上屏
 							if (pinyin.contains("#") && configChoice == R.id.config_radio_choice_first_screen) {
-								SendKey(KeyEvent.KEYCODE_DEL);
+								SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 								for (int i = 0; i < 2; i++)
 									//百度新版space会变成外接键盘的模式
 									//SendKey(KeyEvent.KEYCODE_SPACE);
 									SendKey(Keybord.KEYBORD_SPACE_BUTTON);
 								for (int i = 0; i < 2; i++)
-									SendKey(KeyEvent.KEYCODE_DEL);
+									SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 
 								mLogcat.read();
 
 							} else if (pinyin.contains("*")) {
-								SendKey(KeyEvent.KEYCODE_DEL);
+								SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
@@ -313,7 +313,7 @@ public class EditActivity extends Activity {
 									//如果需要rerun，说明没有读取到候选
 									if (TrialCount > 0)
 										for(int time =0; time < pinyin.length(); time++)
-											SendKey(KeyEvent.KEYCODE_DEL);
+											SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 
 									//发送没有意义的键盘事件，让输入法做好接受键盘事件的准备
 									for (int j = 0; j < 3; j++)
@@ -332,7 +332,7 @@ public class EditActivity extends Activity {
 								}
 								if (resultForThisCase.equals("") && TrialCount == 10)
 									for(int time =0; time < pinyin.length(); time++)
-										SendKey(KeyEvent.KEYCODE_DEL);
+										SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 								resultToWrite += resultForThisCase;
 								mCurCount++;
 							}
@@ -583,7 +583,7 @@ public class EditActivity extends Activity {
 				//根据configActivity里面的配置，分不同情况上屏，或者清屏
 				if (configChoice == R.id.config_radio_complete_no_choice) {
 					for (int j = 0; j < pinyin.length(); j++) {
-						SendKey(KeyEvent.KEYCODE_DEL);
+						SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 					}
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
 					if (candidateList.size() < 1)
@@ -611,7 +611,7 @@ public class EditActivity extends Activity {
 					if (targetIndex == -1){
 						//如果没有找到目标词，那么删除已经打过的字，不上屏
 						for(int time =0; time < pinyin.length(); time++)
-							SendKey(KeyEvent.KEYCODE_DEL);
+							SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 						//清空logcat，没有找到，如果后面跟着联想词的case，也就没有意义，清空让findCompletion找不到
 						mLogcat.read();
 					} else {
