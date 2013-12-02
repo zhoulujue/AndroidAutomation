@@ -292,6 +292,8 @@ public class SogouEditActivity extends Activity {
 
 							} else if (pinyin.contains("*")) {
 								SendKey(KeyEvent.KEYCODE_DEL);
+								mLogcat.read();
+								mCurCount++;
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);

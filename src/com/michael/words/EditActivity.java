@@ -294,6 +294,8 @@ public class EditActivity extends Activity {
 
 							} else if (pinyin.contains("*")) {
 								SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								mLogcat.read();
+								mCurCount++;
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
 								for (int j = 0; j < 3; j++)
 									SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
