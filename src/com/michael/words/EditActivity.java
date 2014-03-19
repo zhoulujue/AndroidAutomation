@@ -19,6 +19,7 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.SparseIntArray;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -106,13 +107,13 @@ public class EditActivity extends Activity {
 		mWakeLock.acquire();
 		super.onResume();
 	}
-	
+
 	@Override
 	protected void onPause() {
 		mWakeLock.release();
 		super.onPause();
 	}
-	
+
 	private void init() {
 		mEditView = (EditTextView) findViewById(R.id.editText1);
 		//mEditView.setOnKeyListener(mOnLeftCTRListener);
@@ -128,7 +129,7 @@ public class EditActivity extends Activity {
 		deleteButton.setOnClickListener(mOnButtonDeleteListener);
 
 		mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-		
+
 	}
 
 	private void writeInfoHead() {
@@ -235,19 +236,23 @@ public class EditActivity extends Activity {
 									break;
 							}
 					}
-
+					
+					//NOTICE: Shouldn't clear IME data here, because we need RERUN!!! 
+					//NOTICE: So clear the IME data after every pingceji is done.
+					//Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName, getBaseContext());
+					//sleepSec(10);
 					Utils.clearImeContext(mInstrumentation);
 					mEditView.showInputMethod();
-					tapScreen(370.0f, 75.0f);
-					sleepSec(10);
-					tapScreen(370.0f, 75.0f);
-					sleepSec(10);
-					tapScreen(370.0f, 75.0f);
-					sleepSec(10);
 					
+					tapOnEditTextAndWait(3, 10);
+					sleepSec(10);
+					tapOnEditTextAndWait(3, 10);
+
 					mLogcat = new Shell("su");
 					sleepSec(2);
 					mLogcat.write("logcat CanvasDrawText:E *:S");
+					
+					tapConfirmBtnIfThereIsAny();
 
 					//清空中间结果
 					mCurCount = 0;
@@ -342,10 +347,12 @@ public class EditActivity extends Activity {
 						if (NextCase != null) {
 							if (mCurCount % 20 == 0 && !NextCase.contains(",&,")) {
 								final int count = mCurCount;
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								int textLength = mEditView.getText().toString().length();
+								for(int clearCount = 0; clearCount < textLength + 10; clearCount++) SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								//SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
@@ -355,13 +362,14 @@ public class EditActivity extends Activity {
 								});
 								new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 								resultToWrite = "";
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
+								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 							}
 						}
 					}
 					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
+					for(int clearCount = 0; clearCount < 1000; clearCount++) SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 					final int count = mCurCount;
 					runOnUiThread(new Runnable() {
 						@Override
@@ -457,7 +465,7 @@ public class EditActivity extends Activity {
 
 				if (candidateList.equals(mLastSuccCandidateList))
 					return;
-				
+
 				int targetIndex = -1;
 				int indexToWrite = -1;
 				//得到了候选，在候选词里面挑出要选择上屏的候选
@@ -518,11 +526,11 @@ public class EditActivity extends Activity {
 				resultlist[i] = resultlist[i].replaceAll("'", "");
 				//String text = resultlist[i].split("text:")[1].split("#")[0];
 				//如果遇到拼音串了，说明候选读取结束了
-//				if (resultlist[i].contains("text:" + pinyin +"#")) {
-//					endIndex = i - 1;
-//					break;
-//				} else 
-					if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=String")) {
+				//				if (resultlist[i].contains("text:" + pinyin +"#")) {
+				//					endIndex = i - 1;
+				//					break;
+				//				} else 
+				if (resultlist[i].contains("#y:" + MostYCord) && resultlist[i].contains(", type=String")) {
 					endIndex = i;
 					break;
 				}
@@ -709,7 +717,7 @@ public class EditActivity extends Activity {
 				mMeasure.DELx = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).x;
 				mMeasure.DELy = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).y;
 
-				SendKey("dele");
+				SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 			}
 
 		} catch (IOException e) {
@@ -759,7 +767,7 @@ public class EditActivity extends Activity {
 			point = mKeybord.getKeyLocation(letter);
 			if (point != null) {
 				tapScreen(point.x, point.y);
-				
+
 			}
 		}
 	}
@@ -824,4 +832,50 @@ public class EditActivity extends Activity {
 			e.printStackTrace();
 		}
 	}
+
+	private void tapOnEditTextAndWait(int tapCount, int waitTime) {
+		for(int count = 0; count < tapCount; count++) {
+			for(int tapindex = 0; tapindex < 10; tapindex++) {
+				tapScreen(370.0f, 65.0f);
+				sleepMil(10);
+			}
+			sleepSec(waitTime);
+		}
+	}
+
+	private void tapConfirmBtnIfThereIsAny() {
+		double x = -1f;
+		double y = -1f;
+		try {
+			String RawResult = mLogcat.read();
+			String[] resultlist = RawResult.split("\n");
+			for (int index = resultlist.length - 1; index >= 0; index--) {
+				String eachLine = resultlist[index];
+				String confirm = "\u786e\u5b9a";
+				if (eachLine.contains(confirm)) {
+					x = Double.valueOf(eachLine.substring(
+							eachLine.indexOf("#x:") + "#x:".length(), 
+							eachLine.indexOf("#y:")));
+					y = Double.valueOf(eachLine.substring(
+							eachLine.indexOf("#y:") + "#y:".length(), 
+							eachLine.indexOf(", type=")));
+					break;
+				}
+			}
+		} catch (IOException e) {
+			tapScreen(384.0f, 1084.0f);
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			tapScreen(384.0f, 1084.0f);
+			e.printStackTrace();
+		}
+		if (x > 0 && y > 0) {
+			tapScreen((float)x, (float)y);
+			Log.d("EditActivity.tapConfirmBtnIfThereIsAny", "===taped confirm! calculated! x : " + x +", y : " + y + "===");
+		} else {
+			tapScreen(384.0f, 1084.0f);
+			Log.d("EditActivity.tapConfirmBtnIfThereIsAny", "===taped confirm! specified! x : " + x +", y : " + y + "===");
+		}
+	}
+	
 }
