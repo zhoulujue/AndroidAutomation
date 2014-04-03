@@ -230,6 +230,87 @@ public class Keybord {
 
 			}
 		}
+		else if (curImeName.contains("qq")) 
+		{
+			if (outSize != null) 
+			{
+				String ScreenSize = String.valueOf(outSize.x > outSize.y ? outSize.x : outSize.y) 
+						+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
+
+				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+				int CurKeybordChoice = sharedPreferences.getInt("keybord", 0);
+
+				//¾Å¼ü
+				if (CurKeybordChoice == KEYBORD_MODEL_NINE ) 
+				{
+					//1280x720
+					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_1280x720))); 
+					} 
+					//480x320
+					else if (ScreenSize.equals(SCREEN_SIZE_480_320)) 
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_480x320))); 
+					}
+					//1280x726
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_1280x768))); 
+					}
+					//1280x800
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_800))
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_1280x800)));
+					}
+					//2560x1600
+					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_2560x1600))); 
+					}
+				} 
+				//26¼üÅÌ
+				else if (CurKeybordChoice == KEYBORD_MODEL_QWERTY) 
+				{
+					//1280x720
+					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_1280x720))); 
+					} 
+					//480x320
+					else if (ScreenSize.equals(SCREEN_SIZE_480_320)) 
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_480x320))); 
+					}
+					//1280x726
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
+					{
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_1280x768))); 
+					}
+					//1280x800
+					else if (ScreenSize.equals(SCREEN_SIZE_1280_800))
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_1280x800)));
+					}
+					//2560x1600
+					else if (ScreenSize.equals(SCREEN_SIZE_2560_1600)) 
+					{
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_2560x1600))); 
+					}
+				}
+
+			}
+		}
 		return reader;
 
 	}
