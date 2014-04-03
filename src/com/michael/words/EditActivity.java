@@ -350,9 +350,11 @@ public class EditActivity extends Activity {
 								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
 								//SendKey(KeyEvent.KEYCODE_CTRL_RIGHT);
-								int textLength = mEditView.getText().toString().length();
-								for(int clearCount = 0; clearCount < textLength + 10; clearCount++) SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 								//SendKey(KeyEvent.KEYCODE_CTRL_LEFT);
+								//第一个评测集还行，切换以后，获取的长度就是0
+								//int textLength = mEditView.getText().toString().length();
+								//for(int clearCount = 0; clearCount < textLength + 10; clearCount++) SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								for(int clearCount = 0; clearCount < 150; clearCount++) SendKey(Keybord.KEYBORD_DELETE_BUTTON);
 								runOnUiThread(new Runnable() {
 									@Override
 									public void run() {
