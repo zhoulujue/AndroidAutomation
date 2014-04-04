@@ -246,8 +246,8 @@ public class Keybord {
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
 					{
-						//reader = new BufferedReader(
-						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_1280x720))); 
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_1280x720))); 
 					} 
 					//480x320
 					else if (ScreenSize.equals(SCREEN_SIZE_480_320)) 
@@ -258,8 +258,8 @@ public class Keybord {
 					//1280x726
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
 					{
-						reader = new BufferedReader(
-								new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_1280x768))); 
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_9_1280x768))); 
 					}
 					//1280x800
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_800))
@@ -280,8 +280,8 @@ public class Keybord {
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
 					{
-						//reader = new BufferedReader(
-						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_1280x720))); 
+						reader = new BufferedReader(
+								new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_1280x720))); 
 					} 
 					//480x320
 					else if (ScreenSize.equals(SCREEN_SIZE_480_320)) 
@@ -292,8 +292,8 @@ public class Keybord {
 					//1280x726
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_768)) 
 					{
-						reader = new BufferedReader(
-								new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_1280x768))); 
+						//reader = new BufferedReader(
+						//		new InputStreamReader(context.getResources().openRawResource(R.raw.qq_26_1280x768))); 
 					}
 					//1280x800
 					else if (ScreenSize.equals(SCREEN_SIZE_1280_800))
