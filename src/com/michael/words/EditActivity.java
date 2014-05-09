@@ -1,22 +1,11 @@
 package com.michael.words;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import android.os.Bundle;
-import android.util.Log;
-
-import com.michael.shell.Shell;
 
 public class EditActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		copyAssetFile("gram.bin", "/data/data/com.baidu.input/files/gram.bin");
+/*		copyAssetFile("gram.bin", "/data/data/com.baidu.input/files/gram.bin");
 		try {
 			Shell rootShell = new Shell("su");
 			sleepSec(2);
@@ -25,12 +14,12 @@ public class EditActivity extends BaseActivity {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}
+		}*/
 		super.onCreate(savedInstanceState);
 		SetFilter(", type=String");
 	}
 
-	private void copyAssetFile(String pathInAsset, String toPath) {
+/*	private void copyAssetFile(String pathInAsset, String toPath) {
 		try {
 			InputStream ins = getAssets().open(pathInAsset);
 			File tempFile = createFileFromInputStream(ins);
@@ -78,5 +67,5 @@ public class EditActivity extends BaseActivity {
 
 		return null;
 	}
-
+*/
 }
