@@ -3,8 +3,6 @@ package com.michael.words;
 import java.io.File;
 import java.io.IOException;
 
-import com.michael.words.utils.Utils;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -15,6 +13,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
+
+import com.michael.words.utils.Utils;
 
 public class HandleLastRunActivity extends Activity {
 	@Override

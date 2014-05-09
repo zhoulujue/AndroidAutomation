@@ -8,16 +8,16 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.AssetManager;
 import android.graphics.Point;
 import android.preference.PreferenceManager;
 
-import com.michael.words.R;
 import com.michael.words.utils.Utils;
 
-public class Keybord {
-	private HashMap<String, TouchPoint> mKeybordMap;
+public class Keyboard {
+	private HashMap<String, TouchPoint> mKeyboardMap;
 
-	public int keybordType;
+	public String KeyboardType;
 
 	public static final String SCREEN_SIZE_1280_720 = "1280x720";
 	public static final String SCREEN_SIZE_1280_768 = "1280x768";
@@ -25,30 +25,31 @@ public class Keybord {
 	public static final String SCREEN_SIZE_2560_1600 = "2560x1600";
 	public static final String SCREEN_SIZE_480_320 = "480x320";
 
-	public static final int KEYBORD_MODEL_QWERTY = 0;
-	public static final int KEYBORD_MODEL_NINE = 1;
-	public static final int KEYBORD_MODEL_HAND_WRITING = 2;
+	public static final String KEYBOARD_MODEL_QWERTY = "26";
+	public static final String KEYBOARD_MODEL_NINE = "9";
+	public static final String KEYBOARD_MODEL_HAND_WRITING = "hw";
 
-	public static final String KEYBORD_CANDIDATE_CORD = "cand";
-	public static final String KEYBORD_DELETE_BUTTON = "dele";
-	public static final String KEYBORD_SPLIT_BUTTON = "spli";
-	public static final String KEYBORD_SYMBOL_BUTTON = "symb";
-	public static final String KEYBORD_NUMBER_BUTTON = "numb";
-	public static final String KEYBORD_SPACE_BUTTON = "spac";
-	public static final String KEYBORD_SWITCH_BUTTON = "swit";
-	public static final String KEYBORD_ENTER_BUTTON = "ente";
-	public static final String KEYBORD_COMMA_BUTTON = "comm";
-	public static final String KEYBORD_PERIOD_BUTTON = "peri";
+	public static final String KEYBOARD_CANDIDATE_CORD = "cand";
+	public static final String KEYBOARD_DELETE_BUTTON = "dele";
+	public static final String KEYBOARD_SPLIT_BUTTON = "spli";
+	public static final String KEYBOARD_SYMBOL_BUTTON = "symb";
+	public static final String KEYBOARD_NUMBER_BUTTON = "numb";
+	public static final String KEYBOARD_SPACE_BUTTON = "spac";
+	public static final String KEYBOARD_SWITCH_BUTTON = "swit";
+	public static final String KEYBOARD_ENTER_BUTTON = "ente";
+	public static final String KEYBOARD_COMMA_BUTTON = "comm";
+	public static final String KEYBOARD_PERIOD_BUTTON = "peri";
 
-	public Keybord(Context context) throws IOException{
-		mKeybordMap = new HashMap<String, TouchPoint>();
+	public Keyboard(Context context) throws IOException{
+		mKeyboardMap = new HashMap<String, TouchPoint>();
 		init(context);
 	}
 
 	private void init(Context context) throws IOException {
 		String line = "";
-		BufferedReader reader = wrapperKeybordFromFile(context);
-		keybordType = PreferenceManager.getDefaultSharedPreferences(context).getInt("keybord", 0);
+		//BufferedReader reader = wrapperKeyboardFromFile(context);
+		BufferedReader reader = renderKeyBoard(context);
+		KeyboardType = PreferenceManager.getDefaultSharedPreferences(context).getString("keyboard", "");
 		while((line = reader.readLine()) != null) {
 			String key = line.split(":")[0];
 			String xCord = line.split(":")[1].split(",")[0].split("=")[1];
@@ -57,11 +58,45 @@ public class Keybord {
 			int xCordInt = Integer.valueOf(xCord);
 			int yCordInt = Integer.valueOf(yCord);
 			TouchPoint point = new TouchPoint(xCordInt, yCordInt);
-			mKeybordMap.put(key, point);
+			mKeyboardMap.put(key, point);
 		}
 	}
 	
-	private BufferedReader wrapperKeybordFromFile(Context context) {
+	private BufferedReader renderKeyBoard(Context context) {
+		BufferedReader reader = null;
+		String KeyboardConfigFileName = "";
+		
+		Point outSize = new Point();
+		outSize = Utils.getCurScreenSize(context);
+		String ScreenSize = String.valueOf(outSize.x > outSize.y ? outSize.x : outSize.y) 
+				+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
+		
+		String curImeName = Utils.getCurrentImeInfo(context).packageName.toLowerCase(Locale.ENGLISH);
+		if (curImeName == null || curImeName.isEmpty() || curImeName.equals("")) {
+			Utils.showToast(context, "Ã»ÓÐÄ¬ÈÏµÄÊäÈë·¨£¬ÎÞ·¨½øÐÐÆÀ²â£¡");
+			return null;
+		}
+		
+		AssetManager assetManager = context.getAssets();
+		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+		String CurKeyboardChoice = sharedPreferences.getString("keyboard", "");
+		if (CurKeyboardChoice == null || CurKeyboardChoice.isEmpty() || CurKeyboardChoice.equals("")) {
+			Utils.showToast(context, "Didn't choose keyboard, ÎÞ·¨½øÐÐÆÀ²â£¡");
+			return null;
+		}
+		
+		KeyboardConfigFileName = curImeName + "_" + CurKeyboardChoice + "_" + ScreenSize;
+		
+		try {
+			reader = new BufferedReader(new InputStreamReader(assetManager.open(KeyboardConfigFileName)));
+		} catch (IOException e) {
+			Utils.showToast(context, "Keyboard configuration failed due to the absence of config file£¡");
+			e.printStackTrace();
+		}
+		return reader;
+	}
+	
+/*	private BufferedReader wrapperKeyboardFromFile(Context context) {
 		BufferedReader reader = null;
 		Point outSize = new Point();
 		outSize = Utils.getCurScreenSize(context);
@@ -76,10 +111,10 @@ public class Keybord {
 						+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
 
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-				int CurKeybordChoice = sharedPreferences.getInt("keybord", 0);
+				int CurKeyboardChoice = sharedPreferences.getInt("keyboard", 0);
 
 				//¾Å¼ü
-				if (CurKeybordChoice == KEYBORD_MODEL_NINE ) 
+				if (CurKeyboardChoice == KEYBOARD_MODEL_NINE ) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -113,7 +148,7 @@ public class Keybord {
 					}
 				} 
 				//26¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_QWERTY) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_QWERTY) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -147,7 +182,7 @@ public class Keybord {
 					}
 				}
 				//ÊÖÐ´¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_HAND_WRITING) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_HAND_WRITING) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -191,10 +226,10 @@ public class Keybord {
 						+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
 
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-				int CurKeybordChoice = sharedPreferences.getInt("keybord", 0);
+				int CurKeyboardChoice = sharedPreferences.getInt("keyboard", 0);
 
 				//¾Å¼ü
-				if (CurKeybordChoice == KEYBORD_MODEL_NINE ) 
+				if (CurKeyboardChoice == KEYBOARD_MODEL_NINE ) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -228,7 +263,7 @@ public class Keybord {
 					}
 				} 
 				//26¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_QWERTY) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_QWERTY) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -262,7 +297,7 @@ public class Keybord {
 					}
 				}
 				//ÊÖÐ´¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_HAND_WRITING) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_HAND_WRITING) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -306,10 +341,10 @@ public class Keybord {
 						+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
 
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-				int CurKeybordChoice = sharedPreferences.getInt("keybord", 0);
+				int CurKeyboardChoice = sharedPreferences.getInt("keyboard", 0);
 
 				//¾Å¼ü
-				if (CurKeybordChoice == KEYBORD_MODEL_NINE ) 
+				if (CurKeyboardChoice == KEYBOARD_MODEL_NINE ) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -343,7 +378,7 @@ public class Keybord {
 					}
 				} 
 				//26¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_QWERTY) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_QWERTY) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -377,7 +412,7 @@ public class Keybord {
 					}
 				}
 				//ÊÖÐ´¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_HAND_WRITING) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_HAND_WRITING) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -421,10 +456,10 @@ public class Keybord {
 						+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
 
 				SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-				int CurKeybordChoice = sharedPreferences.getInt("keybord", 0);
+				int CurKeyboardChoice = sharedPreferences.getInt("keyboard", 0);
 
 				//¾Å¼ü
-				if (CurKeybordChoice == KEYBORD_MODEL_NINE ) 
+				if (CurKeyboardChoice == KEYBOARD_MODEL_NINE ) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -458,7 +493,7 @@ public class Keybord {
 					}
 				} 
 				//26¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_QWERTY) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_QWERTY) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -492,7 +527,7 @@ public class Keybord {
 					}
 				}
 				//ÊÖÐ´¼üÅÌ
-				else if (CurKeybordChoice == KEYBORD_MODEL_HAND_WRITING) 
+				else if (CurKeyboardChoice == KEYBOARD_MODEL_HAND_WRITING) 
 				{
 					//1280x720
 					if (ScreenSize.equals(SCREEN_SIZE_1280_720)) 
@@ -538,10 +573,10 @@ public class Keybord {
 		}
 		return reader;
 
-	}
+	}*/
 
 	public TouchPoint getKeyLocation(String key) {
-		return mKeybordMap.get(key);
+		return mKeyboardMap.get(key);
 	}
 
 	public class TouchPoint {

@@ -34,7 +34,7 @@ import com.michael.shell.Shell;
 import com.michael.words.candidate.Candidate;
 import com.michael.words.candidate.CandidateMeasure;
 import com.michael.words.candidate.Coordinates;
-import com.michael.words.keys.Keybord;
+import com.michael.words.keys.Keyboard;
 import com.michael.words.utils.Utils;
 
 public class BaseActivity extends Activity {
@@ -53,7 +53,7 @@ public class BaseActivity extends Activity {
 	protected int mChoice;
 	protected CandidateMeasure mMeasure;
 	private SharedPreferences mSharedPreferences;
-	protected Keybord mKeybord;
+	protected Keyboard mKeyboard;
 	private WakeLock mWakeLock;
 	protected static int mCurCount = 0;
 	protected ArrayList<Candidate> mLastSuccCandidateList;
@@ -87,12 +87,12 @@ public class BaseActivity extends Activity {
 
 			mMeasure = new CandidateMeasure();
 
-			mKeybord = new Keybord(getApplicationContext());
+			mKeyboard = new Keyboard(getApplicationContext());
 
 			writeInfoHead();
 
-			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE || 
-					mKeybord.keybordType == Keybord.KEYBORD_MODEL_HAND_WRITING) {
+			if (mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_NINE) || 
+					mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_HAND_WRITING)) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
 			//mLastSuccCandidateList = new ArrayList<Candidate>();
@@ -239,7 +239,7 @@ public class BaseActivity extends Activity {
 
 			//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 			final int configChoice = mChoice;
-			final int keybordType = mKeybord.keybordType;
+			final String KeyboardType = mKeyboard.KeyboardType;
 
 			mCurCount = 0;
 			String resultToWrite = "";
@@ -313,7 +313,8 @@ public class BaseActivity extends Activity {
 							String hanzi = "";
 							try {
 								String[] caseStrs = inputStr.split("\"")[1].split(",");
-								pinyin = caseStrs[keybordType + 1];
+								pinyin = ( KeyboardType.equals(Keyboard.KEYBOARD_MODEL_QWERTY) ? 
+										caseStrs[1] : caseStrs[2] );
 								hanzi = caseStrs[0];
 							} catch (IndexOutOfBoundsException e) {
 								e.printStackTrace();
@@ -321,16 +322,16 @@ public class BaseActivity extends Activity {
 							}
 							//如果遇到#号且是第三种模式，则说明遇到清空Case，但是注意不能先敲空格，那样会把联想上屏
 							if (pinyin.contains("#") && configChoice == R.id.config_radio_choice_first_screen) {
-								SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 								for (int i = 0; i < 2; i++)
-									SendKey(Keybord.KEYBORD_SPACE_BUTTON);
+									SendKey(Keyboard.KEYBOARD_SPACE_BUTTON);
 								for (int i = 0; i < 2; i++)
-									SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+									SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 
 								mLogcat.read();
 
 							} else if (pinyin.contains("*")) {
-								SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 								mLogcat.read();
 								mCurCount++;
 							} else if (pinyin.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -347,7 +348,7 @@ public class BaseActivity extends Activity {
 									//如果需要rerun，说明没有读取到候选
 									if (TrialCount > 0)
 										for(int time =0; time < pinyin.length(); time++)
-											SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+											SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 
 									mLogcat.read();
 									sleepMil(50);
@@ -360,7 +361,7 @@ public class BaseActivity extends Activity {
 								}
 								if (resultForThisCase.equals("") && TrialCount == 10)
 									for(int time =0; time < pinyin.length(); time++)
-										SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+										SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 								resultToWrite += resultForThisCase;
 								mCurCount++;
 							}
@@ -600,21 +601,21 @@ public class BaseActivity extends Activity {
 				//根据configActivity里面的配置，分不同情况上屏，或者清屏
 				if (configChoice == R.id.config_radio_complete_no_choice) {
 					for (int j = 0; j < pinyin.length(); j++) {
-						SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+						SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 					}
 					mLogcat.read();
 				} else if (configChoice == R.id.config_radio_choice_first_candidate) {
 					SendChoice(candidateList.get(candidateList.size() - 1).coordinates.x);
-					SendKey(Keybord.KEYBORD_DELETE_BUTTON);
-					SendKey(Keybord.KEYBORD_DELETE_BUTTON);
-					SendKey(Keybord.KEYBORD_SPACE_BUTTON);
-					SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+					SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
+					SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
+					SendKey(Keyboard.KEYBOARD_SPACE_BUTTON);
+					SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 					mLogcat.read();
 				} else if (configChoice == R.id.config_radio_choice_first_screen) {
 					if (targetIndex == -1){
 						//如果没有找到目标词，那么删除已经打过的字，不上屏
 						for(int time =0; time < pinyin.length(); time++)
-							SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+							SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 						//清空logcat，没有找到，如果后面跟着联想词的case，也就没有意义，清空让findCompletion找不到
 						mLogcat.read();
 					} else {
@@ -652,9 +653,9 @@ public class BaseActivity extends Activity {
 			sleepMil(500);
 			
 			//发送探测拼音串
-			if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_NINE)
+			if (mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_NINE))
 				SendString("2");
-			else if (mKeybord.keybordType == Keybord.KEYBORD_MODEL_QWERTY)
+			else if (mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_QWERTY))
 				SendString("q");
 
 			sleepMil(100);
@@ -702,11 +703,11 @@ public class BaseActivity extends Activity {
 				outSize = Utils.getCurScreenSize(getApplicationContext());
 				mMeasure.ScreenHeight = outSize.y;
 				mMeasure.ScreenWidth = outSize.x;
-				mMeasure.MostYCordInScreen = mKeybord.getKeyLocation(Keybord.KEYBORD_CANDIDATE_CORD).y;
+				mMeasure.MostYCordInScreen = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_CANDIDATE_CORD).y;
 				mMeasure.CtrlHeight = singleCtrlHeight;
 				mMeasure.MostYCord = mostYCord;
-				mMeasure.DELx = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).x;
-				mMeasure.DELy = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).y;
+				mMeasure.DELx = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).x;
+				mMeasure.DELy = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).y;
 				
 				ArrayList<Point> candCoordinates = new ArrayList<Point>();
 				for (int index = 0; index < coordinates.size(); index++) {
@@ -719,7 +720,7 @@ public class BaseActivity extends Activity {
 						- mMeasure.oneWordCandWidth * 1.5;
 				FISRT_SCREEN_THRESHOLD = mMeasure.FisrtScreenThreshold;
 				
-				SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+				SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 			}
 
 		} catch (IOException e) {
@@ -737,8 +738,8 @@ public class BaseActivity extends Activity {
 	 * @throws IOException
 	 */
 	public void SendKey(String KeyCode) throws IOException {
-		Keybord.TouchPoint point = null; 
-		point = mKeybord.getKeyLocation(KeyCode);
+		Keyboard.TouchPoint point = null; 
+		point = mKeyboard.getKeyLocation(KeyCode);
 		if (point != null) {
 			tapScreen(point.x, point.y);
 		}
@@ -761,8 +762,8 @@ public class BaseActivity extends Activity {
 	protected void SendString(String text) throws IOException{
 		for (int i = 0; i < text.length(); i ++){
 			String letter = String.valueOf(text.charAt(i));
-			Keybord.TouchPoint point = null;
-			point = mKeybord.getKeyLocation(letter);
+			Keyboard.TouchPoint point = null;
+			point = mKeyboard.getKeyLocation(letter);
 			if (point != null) {
 				tapScreen(point.x, point.y);
 

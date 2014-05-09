@@ -12,7 +12,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
 
-import com.michael.words.keys.Keybord;
+import com.michael.words.keys.Keyboard;
 import com.michael.words.utils.Utils;
 
 public class ConfigActivity extends Activity {
@@ -62,21 +62,21 @@ public class ConfigActivity extends Activity {
 			RadioGroup choiceRadio = (RadioGroup) findViewById(R.id.config_radioGroup_choice);
 			int choice = choiceRadio.getCheckedRadioButtonId();
 			
-			RadioGroup keybordRadio = (RadioGroup) findViewById(R.id.config_radioGroup_keybord);
-			int keybord = keybordRadio.getCheckedRadioButtonId();
+			RadioGroup keyboardRadio = (RadioGroup) findViewById(R.id.config_radioGroup_keyboard);
+			int keyboard = keyboardRadio.getCheckedRadioButtonId();
 			
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 			editor.putInt("choice", choice);
 			
-			switch (keybord) {
-			case R.id.config_radio_keybord_nine:
-				editor.putInt("keybord", Keybord.KEYBORD_MODEL_NINE);
+			switch (keyboard) {
+			case R.id.config_radio_keyboard_nine:
+				editor.putString("keyboard", Keyboard.KEYBOARD_MODEL_NINE);
 				break;
-			case R.id.config_radio_keybord_qwerty:
-				editor.putInt("keybord", Keybord.KEYBORD_MODEL_QWERTY);
+			case R.id.config_radio_keyboard_qwerty:
+				editor.putString("keyboard", Keyboard.KEYBOARD_MODEL_QWERTY);
 				break;
-			case R.id.config_radio_keybord_hand_writing:
-				editor.putInt("keybord", Keybord.KEYBORD_MODEL_HAND_WRITING);
+			case R.id.config_radio_keyboard_hand_writing:
+				editor.putString("keyboard", Keyboard.KEYBOARD_MODEL_HAND_WRITING);
 				break;
 			default:
 				break;
@@ -84,7 +84,7 @@ public class ConfigActivity extends Activity {
 			
 			editor.commit();
 			String ImeName = Utils.getCurrentImeInfo(getApplicationContext()).packageName;
-			if (keybord == R.id.config_radio_keybord_hand_writing) {
+			if (keyboard == R.id.config_radio_keyboard_hand_writing) {
 				startActivity(new Intent(ConfigActivity.this, HandWritingActivity.class));
 				finish();
 				return;

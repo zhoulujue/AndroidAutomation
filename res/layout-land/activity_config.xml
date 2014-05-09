@@ -48,7 +48,7 @@
         android:orientation="horizontal" >
 
         <RadioGroup
-            android:id="@+id/config_radioGroup_keybord"
+            android:id="@+id/config_radioGroup_keyboard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
@@ -59,25 +59,25 @@
             android:padding="10dp" >
 
             <RadioButton
-                android:id="@+id/config_radio_keybord_qwerty"
+                android:id="@+id/config_radio_keyboard_qwerty"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
-                android:text="@string/config_radio_keybord_qwerty"
+                android:text="@string/config_radio_keyboard_qwerty"
                 android:textColor="@drawable/haha_blue" />
 
             <RadioButton
-                android:id="@+id/config_radio_keybord_nine"
+                android:id="@+id/config_radio_keyboard_nine"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/config_radio_keybord_nine"
+                android:text="@string/config_radio_keyboard_nine"
                 android:textColor="@drawable/haha_blue" />
             
             <RadioButton
-                android:id="@+id/config_radio_keybord_hand_writing"
+                android:id="@+id/config_radio_keyboard_hand_writing"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/config_radio_keybord_hand_writing"
+                android:text="@string/config_radio_keyboard_hand_writing"
                 android:textColor="@drawable/haha_blue" />
             
         </RadioGroup>

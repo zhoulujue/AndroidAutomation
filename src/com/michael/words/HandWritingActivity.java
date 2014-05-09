@@ -14,7 +14,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.michael.shell.Shell;
-import com.michael.words.keys.Keybord;
+import com.michael.words.keys.Keyboard;
 import com.michael.words.utils.Utils;
 
 public class HandWritingActivity extends BaseActivity {
@@ -79,7 +79,7 @@ public class HandWritingActivity extends BaseActivity {
 					}
 				}
 				int MaxCount = 0;
-				int mostYCord = (int)mKeybord.getKeyLocation(Keybord.KEYBORD_CANDIDATE_CORD).y;
+				int mostYCord = (int)mKeyboard.getKeyLocation(Keyboard.KEYBOARD_CANDIDATE_CORD).y;
 				for (int i = 0; i < array.size(); i++){
 					if (array.valueAt(i) > MaxCount){
 						MaxCount = array.valueAt(i);
@@ -91,13 +91,13 @@ public class HandWritingActivity extends BaseActivity {
 				outSize = Utils.getCurScreenSize(getApplicationContext());
 				mMeasure.ScreenHeight = outSize.y;
 				mMeasure.ScreenWidth = outSize.x;
-				mMeasure.MostYCordInScreen = mKeybord.getKeyLocation(Keybord.KEYBORD_CANDIDATE_CORD).y;
+				mMeasure.MostYCordInScreen = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_CANDIDATE_CORD).y;
 				mMeasure.CtrlHeight = singleCtrlHeight;
 				mMeasure.MostYCord = mostYCord;
-				mMeasure.DELx = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).x;
-				mMeasure.DELy = mKeybord.getKeyLocation(Keybord.KEYBORD_DELETE_BUTTON).y;
+				mMeasure.DELx = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).x;
+				mMeasure.DELy = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).y;
 
-				SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+				SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 			}
 
 		} catch (IOException e) {
@@ -233,16 +233,16 @@ public class HandWritingActivity extends BaseActivity {
 							}
 							//如果遇到#号且是第三种模式，则说明遇到清空Case，但是注意不能先敲空格，那样会把联想上屏
 							if (inputStr.contains("#") && configChoice == R.id.config_radio_choice_first_screen) {
-								SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 								for (int i = 0; i < 2; i++)
-									SendKey(Keybord.KEYBORD_SPACE_BUTTON);
+									SendKey(Keyboard.KEYBOARD_SPACE_BUTTON);
 								for (int i = 0; i < 2; i++)
-									SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+									SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 
 								mLogcat.read();
 
 							} else if (inputStr.contains("*")) {
-								SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 								mLogcat.read();
 								mCurCount++;
 							} else if (inputStr.contains("&") && configChoice == R.id.config_radio_choice_first_screen) {
@@ -271,7 +271,7 @@ public class HandWritingActivity extends BaseActivity {
 						if (NextCase != null) {
 							if (mCurCount % 20 == 0 && !NextCase.contains(",&,")) {
 								sleepMil(50);
-								for(int i=0;i<30;i++)SendKey(Keybord.KEYBORD_DELETE_BUTTON);
+								for(int i=0;i<30;i++)SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 								//mHandler.obtainMessage(MSG_CLEAR_EDITTEXT).sendToTarget();
 								//mHandler.obtainMessage(MSG_UPDATE_CUR_COUNT, mCurCount, 0).sendToTarget();
 								sleepMil(50);
