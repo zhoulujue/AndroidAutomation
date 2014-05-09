@@ -21,17 +21,17 @@ public class EditTextView extends EditText {
 
 	public EditTextView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
-		setOnKeyListener(mOnLeftCTRListener);
+		setOnKeyListener(mOnF1Listener);
 	}
 
 	public EditTextView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		setOnKeyListener(mOnLeftCTRListener);
+		setOnKeyListener(mOnF1Listener);
 	}
 
 	public EditTextView(Context context) {
 		super(context);
-		setOnKeyListener(mOnLeftCTRListener);
+		setOnKeyListener(mOnF1Listener);
 	}
 
 	/**
@@ -91,11 +91,11 @@ public class EditTextView extends EditText {
 		void onCommitCompletion(int position);
 	}
 
-	private View.OnKeyListener mOnLeftCTRListener = new View.OnKeyListener() {
+	private View.OnKeyListener mOnF1Listener = new View.OnKeyListener() {
 
 		@Override
 		public boolean onKey(View v, int keyCode, KeyEvent event) {
-			if(keyCode == KeyEvent.KEYCODE_CTRL_LEFT) {
+			if(keyCode == KeyEvent.KEYCODE_F1) {
 				setText("");
 				return true;
 			}

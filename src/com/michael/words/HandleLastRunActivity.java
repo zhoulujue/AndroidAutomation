@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import com.michael.words.utils.Utils;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
@@ -15,7 +16,7 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.Button;
 
-public class HandleLastRunActivity extends BaseActivity {
+public class HandleLastRunActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

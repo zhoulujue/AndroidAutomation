@@ -27,7 +27,8 @@ public class Shell {
 	}
 
 	public void  flushRead() throws IOException {
-		this.stdin.read();
+		while(this.stdin.available() > 0)
+			this.stdin.skip(this.stdin.available());
 	}
 
 	public String read() throws IOException, InterruptedException {

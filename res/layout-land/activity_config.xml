@@ -72,6 +72,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/config_radio_keybord_nine"
                 android:textColor="@drawable/haha_blue" />
+            
+            <RadioButton
+                android:id="@+id/config_radio_keybord_hand_writing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_radio_keybord_hand_writing"
+                android:textColor="@drawable/haha_blue" />
+            
         </RadioGroup>
 
         <LinearLayout

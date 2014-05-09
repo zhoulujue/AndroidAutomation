@@ -1,5 +1,6 @@
 package com.michael.words;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,7 +15,7 @@ import android.widget.RadioGroup;
 import com.michael.words.keys.Keybord;
 import com.michael.words.utils.Utils;
 
-public class ConfigActivity extends BaseActivity {
+public class ConfigActivity extends Activity {
 
 
 	@Override
@@ -66,10 +67,28 @@ public class ConfigActivity extends BaseActivity {
 			
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 			editor.putInt("choice", choice);
-			editor.putInt("keybord", 
-					keybord == R.id.config_radio_keybord_qwerty ? Keybord.KEYBORD_MODEL_QWERTY : Keybord.KEYBORD_MODEL_NINE);
+			
+			switch (keybord) {
+			case R.id.config_radio_keybord_nine:
+				editor.putInt("keybord", Keybord.KEYBORD_MODEL_NINE);
+				break;
+			case R.id.config_radio_keybord_qwerty:
+				editor.putInt("keybord", Keybord.KEYBORD_MODEL_QWERTY);
+				break;
+			case R.id.config_radio_keybord_hand_writing:
+				editor.putInt("keybord", Keybord.KEYBORD_MODEL_HAND_WRITING);
+				break;
+			default:
+				break;
+			}
+			
 			editor.commit();
 			String ImeName = Utils.getCurrentImeInfo(getApplicationContext()).packageName;
+			if (keybord == R.id.config_radio_keybord_hand_writing) {
+				startActivity(new Intent(ConfigActivity.this, HandWritingActivity.class));
+				finish();
+				return;
+			}
 			if (ImeName.contains("sogou")){
 				startActivity(new Intent(ConfigActivity.this, SogouEditActivity.class));
 				finish();

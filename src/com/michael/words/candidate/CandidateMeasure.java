@@ -8,6 +8,8 @@ public class CandidateMeasure {
 	public double DELy;
 	public int ScreenHeight;
 	public int ScreenWidth;
+	public double oneWordCandWidth;
+	public double FisrtScreenThreshold;
 	
 	public CandidateMeasure(){
 		CtrlHeight = 86.0;
