@@ -11,6 +11,7 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.RadioGroup;
+import android.widget.ToggleButton;
 
 import com.michael.words.keys.Keyboard;
 import com.michael.words.utils.Utils;
@@ -28,8 +29,21 @@ public class ConfigActivity extends Activity {
 	}
 
 	private void init() {
-		Button connectBluetoothButton = (Button) findViewById(R.id.config_button_connect);
-		connectBluetoothButton.setOnClickListener(mOnConnectBluetoothListener);
+		final ToggleButton clearImeContextBtn = (ToggleButton) findViewById(R.id.config_button_clearContext);
+		clearImeContextBtn.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				SharedPreferences.Editor editor = 
+						PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+				if (clearImeContextBtn.isChecked()) {
+					editor.putBoolean("clearcontext", true);
+					editor.commit();
+				} else {
+					editor.putBoolean("clearcontext", false);
+					editor.commit();
+				}
+			}
+		});
 
 		Button switchImeButton = (Button) findViewById(R.id.config_button_switch_ime);
 		switchImeButton.setOnClickListener(mOnSwitchImeListener);
@@ -37,15 +51,6 @@ public class ConfigActivity extends Activity {
 		Button nextStepButton = (Button) findViewById(R.id.config_button_next_step);
 		nextStepButton.setOnClickListener(mOnNextStepListener);
 	}
-
-	private View.OnClickListener mOnConnectBluetoothListener = new View.OnClickListener() {
-
-		@Override
-		public void onClick(View v) {
-			Intent intent = new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS);
-			startActivity(intent);
-		}
-	};
 
 	private View.OnClickListener mOnSwitchImeListener = new View.OnClickListener() {
 

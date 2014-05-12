@@ -96,21 +96,23 @@
                 android:layout_gravity="center" >
 
                 <TextView
-                    android:id="@+id/config_textView_bluetooth"
+                    android:id="@+id/config_toggle_clearContext"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="@string/bluetooth_keyboard_warn"
+                    android:text="@string/config_toggle_clearContext"
                     android:textColor="@drawable/haha_black" />
 
-                <Button
-                    android:id="@+id/config_button_connect"
+                <ToggleButton
+                    android:id="@+id/config_button_clearContext"
                     android:layout_width="70dp"
                     android:layout_height="25dp"
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/button_green_bg"
-                    android:text="@string/connect"
-                    android:textColor="@drawable/btn_words_color" />
+                    android:textColor="@drawable/btn_words_color"
+                    android:layout_marginLeft="10dp"
+                    />
+
             </LinearLayout>
 
             <LinearLayout
@@ -133,7 +135,9 @@
                     android:layout_gravity="center_vertical"
                     android:background="@drawable/button_green_bg"
                     android:text="@string/switch_ime"
-                    android:textColor="@drawable/btn_words_color" />
+                    android:textColor="@drawable/btn_words_color" 
+                    android:layout_marginLeft="10dp"
+                    />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

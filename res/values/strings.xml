@@ -41,6 +41,7 @@
 	<string name="config_radio_keyboard_hand_writing">手写键盘</string>
 	<string name="connect">连接</string>
 	<string name="bluetooth_keyboard_warn">测试过程中需要蓝牙键盘，请连接</string>
+	<string name="config_toggle_clearContext">评测集之间是否重置输入法</string>
 	<string name="choose_target_ime_warn">请切换要测试的输入法</string>
 	<string name="switch_ime">去切换</string>
 	<string name="config_step_one">第一步</string>

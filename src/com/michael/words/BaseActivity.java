@@ -240,7 +240,9 @@ public class BaseActivity extends Activity {
 			//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 			final int configChoice = mChoice;
 			final String KeyboardType = mKeyboard.KeyboardType;
-
+			final boolean NeedClearImeData = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+					.getBoolean("clearcontext", true);
+			
 			mCurCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
@@ -250,7 +252,7 @@ public class BaseActivity extends Activity {
 
 				String inputStr = null;
 				ArrayList<File> rawFiles = Utils.getSuffixFiles(getApplicationContext(), Utils.CONFIG_FILE_SUFFIX);
-				boolean NeedRerun = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+				final boolean NeedRerun = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
 						.getBoolean("LastRunSuccess", true);
 
 				//每个case文件跑一遍
@@ -387,7 +389,9 @@ public class BaseActivity extends Activity {
 					sleepSec(2);
 					Utils.renameResultTxt(rawconfig, getApplicationContext());
 					writeInfoHead();
-					Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName, getBaseContext());
+					if (NeedClearImeData) {
+						Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName, getBaseContext());
+					}
 				}
 
 			} catch (IOException e) {
