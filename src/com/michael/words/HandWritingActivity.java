@@ -94,8 +94,6 @@ public class HandWritingActivity extends BaseActivity {
 				mMeasure.MostYCordInScreen = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_CANDIDATE_CORD).y;
 				mMeasure.CtrlHeight = singleCtrlHeight;
 				mMeasure.MostYCord = mostYCord;
-				mMeasure.DELx = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).x;
-				mMeasure.DELy = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).y;
 
 				SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 			}

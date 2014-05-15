@@ -29,22 +29,6 @@ public class ConfigActivity extends Activity {
 	}
 
 	private void init() {
-		final ToggleButton clearImeContextBtn = (ToggleButton) findViewById(R.id.config_button_clearContext);
-		clearImeContextBtn.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				SharedPreferences.Editor editor = 
-						PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-				if (clearImeContextBtn.isChecked()) {
-					editor.putBoolean("clearcontext", true);
-					editor.commit();
-				} else {
-					editor.putBoolean("clearcontext", false);
-					editor.commit();
-				}
-			}
-		});
-
 		Button switchImeButton = (Button) findViewById(R.id.config_button_switch_ime);
 		switchImeButton.setOnClickListener(mOnSwitchImeListener);
 
@@ -70,18 +54,23 @@ public class ConfigActivity extends Activity {
 			RadioGroup keyboardRadio = (RadioGroup) findViewById(R.id.config_radioGroup_keyboard);
 			int keyboard = keyboardRadio.getCheckedRadioButtonId();
 			
+			final ToggleButton clearImeContextBtn = (ToggleButton) findViewById(R.id.config_button_clearContext);
+			boolean clearcontext = clearImeContextBtn.isChecked();
+			
 			SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 			editor.putInt("choice", choice);
 			
+			editor.putBoolean("clearcontext", clearcontext);
+			
 			switch (keyboard) {
 			case R.id.config_radio_keyboard_nine:
-				editor.putString("keyboard", Keyboard.KEYBOARD_MODEL_NINE);
+				editor.putInt("keyboard", Keyboard.KEYBOARD_MODEL_NINE);
 				break;
 			case R.id.config_radio_keyboard_qwerty:
-				editor.putString("keyboard", Keyboard.KEYBOARD_MODEL_QWERTY);
+				editor.putInt("keyboard", Keyboard.KEYBOARD_MODEL_QWERTY);
 				break;
 			case R.id.config_radio_keyboard_hand_writing:
-				editor.putString("keyboard", Keyboard.KEYBOARD_MODEL_HAND_WRITING);
+				editor.putInt("keyboard", Keyboard.KEYBOARD_MODEL_HAND_WRITING);
 				break;
 			default:
 				break;

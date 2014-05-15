@@ -17,7 +17,7 @@ import com.michael.words.utils.Utils;
 public class Keyboard {
 	private HashMap<String, TouchPoint> mKeyboardMap;
 
-	public String KeyboardType;
+	public int KeyboardType;
 
 	public static final String SCREEN_SIZE_1280_720 = "1280x720";
 	public static final String SCREEN_SIZE_1280_768 = "1280x768";
@@ -25,9 +25,11 @@ public class Keyboard {
 	public static final String SCREEN_SIZE_2560_1600 = "2560x1600";
 	public static final String SCREEN_SIZE_480_320 = "480x320";
 
-	public static final String KEYBOARD_MODEL_QWERTY = "26";
-	public static final String KEYBOARD_MODEL_NINE = "9";
-	public static final String KEYBOARD_MODEL_HAND_WRITING = "hw";
+	public static final int KEYBOARD_MODEL_QWERTY = 0;
+	public static final int KEYBOARD_MODEL_NINE = 1;
+	public static final int KEYBOARD_MODEL_HAND_WRITING = 2;
+
+	public static final String[] KEYBOARD_MODEL_STR_ARRAY = {"26", "9", "hw"};
 
 	public static final String KEYBOARD_CANDIDATE_CORD = "cand";
 	public static final String KEYBOARD_DELETE_BUTTON = "dele";
@@ -49,7 +51,7 @@ public class Keyboard {
 		String line = "";
 		//BufferedReader reader = wrapperKeyboardFromFile(context);
 		BufferedReader reader = renderKeyBoard(context);
-		KeyboardType = PreferenceManager.getDefaultSharedPreferences(context).getString("keyboard", "");
+		KeyboardType = PreferenceManager.getDefaultSharedPreferences(context).getInt("keyboard", 0);
 		while((line = reader.readLine()) != null) {
 			String key = line.split(":")[0];
 			String xCord = line.split(":")[1].split(",")[0].split("=")[1];
@@ -61,42 +63,42 @@ public class Keyboard {
 			mKeyboardMap.put(key, point);
 		}
 	}
-	
+
 	private BufferedReader renderKeyBoard(Context context) {
 		BufferedReader reader = null;
 		String KeyboardConfigFileName = "";
-		
+
 		Point outSize = new Point();
 		outSize = Utils.getCurScreenSize(context);
 		String ScreenSize = String.valueOf(outSize.x > outSize.y ? outSize.x : outSize.y) 
 				+ "x" + String.valueOf(outSize.x > outSize.y ? outSize.y : outSize.x);
-		
+
 		String curImeName = Utils.getCurrentImeInfo(context).packageName.toLowerCase(Locale.ENGLISH);
 		if (curImeName == null || curImeName.isEmpty() || curImeName.equals("")) {
 			Utils.showToast(context, "没有默认的输入法，无法进行评测！");
 			return null;
 		}
-		
+
 		AssetManager assetManager = context.getAssets();
 		SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-		String CurKeyboardChoice = sharedPreferences.getString("keyboard", "");
-		if (CurKeyboardChoice == null || CurKeyboardChoice.isEmpty() || CurKeyboardChoice.equals("")) {
-			Utils.showToast(context, "Didn't choose keyboard, 无法进行评测！");
+		int CurKeyboardChoice = sharedPreferences.getInt("keyboard", -1);
+		if (CurKeyboardChoice == -1) {
+			Utils.showToast(context, "没有选择键盘, 无法进行评测！");
 			return null;
 		}
-		
-		KeyboardConfigFileName = curImeName + "_" + CurKeyboardChoice + "_" + ScreenSize;
-		
+
+		KeyboardConfigFileName = curImeName + "_" + KEYBOARD_MODEL_STR_ARRAY[CurKeyboardChoice] + "_" + ScreenSize;
+
 		try {
 			reader = new BufferedReader(new InputStreamReader(assetManager.open(KeyboardConfigFileName)));
 		} catch (IOException e) {
-			Utils.showToast(context, "Keyboard configuration failed due to the absence of config file！");
+			Utils.showToast(context, "被测输入法在当前分辨率缺乏键盘适配文件，请添加适配文件！");
 			e.printStackTrace();
 		}
 		return reader;
 	}
-	
-/*	private BufferedReader wrapperKeyboardFromFile(Context context) {
+
+	/*	private BufferedReader wrapperKeyboardFromFile(Context context) {
 		BufferedReader reader = null;
 		Point outSize = new Point();
 		outSize = Utils.getCurScreenSize(context);
@@ -330,7 +332,7 @@ public class Keyboard {
 						//		new InputStreamReader(context.getResources().openRawResource(R.raw.baidu_hw_2560x1600))); 
 					}
 				}
-				
+
 			}
 		}
 		else if (curImeName.contains("qq")) 

@@ -91,8 +91,8 @@ public class BaseActivity extends Activity {
 
 			writeInfoHead();
 
-			if (mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_NINE) || 
-					mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_HAND_WRITING)) {
+			if (mKeyboard.KeyboardType == Keyboard.KEYBOARD_MODEL_NINE || 
+					mKeyboard.KeyboardType == Keyboard.KEYBOARD_MODEL_HAND_WRITING) {
 				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 			}
 			//mLastSuccCandidateList = new ArrayList<Candidate>();
@@ -151,7 +151,7 @@ public class BaseActivity extends Activity {
 		mEditView.requestFocus();
 
 		mCurCountTextView = (CountTextView) findViewById(R.id.textView_cur_count);
-		
+
 		Button startButton = (Button) findViewById(R.id.button_start);
 		startButton.setOnClickListener(mOnButtonStartListener);
 
@@ -239,10 +239,10 @@ public class BaseActivity extends Activity {
 
 			//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切忌！
 			final int configChoice = mChoice;
-			final String KeyboardType = mKeyboard.KeyboardType;
-			final boolean NeedClearImeData = !PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
+			final int KeyboardType = mKeyboard.KeyboardType;
+			final boolean NeedClearImeData = PreferenceManager.getDefaultSharedPreferences(getApplicationContext())
 					.getBoolean("clearcontext", true);
-			
+
 			mCurCount = 0;
 			String resultToWrite = "";
 			mEditView.showInputMethod();
@@ -315,8 +315,7 @@ public class BaseActivity extends Activity {
 							String hanzi = "";
 							try {
 								String[] caseStrs = inputStr.split("\"")[1].split(",");
-								pinyin = ( KeyboardType.equals(Keyboard.KEYBOARD_MODEL_QWERTY) ? 
-										caseStrs[1] : caseStrs[2] );
+								pinyin = caseStrs[1 + KeyboardType];
 								hanzi = caseStrs[0];
 							} catch (IndexOutOfBoundsException e) {
 								e.printStackTrace();
@@ -519,7 +518,7 @@ public class BaseActivity extends Activity {
 		//TODO: 在本地用final记下值，这样性能会比较快速，使用成员变量的话，cpu会上79%，很恐怖，切?桑?
 		final int configChoice = mChoice;
 		final int MostYCord = mMeasure.MostYCord;
-		
+
 		String RawResult;
 		try{
 			RawResult = mLogcat.read();
@@ -649,17 +648,15 @@ public class BaseActivity extends Activity {
 
 	protected void probeCandidateHeight() {
 		//清空输入流
-		double singleCtrlHeight = 0;
-		//double QXCord = 0;
 		try {
 			mLogcat.read();
 			mEditView.showInputMethod();
 			sleepMil(500);
-			
+
 			//发送探测拼音串
-			if (mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_NINE))
+			if (mKeyboard.KeyboardType == Keyboard.KEYBOARD_MODEL_NINE)
 				SendString("2");
-			else if (mKeyboard.KeyboardType.equals(Keyboard.KEYBOARD_MODEL_QWERTY))
+			else if (mKeyboard.KeyboardType == Keyboard.KEYBOARD_MODEL_QWERTY)
 				SendString("q");
 
 			sleepMil(100);
@@ -675,7 +672,7 @@ public class BaseActivity extends Activity {
 				String[] resultLines = rawResult.split("\n");
 				ArrayList<String> resultList = new ArrayList<String>();
 				for (String oneLine : resultLines){
-					if (oneLine.contains(", type=String") || oneLine.contains(", type=buf"))
+					if (oneLine.contains(mFilterOfType))
 						resultList.add(oneLine);
 				}
 				SparseIntArray array = new SparseIntArray();
@@ -708,11 +705,8 @@ public class BaseActivity extends Activity {
 				mMeasure.ScreenHeight = outSize.y;
 				mMeasure.ScreenWidth = outSize.x;
 				mMeasure.MostYCordInScreen = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_CANDIDATE_CORD).y;
-				mMeasure.CtrlHeight = singleCtrlHeight;
 				mMeasure.MostYCord = mostYCord;
-				mMeasure.DELx = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).x;
-				mMeasure.DELy = mKeyboard.getKeyLocation(Keyboard.KEYBOARD_DELETE_BUTTON).y;
-				
+
 				ArrayList<Point> candCoordinates = new ArrayList<Point>();
 				for (int index = 0; index < coordinates.size(); index++) {
 					Point point = coordinates.get(index);
@@ -723,7 +717,7 @@ public class BaseActivity extends Activity {
 				mMeasure.FisrtScreenThreshold = Utils.getCurDisplaySize(getApplicationContext()).x
 						- mMeasure.oneWordCandWidth * 1.5;
 				FISRT_SCREEN_THRESHOLD = mMeasure.FisrtScreenThreshold;
-				
+
 				SendKey(Keyboard.KEYBOARD_DELETE_BUTTON);
 			}
 
