@@ -785,6 +785,7 @@ public class BaseActivity extends Activity {
 				y, 
 				0);
 		mInstrumentation.sendPointerSync(tapDownEvent);
+		sleepMil(120);
 		mInstrumentation.sendPointerSync(tapUpEvent);
 		tapDownEvent.recycle();
 		tapUpEvent.recycle();
