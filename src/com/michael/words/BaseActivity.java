@@ -301,8 +301,10 @@ public class BaseActivity extends Activity {
 						while(mPause){};
 						//运行以tab隔开的case，或者是以逗号隔开的case，遇到#则说明是要清空上下文
 						if (inputStr.contains("\t")) {
-							String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
-							String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
+							//String pinyin = inputStr.substring(0, inputStr.indexOf("\t"));
+							String pinyin = inputStr.split("\t")[0];
+							//String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
+							String hanzi = inputStr.split("\t")[1];
 							SendString(pinyin);
 							sleepMil(100);
 							resultToWrite += readLogcat(pinyin, hanzi, inputStr, mFilterOfType);
