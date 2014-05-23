@@ -305,8 +305,12 @@ public class BaseActivity extends Activity {
 							String pinyin = inputStr.split("\t")[0];
 							//String hanzi = inputStr.substring(inputStr.indexOf("\t") + 1);
 							String hanzi = inputStr.split("\t")[1];
+							mLogcat.read();
+							sleepMil(50);
+							Log.e("Performance", "Case Start, Case : " + inputStr);
 							SendString(pinyin);
-							sleepMil(100);
+							//为了和下个Case隔开来
+							sleepMil(200);
 							resultToWrite += readLogcat(pinyin, hanzi, inputStr, mFilterOfType);
 							mCurCount++;						
 						} else if (inputStr.contains(",") && inputStr.contains("\"")) {//如果是以逗号隔开
@@ -355,7 +359,7 @@ public class BaseActivity extends Activity {
 
 									mLogcat.read();
 									sleepMil(50);
-									Log.e("CanvasDrawText", "Case Start, Case : " + inputStr);
+									Log.e("Performance", "Case Start, Case : " + inputStr);
 									SendString(pinyin);
 									//为了和下一次输入间隔开来
 									sleepMil(200);
@@ -765,7 +769,7 @@ public class BaseActivity extends Activity {
 			Keyboard.TouchPoint point = null;
 			point = mKeyboard.getKeyLocation(letter);
 			if (point != null) {
-				tapScreen(point.x, point.y);
+				tapScreen(point.x, point.y, letter);
 
 			}
 		}
@@ -787,8 +791,33 @@ public class BaseActivity extends Activity {
 				y, 
 				0);
 		mInstrumentation.sendPointerSync(tapDownEvent);
-		sleepMil(120);
 		mInstrumentation.sendPointerSync(tapUpEvent);
+		
+		tapDownEvent.recycle();
+		tapUpEvent.recycle();
+	}
+	
+	protected void tapScreen(float x, float y, String letter){
+		MotionEvent tapDownEvent = MotionEvent.obtain(
+				SystemClock.uptimeMillis(), 
+				SystemClock.uptimeMillis(), 
+				MotionEvent.ACTION_DOWN, 
+				x, 
+				y, 
+				0);
+		MotionEvent tapUpEvent = MotionEvent.obtain(
+				SystemClock.uptimeMillis(), 
+				SystemClock.uptimeMillis(), 
+				MotionEvent.ACTION_UP, 
+				x, 
+				y, 
+				0);
+		Log.e("Performance", letter + " KeyDown Start: " + SystemClock.elapsedRealtime());
+		mInstrumentation.sendPointerSync(tapDownEvent);
+		Log.e("Performance", letter + " Middle: " + SystemClock.elapsedRealtime());
+		mInstrumentation.sendPointerSync(tapUpEvent);
+		Log.e("Performance", letter +  " KeyUp End: " + SystemClock.elapsedRealtime());
+		
 		tapDownEvent.recycle();
 		tapUpEvent.recycle();
 	}
