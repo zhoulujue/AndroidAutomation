@@ -355,7 +355,7 @@ public class BaseActivity extends Activity {
 
 									mLogcat.read();
 									sleepMil(50);
-									Log.e("CanvasDrawText", "Case Start, Case : " + inputStr);
+									Log.e("Performance", "Case Start, Case : " + inputStr);
 									SendString(pinyin);
 									//为了和下一次输入间隔开来
 									sleepMil(200);
