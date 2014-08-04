@@ -715,6 +715,11 @@ public class BaseActivity extends Activity {
 					if(point.y == mMeasure.MostYCord)
 						candCoordinates.add(point);
 				}
+				if (candCoordinates.size() < 2) { 
+					Utils.showToast(getApplicationContext(), R.string.toast_probe_failed);
+					finish();
+					return;
+				}
 				mMeasure.oneWordCandWidth = Math.abs(candCoordinates.get(1).x - candCoordinates.get(0).x); 
 				mMeasure.FisrtScreenThreshold = Utils.getCurDisplaySize(getApplicationContext()).x
 						- mMeasure.oneWordCandWidth * 1.5;
