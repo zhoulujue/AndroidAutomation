@@ -308,7 +308,7 @@ public class BaseActivity extends Activity {
 							mLogcat.read();
 							sleepMil(50);
 							Log.e("Performance", "Case Start, Case : " + inputStr);
-							SendString(pinyin);
+							SendString(pinyin, inputStr);
 							//为了和下个Case隔开来
 							sleepMil(200);
 							resultToWrite += readLogcat(pinyin, hanzi, inputStr, mFilterOfType);
@@ -360,7 +360,7 @@ public class BaseActivity extends Activity {
 									mLogcat.read();
 									sleepMil(50);
 									Log.e("Performance", "Case Start, Case : " + inputStr);
-									SendString(pinyin);
+									SendString(pinyin, inputStr);
 									//为了和下一次输入间隔开来
 									sleepMil(200);
 									resultForThisCase = readLogcat(pinyin, hanzi, inputStr, mFilterOfType);
@@ -763,18 +763,35 @@ public class BaseActivity extends Activity {
 	 * @param text 要发送的键盘事件，例如“sogou”，都是小写；
 	 * @throws IOException
 	 */
+	protected void SendString(String text, String testCase) throws IOException{
+		for (int i = 0; i < text.length(); i ++){
+			String letter = String.valueOf(text.charAt(i));
+			Keyboard.TouchPoint point = null;
+			point = mKeyboard.getKeyLocation(letter);
+			if (point != null) {
+				tapScreen(point.x, point.y, letter, testCase);
+
+			}
+		}
+	}
+
+	/**
+	 * 通过触摸屏幕的方式来打字，例如sogou，会拆成一个一个的char来查询位置，然后点击（tapScreen）
+	 * @param text 要发送的键盘事件，例如“sogou”，都是小写；
+	 * @throws IOException
+	 */
 	protected void SendString(String text) throws IOException{
 		for (int i = 0; i < text.length(); i ++){
 			String letter = String.valueOf(text.charAt(i));
 			Keyboard.TouchPoint point = null;
 			point = mKeyboard.getKeyLocation(letter);
 			if (point != null) {
-				tapScreen(point.x, point.y, letter);
+				tapScreen(point.x, point.y);
 
 			}
 		}
 	}
-
+	
 	protected void tapScreen(float x, float y){
 		MotionEvent tapDownEvent = MotionEvent.obtain(
 				SystemClock.uptimeMillis(), 
@@ -797,7 +814,7 @@ public class BaseActivity extends Activity {
 		tapUpEvent.recycle();
 	}
 	
-	protected void tapScreen(float x, float y, String letter){
+	protected void tapScreen(float x, float y, String letter, String testCase){
 		MotionEvent tapDownEvent = MotionEvent.obtain(
 				SystemClock.uptimeMillis(), 
 				SystemClock.uptimeMillis(), 
@@ -812,11 +829,20 @@ public class BaseActivity extends Activity {
 				x, 
 				y, 
 				0);
-		Log.e("Performance", letter + " KeyDown Start: " + SystemClock.elapsedRealtime());
+		long letterDownStartTime = SystemClock.elapsedRealtime();
+		Log.i("clock", "Case: " + testCase + ", letter: " + letter + ", down: " + letterDownStartTime);
 		mInstrumentation.sendPointerSync(tapDownEvent);
-		Log.e("Performance", letter + " Middle: " + SystemClock.elapsedRealtime());
+		long letterMiddleTime = SystemClock.elapsedRealtime();
+		Log.i("clock", "Case: " + testCase + ", letter: " + letter + ", mid: " + letterMiddleTime);
 		mInstrumentation.sendPointerSync(tapUpEvent);
-		Log.e("Performance", letter +  " KeyUp End: " + SystemClock.elapsedRealtime());
+		long letterUpEndTime = SystemClock.elapsedRealtime();
+		Log.i("clock", "Case: " + testCase + ", letter: " + letter + ", up: " + letterUpEndTime);
+		
+		Log.e("PerformanceCal",  "Case:" + testCase + 
+				"\t" + letter +   
+				"\t" + (letterMiddleTime - letterDownStartTime) +
+				"\t" + (letterUpEndTime - letterMiddleTime)
+				);
 		
 		tapDownEvent.recycle();
 		tapUpEvent.recycle();
