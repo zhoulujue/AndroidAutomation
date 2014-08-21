@@ -681,7 +681,7 @@ public class BaseActivity extends Activity {
 				ArrayList<Point> coordinates = new ArrayList<Point>();
 				for (String oneBuf : resultList){
 					String text = oneBuf.split("text:")[1].split("#")[0];
-					if (!text.equals("") && text != null) {
+					if (!text.equals("") && text != null && Utils.isChineseCharacter(text)) {
 						int start = oneBuf.indexOf("#y:") + "#y:".length();
 						int end = oneBuf .indexOf(", type=");
 						String yCordStr = oneBuf.substring(start, end);
