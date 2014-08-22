@@ -49,6 +49,16 @@
 	<string name="config_step_thr">第三步</string>
 	<string name="next_step">下一步</string>
 	
+	<!-- adaptActivity -->
+	<string name="adapt_choose_keyboard_type">开始适配，请选择键盘类型</string>
+	<string name="adapt_have_you_choosed_keyboard_type">你选择了键盘没有？</string>
+	<string name="adapt_status_prefix">开始适配</string>
+	<string name="adapt_status_suffix">键</string>
+	<string name="adapt_guide_prefix">点击</string>
+	<string name="adapt_guide_suffix">键</string>
+	<string name="adapt_guide_complete">适配完成，请切换键盘</string>
+	<string name="adapt_guide_candidate_measure">请选择第一个候选</string>
+	
 	<!-- Toast -->
     <string name="toast_probe_failed">探测失败，请重试！</string>
     <string name="toast_config_missing">没有获取到配置文件，退出！</string>

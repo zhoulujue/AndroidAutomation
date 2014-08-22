@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".AdaptForKeyboardLayout" >
+
+    <EditText
+        android:id="@+id/adapt_edittext"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/textbox"
+        android:hint="@string/edit_text_box_hint"
+        android:imeOptions="flagNoExtractUi" 
+        >
+    </EditText>
+
+        <RadioGroup
+            android:id="@+id/adapt_radioGroup_keyboard"
+            android:layout_alignLeft="@id/adapt_edittext"
+            android:layout_below="@id/adapt_edittext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/item_bg"
+            android:orientation="horizontal"
+            android:padding="10dp" >
+
+            <RadioButton
+                android:id="@+id/adapt_radio_keyboard_qwerty"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="@string/config_radio_keyboard_qwerty"
+                android:textColor="@drawable/haha_blue" />
+
+            <RadioButton
+                android:id="@+id/adapt_radio_keyboard_nine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_radio_keyboard_nine"
+                android:textColor="@drawable/haha_blue" />
+            
+            <RadioButton
+                android:id="@+id/adapt_radio_keyboard_hand_writing"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/config_radio_keyboard_hand_writing"
+                android:textColor="@drawable/haha_blue" />
+            
+        </RadioGroup>
+    
+    
+	<TextView 
+	    android:id="@+id/adapt_textview"
+	    android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+	    android:layout_below="@id/adapt_radioGroup_keyboard"
+	    android:layout_alignLeft="@id/adapt_edittext"
+	    android:layout_marginTop="15dp"
+	    android:text="@string/app_name"
+	    />
+	
+
+</RelativeLayout>

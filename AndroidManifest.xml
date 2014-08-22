@@ -64,6 +64,10 @@
             android:label="@string/app_name"
             android:screenOrientation="landscape" >
         </activity>
+        <activity
+            android:name=".AdaptForKeyboradLayout"
+            android:label="@string/app_name" >
+        </activity>
     </application>
 
 </manifest>
