@@ -2,8 +2,11 @@ package com.michael.words;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 
@@ -12,7 +15,6 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageInfo;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.os.Handler;
@@ -89,7 +91,7 @@ public class BaseActivity extends Activity {
 
 			mKeyboard = new Keyboard(getApplicationContext());
 
-			writeInfoHead();
+			//writeInfoHead();
 
 			if (mKeyboard.KeyboardType == Keyboard.KEYBOARD_MODEL_NINE || 
 					mKeyboard.KeyboardType == Keyboard.KEYBOARD_MODEL_HAND_WRITING) {
@@ -165,16 +167,16 @@ public class BaseActivity extends Activity {
 
 	}
 
-	protected void writeInfoHead() {
-		PackageInfo pInfo = Utils.getCurrentImeInfo(getApplicationContext());
-		if (pInfo != null) {
-			new WriteFileThread(getApplicationContext(), 
-					"IMEName:" + pInfo.packageName + "\n" +
-							"IMEVersionName:" + pInfo.versionName + "\n" +
-							"IMEVersionCode:" + pInfo.versionCode + "\n"
-					).start();
-		}
-	}
+//	protected void writeInfoHead() {
+//		PackageInfo pInfo = Utils.getCurrentImeInfo(getApplicationContext());
+//		if (pInfo != null) {
+//			new WriteFileThread(getApplicationContext(), 
+//					"IMEName:" + pInfo.packageName + "\n" +
+//							"IMEVersionName:" + pInfo.versionName + "\n" +
+//							"IMEVersionCode:" + pInfo.versionCode + "\n"
+//					).start();
+//		}
+//	}
 
 	private Runnable uploadToFtp = new Runnable() {
 
@@ -226,7 +228,7 @@ public class BaseActivity extends Activity {
 		public void onClick(View v) {
 			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
 			localFile.delete();
-			writeInfoHead();
+			//writeInfoHead();
 		}
 	};
 
@@ -307,7 +309,7 @@ public class BaseActivity extends Activity {
 							String hanzi = inputStr.split("\t")[1];
 							mLogcat.read();
 							sleepMil(50);
-							Log.e("Performance", "Case Start, Case : " + inputStr);
+							//Log.e("Performance", "Case Start, Case : " + inputStr);
 							SendString(pinyin, inputStr);
 							//为了和下个Case隔开来
 							sleepMil(200);
@@ -359,7 +361,7 @@ public class BaseActivity extends Activity {
 
 									mLogcat.read();
 									sleepMil(50);
-									Log.e("Performance", "Case Start, Case : " + inputStr);
+									//Log.e("Performance", "Case Start, Case : " + inputStr);
 									SendString(pinyin, inputStr);
 									//为了和下一次输入间隔开来
 									sleepMil(200);
@@ -379,7 +381,7 @@ public class BaseActivity extends Activity {
 								mHandler.obtainMessage(MSG_CLEAR_EDITTEXT).sendToTarget();
 								mHandler.obtainMessage(MSG_UPDATE_CUR_COUNT, mCurCount, 0).sendToTarget();
 								sleepMil(50);
-								new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+								//new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 								resultToWrite = "";
 							}
 						}
@@ -387,13 +389,13 @@ public class BaseActivity extends Activity {
 					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
 					mHandler.obtainMessage(MSG_CLEAR_EDITTEXT).sendToTarget();
 					mHandler.obtainMessage(MSG_UPDATE_CUR_COUNT, mCurCount, 0).sendToTarget();
-					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
+					//new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
 					//关闭case文件的输入流
 					reader.close();
 					shadowReader.close();
 					sleepSec(2);
-					Utils.renameResultTxt(rawconfig, getApplicationContext());
-					writeInfoHead();
+					//Utils.renameResultTxt(rawconfig, getApplicationContext());
+					//writeInfoHead();
 					if (NeedClearImeData) {
 						Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName, getBaseContext());
 					}
@@ -791,7 +793,7 @@ public class BaseActivity extends Activity {
 			}
 		}
 	}
-	
+
 	protected void tapScreen(float x, float y){
 		MotionEvent tapDownEvent = MotionEvent.obtain(
 				SystemClock.uptimeMillis(), 
@@ -809,11 +811,11 @@ public class BaseActivity extends Activity {
 				0);
 		mInstrumentation.sendPointerSync(tapDownEvent);
 		mInstrumentation.sendPointerSync(tapUpEvent);
-		
+
 		tapDownEvent.recycle();
 		tapUpEvent.recycle();
 	}
-	
+
 	protected void tapScreen(float x, float y, String letter, String testCase){
 		MotionEvent tapDownEvent = MotionEvent.obtain(
 				SystemClock.uptimeMillis(), 
@@ -837,13 +839,25 @@ public class BaseActivity extends Activity {
 		mInstrumentation.sendPointerSync(tapUpEvent);
 		long letterUpEndTime = SystemClock.elapsedRealtime();
 		Log.i("clock", "Case: " + testCase + ", letter: " + letter + ", up: " + letterUpEndTime);
-		
-		Log.e("PerformanceCal",  "Case:" + testCase + 
+
+		String tempLog = "Case:" + testCase + 
 				"\t" + letter +   
 				"\t" + (letterMiddleTime - letterDownStartTime) +
-				"\t" + (letterUpEndTime - letterMiddleTime)
-				);
-		
+				"\t" + (letterUpEndTime - letterMiddleTime + "\n");
+		Log.e("PerformanceCal",  tempLog);
+
+		try {
+			FileOutputStream os = openFileOutput("result-performance.txt", Context.MODE_APPEND);
+			os.write(tempLog.getBytes("UTF-8"));
+			os.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
 		tapDownEvent.recycle();
 		tapUpEvent.recycle();
 	}

@@ -17,6 +17,8 @@ import android.view.WindowManager;
 
 public class SplashActivity extends Activity {
 
+	public static final String RESULT_FILE_NAME = "result-performance.txt";
+	
 	private static Handler mHandler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 		};
@@ -47,7 +49,7 @@ public class SplashActivity extends Activity {
 				}*/
 				
 				//TODO: 处理结果文件需要更改，因为结果文件的名字要变
-				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+				File localFile = new File(getFilesDir().getPath() + "/" + RESULT_FILE_NAME);
 				//如果本地没有结果文件，说明已经上传成功
 				if (!localFile.exists()) {
 					SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();

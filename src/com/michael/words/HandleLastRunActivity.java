@@ -39,7 +39,7 @@ public class HandleLastRunActivity extends Activity {
 
 		@Override
 		public void onClick(View v) {
-			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+			File localFile = new File(getFilesDir().getPath() + "/" + SplashActivity.RESULT_FILE_NAME);
 			localFile.delete();
 			startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
 			try {
@@ -56,7 +56,7 @@ public class HandleLastRunActivity extends Activity {
 
 		@Override
 		public void onClick(View v) {
-			File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+			File localFile = new File(getFilesDir().getPath() + "/" + SplashActivity.RESULT_FILE_NAME);
 			Thread upload = new Thread(uploadToFtp);
 			upload.start();
 			try {
@@ -100,7 +100,7 @@ public class HandleLastRunActivity extends Activity {
 		builder.setPositiveButton(R.string.upload_result_btn_retry, new OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
-				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+				File localFile = new File(getFilesDir().getPath() + "/" + SplashActivity.RESULT_FILE_NAME);
 				Thread upload = new Thread(uploadToFtp);
 				upload.start();
 				try {
@@ -125,7 +125,7 @@ public class HandleLastRunActivity extends Activity {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
-				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+				File localFile = new File(getFilesDir().getPath() + "/" + SplashActivity.RESULT_FILE_NAME);
 				localFile.delete();
 				startActivity(new Intent(HandleLastRunActivity.this, ConfigActivity.class));
 				finish();
@@ -139,7 +139,7 @@ public class HandleLastRunActivity extends Activity {
 		@Override
 		public void run() {
 			if (!Utils.uploadFile(getApplicationContext(), "10.129.41.70", "imetest", "Sogou7882Imeqa", 
-					"/WordCrawler", "result.txt")){
+					"/WordCrawler", SplashActivity.RESULT_FILE_NAME)){
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
@@ -157,7 +157,7 @@ public class HandleLastRunActivity extends Activity {
 				SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 				editor.putBoolean("LastRunSuccess", true);
 				editor.commit();
-				File localFile = new File(getFilesDir().getPath() + "/" + "result.txt");
+				File localFile = new File(getFilesDir().getPath() + "/" + SplashActivity.RESULT_FILE_NAME);
 				localFile.delete();
 			}
 		}

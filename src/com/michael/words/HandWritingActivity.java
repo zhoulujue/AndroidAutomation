@@ -273,7 +273,7 @@ public class HandWritingActivity extends BaseActivity {
 								//mHandler.obtainMessage(MSG_CLEAR_EDITTEXT).sendToTarget();
 								//mHandler.obtainMessage(MSG_UPDATE_CUR_COUNT, mCurCount, 0).sendToTarget();
 								sleepMil(50);
-								new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
+								//new WriteFileThread(getApplicationContext(), resultToWrite.toString()).start();
 								resultToWrite = "";
 								//开始探测输入法
 								//probeCandidateHeight();
@@ -283,13 +283,13 @@ public class HandWritingActivity extends BaseActivity {
 					//**当所有case运行完毕的时候，还有一部分没有记录完，此时应该做好收尾工作
 					mHandler.obtainMessage(MSG_CLEAR_EDITTEXT).sendToTarget();
 					mHandler.obtainMessage(MSG_UPDATE_CUR_COUNT, mCurCount, 0).sendToTarget();
-					new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
+					//new WriteFileThread(getApplicationContext(), resultToWrite.toString()).run();
 					//关闭case文件的输入流
 					reader.close();
 					shadowReader.close();
 					sleepSec(2);
-					Utils.renameResultTxt(rawconfig, getApplicationContext());
-					writeInfoHead();
+					//Utils.renameResultTxt(rawconfig, getApplicationContext());
+					//writeInfoHead();
 					Utils.clearImeData(Utils.getCurrentImeInfo(getApplicationContext()).packageName, getBaseContext());
 				}
 
