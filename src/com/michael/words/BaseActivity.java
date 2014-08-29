@@ -43,6 +43,7 @@ public class BaseActivity extends Activity {
 	protected static final int MSG_UPDATE_CUR_COUNT = 1;
 	protected static final String IME_GUIDENCE_CONFIRM = "\u786e\u5b9a";
 	protected static final String IME_GUIDENCE_I_KNOW = "\u77e5\u9053";
+	protected static final String IME_GUIDENCE_PIN_YIN = "\u62fc\u97f3";
 
 	private String mFilterOfType;
 	protected static EditTextView mEditView;
@@ -58,6 +59,7 @@ public class BaseActivity extends Activity {
 	protected static int mCurCount = 0;
 	protected ArrayList<Candidate> mLastSuccCandidateList;
 	public static double FISRT_SCREEN_THRESHOLD = 1086;
+	private String mLogcatResultForTapGuidence = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -287,7 +289,11 @@ public class BaseActivity extends Activity {
 					sleepSec(2);
 					mLogcat.write("logcat CanvasDrawText:E *:S");
 
+					sleepSec(2);
+					tapConfirmBtnIfThereIsAny(IME_GUIDENCE_PIN_YIN);
+					sleepSec(2);
 					tapConfirmBtnIfThereIsAny(IME_GUIDENCE_CONFIRM);
+					sleepSec(2);
 					tapConfirmBtnIfThereIsAny(IME_GUIDENCE_I_KNOW);
 
 					//清空中间结果
@@ -888,7 +894,14 @@ public class BaseActivity extends Activity {
 		double y = -1f;
 		try {
 			String RawResult = mLogcat.read();
-			String[] resultlist = RawResult.split("\n");
+			sleepSec(2);
+			if (!RawResult.equals("") && !RawResult.isEmpty()) {
+				mLogcatResultForTapGuidence = RawResult;
+			} 
+			if (mLogcatResultForTapGuidence.equals("") || mLogcatResultForTapGuidence.isEmpty()) {
+				return;
+			}
+			String[] resultlist = mLogcatResultForTapGuidence.split("\n");
 			for (int index = resultlist.length - 1; index >= 0; index--) {
 				String eachLine = resultlist[index];
 				if (eachLine.contains(confirm)) {
