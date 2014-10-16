@@ -13,6 +13,7 @@ import java.util.Map;
 import android.app.Activity;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.os.Bundle;
@@ -21,8 +22,12 @@ import android.os.SystemClock;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
+import android.view.View.OnClickListener;
 import android.view.WindowManager.LayoutParams;
+import android.widget.EditText;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
@@ -42,6 +47,7 @@ public class AdaptForKeyboradLayout extends Activity {
 	private int mCurKeyboardChoice;
 	private RadioGroup mKeyboardTypeRadioGroup;
 	private TextView mTextView;
+	private EditText mEditText;
 	private boolean AdaptDone = false;
 	private WindowManager mWindowManager;
 	private OverlayView mOverlayView;
@@ -175,6 +181,11 @@ public class AdaptForKeyboradLayout extends Activity {
 				UserPicked = false;
 				break;
 			}
+			if (mCurKeyboardChoice == Keyboard.KEYBOARD_MODEL_QWERTY) {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+			} else {
+				setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+			}
 			if (UserPicked) {
 				//开始适配，标记为“未完成适配”
 				AdaptDone = false;
@@ -183,7 +194,8 @@ public class AdaptForKeyboradLayout extends Activity {
 				//适配过程中，不让切换键盘
 				group.setEnabled(false);
 				//开始适配，设置OverlayView可以点击
-				startAdapt();
+				//应该是在点击编辑框后,键盘弹起,然后开始适配
+				//startAdapt();
 			}
 		}
 	};
@@ -191,7 +203,11 @@ public class AdaptForKeyboradLayout extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);      
+		getWindow().setFlags(WindowManager.LayoutParams. FLAG_FULLSCREEN, WindowManager.LayoutParams. FLAG_FULLSCREEN);
 		setContentView(R.layout.adapt);
+		
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
 		mWindowManager = getWindowManager();
 		
@@ -223,6 +239,9 @@ public class AdaptForKeyboradLayout extends Activity {
 		mTextView = (TextView) findViewById(R.id.adapt_textview);
 		mTextView.setText(R.string.adapt_choose_keyboard_type);
 
+		mEditText = (EditText) findViewById(R.id.adapt_edittext);
+		mEditText.setOnClickListener(mOnEditTextClickListener);
+		
 		mCoordsOfKeys.clear();
 
 		mKeyboardTypeRadioGroup = (RadioGroup) findViewById(R.id.adapt_radioGroup_keyboard);
@@ -290,6 +309,14 @@ public class AdaptForKeyboradLayout extends Activity {
 		mTextView.setText(getString(R.string.adapt_guide_complete));
 	}
 
+	private OnClickListener mOnEditTextClickListener = new OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			startAdapt();
+		}
+	};
+	
 	private OnTouchFinishListener mOnTouchFinishListener = new OnTouchFinishListener() {
 
 		@Override
